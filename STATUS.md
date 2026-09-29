@@ -8,17 +8,17 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – waiting for the next story to be picked.
+- #3 Create, edit and delete trips – tasks #26–#30
 
 ## Up next
 
-- #3 Create, edit and delete trips (`backlog`, to be refined next)
+- #4 Entries with text, date and place (manual)
 
 ## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
-| #1 Foundation | ~~#2 Project setup~~ (done) → #3 Create, edit and delete trips → #4 Entries with text, date and place (manual) |
+| #1 Foundation | ~~#2 Project setup~~ (done) → #3 Create, edit and delete trips (`in-progress`) → #4 Entries with text, date and place (manual) |
 | #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
