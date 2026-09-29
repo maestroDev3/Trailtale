@@ -1,13 +1,18 @@
 import 'package:flutter/widgets.dart';
 
+import '../../domain/clock.dart';
 import '../../domain/trip.dart';
 import '../../l10n/app_localizations.dart';
 
-/// Localized date text of a trip: a single date for one-day trips, otherwise
-/// the range.
-String tripDatesText(BuildContext context, Trip trip) {
+/// Localized text for a date range: a single date if both days are equal,
+/// otherwise the range.
+String dateRangeText(BuildContext context, DateTime start, DateTime end) {
   final l10n = AppLocalizations.of(context);
-  return trip.dayCount == 1
-      ? l10n.tripSingleDate(trip.startDate)
-      : l10n.tripDateRange(trip.startDate, trip.endDate);
+  return dayOf(start) == dayOf(end)
+      ? l10n.tripSingleDate(start)
+      : l10n.tripDateRange(start, end);
 }
+
+/// Localized date text of a trip.
+String tripDatesText(BuildContext context, Trip trip) =>
+    dateRangeText(context, trip.startDate, trip.endDate);

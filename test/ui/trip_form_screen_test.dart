@@ -24,9 +24,7 @@ void main() {
   }
 
   group('TripFormScreen for a new trip', () {
-    testWidgets('opens with an empty title and today as dates', (
-      tester,
-    ) async {
+    testWidgets('opens with an empty title and today as dates', (tester) async {
       await openNewTripForm(tester);
 
       expect(find.byType(TripFormScreen), findsOneWidget);

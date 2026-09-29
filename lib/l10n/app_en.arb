@@ -48,5 +48,25 @@
   "tripsLoadError": "Your trips could not be loaded.",
   "@tripsLoadError": {
     "description": "Shown on the home screen when stored trips cannot be read."
+  },
+  "editTrip": "Edit trip",
+  "@editTrip": {
+    "description": "Title of the form for changing an existing trip."
+  },
+  "tripTitleLabel": "Title",
+  "@tripTitleLabel": {
+    "description": "Label of the text field for the trip title."
+  },
+  "tripTitleRequired": "Please enter a title",
+  "@tripTitleRequired": {
+    "description": "Validation message when the trip title is empty."
+  },
+  "tripDatesLabel": "Dates",
+  "@tripDatesLabel": {
+    "description": "Label of the field showing and changing the trip dates."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Label of the button that saves a form."
   }
 }
