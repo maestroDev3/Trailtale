@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Trailtale",
+  "@appTitle": {
+    "description": "Name of the app, shown in the app bar and as the window title."
+  },
+  "emptyTripsMessage": "No trips yet",
+  "@emptyTripsMessage": {
+    "description": "Shown on the home screen while the user has not created any trip."
+  }
+}
