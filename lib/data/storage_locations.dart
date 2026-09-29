@@ -4,5 +4,4 @@ import 'dart:io';
 File tripsFile(Directory documents) => File('${documents.path}/trips.json');
 
 /// File that holds the entries of all trips, next to [tripsFile].
-File entriesFile(Directory documents) =>
-    File('${documents.path}/entries.json');
+File entriesFile(Directory documents) => File('${documents.path}/entries.json');

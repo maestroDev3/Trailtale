@@ -48,7 +48,9 @@ class JsonFileEntryRepository implements EntryRepository {
 }
 
 List<Entry> _entriesOf(List<Entry> entries, String tripId) =>
-    sortEntriesChronologically(entries.where((entry) => entry.tripId == tripId));
+    sortEntriesChronologically(
+      entries.where((entry) => entry.tripId == tripId),
+    );
 
 /// Returns [entries] itself if nothing matches, so no write happens.
 List<Entry> _without(List<Entry> entries, bool Function(Entry) matches) =>
