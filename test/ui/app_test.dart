@@ -18,9 +18,7 @@ void main() {
       expect(find.text('No trips yet'), findsOneWidget);
     });
 
-    testWidgets('uses the localized app title as window title', (
-      tester,
-    ) async {
+    testWidgets('uses the localized app title as window title', (tester) async {
       await tester.pumpWidget(const TrailtaleApp());
       await tester.pumpAndSettle();
 
