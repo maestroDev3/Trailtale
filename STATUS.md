@@ -8,25 +8,25 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing yet – the repo only contains the working rules, skill and CI.
+- Nothing – next up is #2.
 
 ## Up next
 
-- “First start” from CLAUDE.md: create labels, epics and stories as issues,
-  run the Scaffold workflow, refine the first story “Project setup”.
+- #2 Project setup (`ready`) – tasks #17, #18, #19
 
-## Planned epics (no issue numbers yet)
+## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
-| Foundation | Project setup (scaffold, green CI, theme, `pumpApp`) → Create, edit and delete trips → Entries with text, date and place (manual) |
-| Photos | Add photos from the gallery → Take date and location from EXIF |
-| Timeline | Entries grouped by day → Trip summary (places, days, kilometers) |
-| Map | Entries as markers on a map (after map provider decision) → Draw the trip route |
-| Data safety and sharing | Backup and export → Share a trip as image or PDF |
+| #1 Foundation | #2 Project setup (`ready`) → #3 Create, edit and delete trips → #4 Entries with text, date and place (manual) |
+| #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
+| #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
+| #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
+| #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
 
 ## Recently done
 
+- First start: labels, epics and stories created; Flutter project scaffolded, CI green
 - Repo created with CLAUDE.md, STATUS.md, Flutter skill and CI
 
 ## Open decisions (user only)
