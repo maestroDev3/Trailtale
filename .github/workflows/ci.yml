@@ -1,9 +1,11 @@
 name: CI
 
+# Runs on every push (branches and main). No separate pull_request trigger:
+# the PR shows the checks of its head commit, and a second run would only
+# double the Actions minutes.
 on:
   push:
     branches: ['**']
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -11,7 +13,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel runs on main: every merge must build and publish its APK.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
