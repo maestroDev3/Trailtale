@@ -1,0 +1,24 @@
+import 'package:trailtale/domain/clock.dart';
+import 'package:trailtale/domain/id_generator.dart';
+import 'package:trailtale/ui/app_services.dart';
+
+import 'fake_entry_repository.dart';
+import 'fake_trip_repository.dart';
+
+/// Fixed "now" for widget tests: Tuesday, September 29, 2026, 10:30 local.
+final testNow = DateTime(2026, 9, 29, 10, 30);
+
+/// [AppServices] backed by fakes; pass fakes to inspect them afterwards.
+AppServices testServices({
+  FakeTripRepository? trips,
+  FakeEntryRepository? entries,
+  Clock? clock,
+  IdGenerator? newId,
+}) {
+  return AppServices(
+    tripRepository: trips ?? FakeTripRepository(),
+    entryRepository: entries ?? FakeEntryRepository(),
+    newId: newId ?? () => 'id',
+    clock: clock ?? () => testNow,
+  );
+}

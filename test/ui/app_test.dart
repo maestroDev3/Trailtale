@@ -6,7 +6,7 @@ import 'package:trailtale/l10n/app_localizations.dart';
 import 'package:trailtale/ui/app.dart';
 import 'package:trailtale/ui/theme.dart';
 
-import '../support/fake_trip_repository.dart';
+import '../support/test_services.dart';
 
 void main() {
   group('TrailtaleApp', () {
@@ -14,7 +14,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
+        TrailtaleApp(services: testServices()),
       );
       await tester.pumpAndSettle();
 
@@ -24,7 +24,7 @@ void main() {
 
     testWidgets('uses the localized app title as window title', (tester) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
+        TrailtaleApp(services: testServices()),
       );
       await tester.pumpAndSettle();
 
@@ -35,7 +35,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
+        TrailtaleApp(services: testServices()),
       );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -48,7 +48,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
+        TrailtaleApp(services: testServices()),
       );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -72,5 +72,3 @@ void main() {
     });
   });
 }
-
-String _newId() => 'id';

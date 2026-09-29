@@ -6,17 +6,19 @@ import 'package:trailtale/ui/trip_form_screen.dart';
 
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
+import '../support/test_services.dart';
 
 void main() {
-  final now = DateTime(2026, 9, 29, 10, 30);
-  DateTime clock() => now;
+  final now = testNow;
   String newId() => 'id-1';
 
   Future<FakeTripRepository> openNewTripForm(WidgetTester tester) async {
     final repository = FakeTripRepository();
     await pumpApp(
       tester,
-      HomeScreen(tripRepository: repository, clock: clock, newId: newId),
+      HomeScreen(
+        services: testServices(trips: repository, newId: newId),
+      ),
     );
     await tester.tap(find.widgetWithText(FloatingActionButton, 'New trip'));
     await tester.pumpAndSettle();
@@ -85,9 +87,7 @@ void main() {
       await pumpApp(
         tester,
         TripFormScreen(
-          tripRepository: repository,
-          clock: clock,
-          newId: newId,
+          services: testServices(trips: repository),
           trip: lisbon,
         ),
       );
