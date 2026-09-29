@@ -40,7 +40,10 @@ void main() {
 
     test('rejects an end date before the start date', () {
       expect(
-        () => trip(startDate: DateTime(2026, 5, 4), endDate: DateTime(2026, 5, 1)),
+        () => trip(
+          startDate: DateTime(2026, 5, 4),
+          endDate: DateTime(2026, 5, 1),
+        ),
         throwsArgumentError,
       );
     });
@@ -101,9 +104,24 @@ void main() {
 
   group('sortTripsNewestFirst', () {
     test('orders by start date descending and ties by title', () {
-      final spring = trip(id: 'a', title: 'Spring', startDate: DateTime(2026, 3, 1), endDate: DateTime(2026, 3, 2));
-      final summerB = trip(id: 'b', title: 'Beach', startDate: DateTime(2026, 7, 1), endDate: DateTime(2026, 7, 2));
-      final summerA = trip(id: 'c', title: 'Alps', startDate: DateTime(2026, 7, 1), endDate: DateTime(2026, 7, 9));
+      final spring = trip(
+        id: 'a',
+        title: 'Spring',
+        startDate: DateTime(2026, 3, 1),
+        endDate: DateTime(2026, 3, 2),
+      );
+      final summerB = trip(
+        id: 'b',
+        title: 'Beach',
+        startDate: DateTime(2026, 7, 1),
+        endDate: DateTime(2026, 7, 2),
+      );
+      final summerA = trip(
+        id: 'c',
+        title: 'Alps',
+        startDate: DateTime(2026, 7, 1),
+        endDate: DateTime(2026, 7, 9),
+      );
       final input = [spring, summerB, summerA];
 
       final sorted = sortTripsNewestFirst(input);
