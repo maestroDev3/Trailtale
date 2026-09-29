@@ -7,5 +7,46 @@
   "emptyTripsMessage": "No trips yet",
   "@emptyTripsMessage": {
     "description": "Shown on the home screen while the user has not created any trip."
+  },
+  "newTrip": "New trip",
+  "@newTrip": {
+    "description": "Label of the button that starts creating a new trip."
+  },
+  "tripDateRange": "{start} – {end}",
+  "@tripDateRange": {
+    "description": "Date range of a trip spanning several days.",
+    "placeholders": {
+      "start": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      },
+      "end": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+  "tripSingleDate": "{date}",
+  "@tripSingleDate": {
+    "description": "Date of a trip that lasts one day.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
+  },
+  "tripDayCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@tripDayCount": {
+    "description": "Number of days a trip lasts.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tripsLoadError": "Your trips could not be loaded.",
+  "@tripsLoadError": {
+    "description": "Shown on the home screen when stored trips cannot be read."
   }
 }

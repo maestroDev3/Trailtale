@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'home_screen.dart';
 import 'theme.dart';
 
 /// Root widget that wires theme, localization and the first screen together.
 class TrailtaleApp extends StatelessWidget {
-  const TrailtaleApp({super.key});
+  const TrailtaleApp({super.key, required this.tripRepository});
+
+  final TripRepository tripRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +20,7 @@ class TrailtaleApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const HomeScreen(),
+      home: HomeScreen(tripRepository: tripRepository),
     );
   }
 }

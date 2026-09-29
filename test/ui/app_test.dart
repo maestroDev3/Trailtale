@@ -6,12 +6,16 @@ import 'package:trailtale/l10n/app_localizations.dart';
 import 'package:trailtale/ui/app.dart';
 import 'package:trailtale/ui/theme.dart';
 
+import '../support/fake_trip_repository.dart';
+
 void main() {
   group('TrailtaleApp', () {
     testWidgets('shows the app title and the empty trips message', (
       tester,
     ) async {
-      await tester.pumpWidget(const TrailtaleApp());
+      await tester.pumpWidget(
+        TrailtaleApp(tripRepository: FakeTripRepository()),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Trailtale'), findsWidgets);
@@ -19,7 +23,9 @@ void main() {
     });
 
     testWidgets('uses the localized app title as window title', (tester) async {
-      await tester.pumpWidget(const TrailtaleApp());
+      await tester.pumpWidget(
+        TrailtaleApp(tripRepository: FakeTripRepository()),
+      );
       await tester.pumpAndSettle();
 
       expect(tester.widget<Title>(find.byType(Title)).title, 'Trailtale');
@@ -28,7 +34,9 @@ void main() {
     testWidgets('follows the system with the light and dark theme', (
       tester,
     ) async {
-      await tester.pumpWidget(const TrailtaleApp());
+      await tester.pumpWidget(
+        TrailtaleApp(tripRepository: FakeTripRepository()),
+      );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
       expect(app.themeMode, ThemeMode.system);
@@ -39,7 +47,9 @@ void main() {
     testWidgets('supports English through the generated localizations', (
       tester,
     ) async {
-      await tester.pumpWidget(const TrailtaleApp());
+      await tester.pumpWidget(
+        TrailtaleApp(tripRepository: FakeTripRepository()),
+      );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
       expect(app.supportedLocales, contains(const Locale('en')));
