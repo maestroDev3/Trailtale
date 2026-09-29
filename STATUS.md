@@ -8,29 +8,31 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #2.
+- #2 Project setup – tasks #17, #18 (parallel), then #19
 
 ## Up next
 
-- #2 Project setup (`ready`) – tasks #17, #18, #19
+- #3 Create, edit and delete trips (to be refined)
 
 ## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
-| #1 Foundation | #2 Project setup (`ready`) → #3 Create, edit and delete trips → #4 Entries with text, date and place (manual) |
+| #1 Foundation | #2 Project setup (`in-progress`) → #3 Create, edit and delete trips → #4 Entries with text, date and place (manual) |
 | #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
+| #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
 | #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
 | #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
 
 ## Recently done
 
+- New epic #20 Location capture (backlog)
 - First start: labels, epics and stories created; Flutter project scaffolded, CI green
 - Repo created with CLAUDE.md, STATUS.md, Flutter skill and CI
 
 ## Open decisions (user only)
 
 - Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
-- Capture location automatically via GPS, or only from photos/manually?
+- Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?

@@ -72,6 +72,13 @@ context in a Claude project. It must always match the issues.
   changes without a PR: direct commit to `main` (`docs: update status`).
 - Keep it short: number + title, no task details.
 
+### Claude project sync
+
+The user reads the repo state in the Claude project “Trailtale”. When the
+session is attached to that project, Claude writes `CLAUDE.md`, `PROJECT.md`
+and `STATUS.md` as project docs (same file names) after every push that
+changes one of them, so the project always matches `main`.
+
 ## Workflow: Story → sub-issues
 
 1. Every functional requirement is a **story** (issue with label `story`).
@@ -130,5 +137,5 @@ commit comment).
 ## Open decisions (only the user decides)
 
 - Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
-- Capture location automatically via GPS, or only from photos/manually?
+- Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?
