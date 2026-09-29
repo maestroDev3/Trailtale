@@ -1,10 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import '../domain/current_then_changes.dart';
 import '../domain/trip.dart';
 import '../domain/trip_repository.dart';
+import 'versioned_json_list.dart';
 
 /// Stores all trips in one versioned JSON file, e.g. `trips.json` in the app
 /// documents directory.
@@ -12,70 +11,39 @@ import '../domain/trip_repository.dart';
 /// Format version 1: `{"version": 1, "trips": [{"id", "title", "startDate",
 /// "endDate"}]}` with dates as `yyyy-MM-dd`.
 class JsonFileTripRepository implements TripRepository {
-  JsonFileTripRepository(this.file);
+  JsonFileTripRepository(File file)
+    : _store = VersionedJsonList(
+        file: file,
+        listKey: 'trips',
+        fromJson: _tripFromJson,
+        toJson: _tripToJson,
+      );
 
-  static const currentVersion = 1;
-
-  final File file;
-  final _changes = StreamController<List<Trip>>.broadcast();
-  Future<void> _queue = Future.value();
-  List<Trip>? _trips;
-
-  @override
-  Stream<List<Trip>> watchTrips() =>
-      currentThenChanges(() => _serialized(_load), _changes.stream);
+  final VersionedJsonList<Trip> _store;
 
   @override
-  Future<void> saveTrip(Trip trip) => _serialized(() async {
-    final trips = await _load();
-    await _store([...trips.where((stored) => stored.id != trip.id), trip]);
-  });
+  Stream<List<Trip>> watchTrips() => currentThenChanges(
+    () async => sortTripsNewestFirst(await _store.read()),
+    _store.changes.map(sortTripsNewestFirst),
+  );
 
   @override
-  Future<void> deleteTrip(String id) => _serialized(() async {
-    final trips = await _load();
-    if (trips.every((trip) => trip.id != id)) return;
-    await _store(trips.where((trip) => trip.id != id).toList());
-  });
+  Future<void> saveTrip(Trip trip) => _store.update(
+    (trips) => sortTripsNewestFirst([
+      ...trips.where((stored) => stored.id != trip.id),
+      trip,
+    ]),
+  );
 
-  /// Runs file operations one after another so concurrent saves never
-  /// overwrite each other.
-  Future<T> _serialized<T>(Future<T> Function() operation) {
-    final result = _queue.then((_) => operation());
-    _queue = result.then((_) {}, onError: (_) {});
-    return result;
-  }
-
-  Future<List<Trip>> _load() async {
-    if (_trips case final trips?) return trips;
-    if (!file.existsSync()) return _trips = const [];
-    final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-    final version = json['version'];
-    if (version != currentVersion) {
-      throw StateError('Unsupported trips file version: $version');
-    }
-    final trips = (json['trips'] as List<dynamic>)
-        .cast<Map<String, dynamic>>()
-        .map(_tripFromJson);
-    return _trips = sortTripsNewestFirst(trips);
-  }
-
-  Future<void> _store(List<Trip> trips) async {
-    final sorted = sortTripsNewestFirst(trips);
-    final json = {
-      'version': currentVersion,
-      'trips': sorted.map(_tripToJson).toList(),
-    };
-    final temporary = File('${file.path}.tmp');
-    await temporary.parent.create(recursive: true);
-    await temporary.writeAsString(jsonEncode(json), flush: true);
-    await temporary.rename(file.path);
-    _trips = sorted;
-    _changes.add(sorted);
-  }
+  @override
+  Future<void> deleteTrip(String id) => _store.update(
+    (trips) => trips.every((trip) => trip.id != id)
+        ? trips
+        : trips.where((trip) => trip.id != id).toList(),
+  );
 }
 
-Map<String, Object> _tripToJson(Trip trip) => {
+Map<String, Object?> _tripToJson(Trip trip) => {
   'id': trip.id,
   'title': trip.title,
   'startDate': _formatDate(trip.startDate),

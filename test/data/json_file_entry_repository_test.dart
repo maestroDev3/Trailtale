@@ -43,9 +43,9 @@ void main() {
       await JsonFileEntryRepository(file).saveEntry(breakfast);
       await JsonFileEntryRepository(file).saveEntry(dinner);
 
-      final entries = await JsonFileEntryRepository(
-        file,
-      ).watchEntries('lisbon').first;
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
 
       expect(entries, [breakfast, dinner]);
     });
