@@ -95,9 +95,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
                 labelText: l10n.tripTitleLabel,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => (value ?? '').trim().isEmpty
-                  ? l10n.tripTitleRequired
-                  : null,
+              validator: (value) =>
+                  (value ?? '').trim().isEmpty ? l10n.tripTitleRequired : null,
             ),
             const SizedBox(height: 16),
             _DatesField(dates: _dates, onTap: _pickDates),
