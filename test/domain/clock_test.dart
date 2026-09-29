@@ -5,9 +5,8 @@ void main() {
   group('Clock', () {
     test('can be provided as a fixed function in tests', () {
       final now = DateTime.utc(2026, 9, 29, 12);
-      final Clock clock = () => now;
 
-      expect(clock(), now);
+      expect(_readTime(() => now), now);
     });
   });
 
@@ -49,3 +48,5 @@ void main() {
     });
   });
 }
+
+DateTime _readTime(Clock clock) => clock();
