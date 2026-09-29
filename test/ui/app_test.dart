@@ -14,7 +14,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository()),
+        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
       );
       await tester.pumpAndSettle();
 
@@ -24,7 +24,7 @@ void main() {
 
     testWidgets('uses the localized app title as window title', (tester) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository()),
+        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
       );
       await tester.pumpAndSettle();
 
@@ -35,7 +35,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository()),
+        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
       );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -48,7 +48,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        TrailtaleApp(tripRepository: FakeTripRepository()),
+        TrailtaleApp(tripRepository: FakeTripRepository(), newId: _newId),
       );
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -72,3 +72,5 @@ void main() {
     });
   });
 }
+
+String _newId() => 'id';

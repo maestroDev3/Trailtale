@@ -1,16 +1,38 @@
 import 'package:flutter/material.dart';
 
+import '../domain/clock.dart';
+import '../domain/id_generator.dart';
 import '../domain/trip.dart';
 import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
+import 'trip_form_screen.dart';
 import 'widgets/trip_dates.dart';
 
 /// Start screen of the app: lists the trips newest first and, until there
 /// are any, shows an empty state.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.tripRepository});
+  const HomeScreen({
+    super.key,
+    required this.tripRepository,
+    required this.newId,
+    this.clock = DateTime.now,
+  });
 
   final TripRepository tripRepository;
+  final IdGenerator newId;
+  final Clock clock;
+
+  void _openNewTripForm(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TripFormScreen(
+          tripRepository: tripRepository,
+          newId: newId,
+          clock: clock,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +57,7 @@ class HomeScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _openNewTripForm(context),
         icon: const Icon(Icons.add),
         label: Text(l10n.newTrip),
       ),

@@ -24,7 +24,10 @@ void main() {
     testWidgets('shows the app title and the empty trips message', (
       tester,
     ) async {
-      await pumpApp(tester, HomeScreen(tripRepository: FakeTripRepository()));
+      await pumpApp(
+        tester,
+        HomeScreen(tripRepository: FakeTripRepository(), newId: _newId),
+      );
 
       expect(find.text('Trailtale'), findsWidgets);
       expect(find.text('No trips yet'), findsOneWidget);
@@ -35,7 +38,7 @@ void main() {
     ) async {
       await pumpApp(
         tester,
-        HomeScreen(tripRepository: FakeTripRepository([lisbon])),
+        HomeScreen(tripRepository: FakeTripRepository([lisbon]), newId: _newId),
       );
 
       expect(find.text('Lisbon'), findsOneWidget);
@@ -47,7 +50,7 @@ void main() {
     testWidgets('shows a one-day trip with a single date', (tester) async {
       await pumpApp(
         tester,
-        HomeScreen(tripRepository: FakeTripRepository([alps])),
+        HomeScreen(tripRepository: FakeTripRepository([alps]), newId: _newId),
       );
 
       expect(find.text('Jul 1, 2026'), findsOneWidget);
@@ -57,7 +60,10 @@ void main() {
     testWidgets('lists trips newest first', (tester) async {
       await pumpApp(
         tester,
-        HomeScreen(tripRepository: FakeTripRepository([lisbon, alps])),
+        HomeScreen(
+          tripRepository: FakeTripRepository([lisbon, alps]),
+          newId: _newId,
+        ),
       );
 
       final alpsTop = tester.getTopLeft(find.text('Alps')).dy;
@@ -67,7 +73,10 @@ void main() {
 
     testWidgets('updates when the repository changes', (tester) async {
       final repository = FakeTripRepository();
-      await pumpApp(tester, HomeScreen(tripRepository: repository));
+      await pumpApp(
+        tester,
+        HomeScreen(tripRepository: repository, newId: _newId),
+      );
 
       await repository.saveTrip(lisbon);
       await tester.pumpAndSettle();
@@ -77,7 +86,10 @@ void main() {
     });
 
     testWidgets('offers a button to create a new trip', (tester) async {
-      await pumpApp(tester, HomeScreen(tripRepository: FakeTripRepository()));
+      await pumpApp(
+        tester,
+        HomeScreen(tripRepository: FakeTripRepository(), newId: _newId),
+      );
 
       expect(find.widgetWithText(FloatingActionButton, 'New trip'), findsOne);
     });
@@ -87,7 +99,10 @@ void main() {
     testWidgets('uses the English locale and a phone-sized surface', (
       tester,
     ) async {
-      await pumpApp(tester, HomeScreen(tripRepository: FakeTripRepository()));
+      await pumpApp(
+        tester,
+        HomeScreen(tripRepository: FakeTripRepository(), newId: _newId),
+      );
 
       final context = tester.element(find.byType(HomeScreen));
       expect(Localizations.localeOf(context), const Locale('en'));
@@ -95,3 +110,5 @@ void main() {
     });
   });
 }
+
+String _newId() => 'id';
