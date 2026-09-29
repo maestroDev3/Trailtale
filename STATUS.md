@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #3 Create, edit and delete trips – tasks #26–#30
+- Nothing – next up is #4.
 
 ## Up next
 
@@ -18,7 +18,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | Stories (in order) |
 |---|---|
-| #1 Foundation | ~~#2 Project setup~~ (done) → #3 Create, edit and delete trips (`in-progress`) → #4 Entries with text, date and place (manual) |
+| #1 Foundation | ~~#2 Project setup~~ → ~~#3 Create, edit and delete trips~~ → #4 Entries with text, date and place (manual) |
 | #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
@@ -27,6 +27,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #3 Create, edit and delete trips (list, form, detail, JSON file storage)
 - #2 Project setup: theme, localization, app shell, `pumpApp`, `Clock`/`dayOf`; CI checks format
 - New epic #20 Location capture (backlog)
 - First start: labels, epics and stories created; Flutter project scaffolded, CI green
