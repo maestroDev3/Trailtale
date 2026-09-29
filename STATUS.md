@@ -8,7 +8,8 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #4 Entries with text, date and place (manual) – tasks #36–#40
+- #4 Entries with text, date and place (manual) – #36, #37, #38 merged; #39 waits as PR #44; #40 open
+- **Blocked:** GitHub Actions does not start jobs (failed payment or spending limit), so there is no CI and no APK build right now
 
 ## Up next
 
@@ -35,6 +36,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Open decisions (user only)
 
+- GitHub Actions billing: fix the payment / raise the spending limit, or make the repo public (free minutes)
 - Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
 - Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?
