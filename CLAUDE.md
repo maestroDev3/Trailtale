@@ -100,7 +100,7 @@ changes one of them, so the project always matches `main`.
 
 ## Merging
 
-- Claude may **squash-merge PRs into `main` itself** once CI (analyze + test)
+- Claude may **squash-merge PRs into `main` itself** once CI (analyze + format + test)
   is green. Never merge with red or running CI.
 - Larger epics may be collected on a branch `epic/<name>`; it is merged into
   `main` only after green CI and a test by the user (APK on the phone).
