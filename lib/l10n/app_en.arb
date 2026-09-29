@@ -68,5 +68,34 @@
   "save": "Save",
   "@save": {
     "description": "Label of the button that saves a form."
+  },
+  "deleteTrip": "Delete trip",
+  "@deleteTrip": {
+    "description": "Tooltip of the action that deletes a trip."
+  },
+  "deleteTripQuestion": "Delete “{title}”?",
+  "@deleteTripQuestion": {
+    "description": "Title of the dialog confirming that a trip is deleted.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteTripWarning": "The trip and everything in it will be removed from this device.",
+  "@deleteTripWarning": {
+    "description": "Explains the consequence of deleting a trip."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Label of a button that dismisses a dialog without changes."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Label of a button that confirms deleting."
+  },
+  "noEntriesYet": "No entries yet",
+  "@noEntriesYet": {
+    "description": "Shown on a trip while it has no entries."
   }
 }

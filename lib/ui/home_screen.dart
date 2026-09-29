@@ -5,6 +5,7 @@ import '../domain/id_generator.dart';
 import '../domain/trip.dart';
 import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
+import 'trip_detail_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/trip_dates.dart';
 
@@ -21,6 +22,19 @@ class HomeScreen extends StatelessWidget {
   final TripRepository tripRepository;
   final IdGenerator newId;
   final Clock clock;
+
+  void _openTrip(BuildContext context, Trip trip) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TripDetailScreen(
+          trip: trip,
+          tripRepository: tripRepository,
+          newId: newId,
+          clock: clock,
+        ),
+      ),
+    );
+  }
 
   void _openNewTripForm(BuildContext context) {
     Navigator.of(context).push(
@@ -49,7 +63,10 @@ class HomeScreen extends StatelessWidget {
                 AsyncSnapshot(:final data?) when data.isEmpty => _Message(
                   l10n.emptyTripsMessage,
                 ),
-                AsyncSnapshot(:final data?) => _TripList(trips: data),
+                AsyncSnapshot(:final data?) => _TripList(
+                  trips: data,
+                  onOpen: (trip) => _openTrip(context, trip),
+                ),
                 _ => const SliverToBoxAdapter(),
               },
             ],
@@ -66,9 +83,10 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _TripList extends StatelessWidget {
-  const _TripList({required this.trips});
+  const _TripList({required this.trips, required this.onOpen});
 
   final List<Trip> trips;
+  final ValueChanged<Trip> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -76,32 +94,43 @@ class _TripList extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
       sliver: SliverList.builder(
         itemCount: trips.length,
-        itemBuilder: (context, index) => _TripCard(trip: trips[index]),
+        itemBuilder: (context, index) {
+          final trip = trips[index];
+          return _TripCard(trip: trip, onTap: () => onOpen(trip));
+        },
       ),
     );
   }
 }
 
 class _TripCard extends StatelessWidget {
-  const _TripCard({required this.trip});
+  const _TripCard({required this.trip, required this.onTap});
 
   final Trip trip;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(trip.title, style: textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(tripDatesText(context, trip), style: textTheme.bodyMedium),
-            Text(l10n.tripDayCount(trip.dayCount), style: textTheme.bodySmall),
-          ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(trip.title, style: textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text(tripDatesText(context, trip), style: textTheme.bodyMedium),
+              Text(
+                l10n.tripDayCount(trip.dayCount),
+                style: textTheme.bodySmall,
+              ),
+            ],
+          ),
         ),
       ),
     );
