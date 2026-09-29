@@ -1,25 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../domain/clock.dart';
-import '../domain/id_generator.dart';
 import '../domain/trip.dart';
-import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
+import 'app_services.dart';
 import 'widgets/trip_dates.dart';
 
 /// Form for creating a new trip or, when [trip] is given, editing it.
 class TripFormScreen extends StatefulWidget {
-  const TripFormScreen({
-    super.key,
-    required this.tripRepository,
-    required this.newId,
-    this.clock = DateTime.now,
-    this.trip,
-  });
+  const TripFormScreen({super.key, required this.services, this.trip});
 
-  final TripRepository tripRepository;
-  final IdGenerator newId;
-  final Clock clock;
+  final AppServices services;
   final Trip? trip;
 
   @override
@@ -36,7 +26,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     super.initState();
     final trip = widget.trip;
     _title = TextEditingController(text: trip?.title ?? '');
-    final today = _localDay(widget.clock());
+    final today = _localDay(widget.services.clock());
     _dates = trip == null
         ? DateTimeRange(start: today, end: today)
         : DateTimeRange(
@@ -65,12 +55,12 @@ class _TripFormScreenState extends State<TripFormScreen> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final trip = Trip(
-      id: widget.trip?.id ?? widget.newId(),
+      id: widget.trip?.id ?? widget.services.newId(),
       title: _title.text,
       startDate: _dates.start,
       endDate: _dates.end,
     );
-    await widget.tripRepository.saveTrip(trip);
+    await widget.services.tripRepository.saveTrip(trip);
     if (!mounted) return;
     await Navigator.of(context).maybePop();
   }
