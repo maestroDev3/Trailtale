@@ -17,7 +17,10 @@ void main() {
         () => GeoPoint(latitude: -90.1, longitude: 0),
         throwsArgumentError,
       );
-      expect(() => GeoPoint(latitude: 0, longitude: 180.1), throwsArgumentError);
+      expect(
+        () => GeoPoint(latitude: 0, longitude: 180.1),
+        throwsArgumentError,
+      );
       expect(
         () => GeoPoint(latitude: 0, longitude: -180.1),
         throwsArgumentError,
@@ -41,7 +44,10 @@ void main() {
     });
 
     test('trims the name and treats an empty name as missing', () {
-      expect(GeoPoint(latitude: 0, longitude: 0, name: ' Lisbon ').name, 'Lisbon');
+      expect(
+        GeoPoint(latitude: 0, longitude: 0, name: ' Lisbon ').name,
+        'Lisbon',
+      );
       expect(GeoPoint(latitude: 0, longitude: 0, name: '  ').name, isNull);
       expect(GeoPoint(latitude: 0, longitude: 0).name, isNull);
     });
