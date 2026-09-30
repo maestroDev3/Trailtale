@@ -34,6 +34,7 @@ void main() {
     time: DateTime.utc(2026, 5, 1, 19),
     utcOffset: const Duration(hours: -3, minutes: -30),
     note: 'Sardines',
+    photoPaths: ['photos/1.jpg', 'photos/2.png'],
   );
 
   group('JsonFileEntryRepository', () {
@@ -57,7 +58,7 @@ void main() {
       final json = jsonDecode(file.readAsStringSync());
 
       expect(json, {
-        'version': 1,
+        'version': 2,
         'entries': [
           {
             'id': 'breakfast',
@@ -67,6 +68,7 @@ void main() {
             'note': 'Pastéis de nata',
             'placeName': 'Belém',
             'location': {'latitude': 38.6916, 'longitude': -9.216},
+            'photoPaths': <String>[],
           },
           {
             'id': 'dinner',
@@ -76,13 +78,40 @@ void main() {
             'note': 'Sardines',
             'placeName': null,
             'location': null,
+            'photoPaths': ['photos/1.jpg', 'photos/2.png'],
           },
         ],
       });
     });
 
+    test('reads the version 1 format without photos', () async {
+      file.writeAsStringSync(
+        jsonEncode({
+          'version': 1,
+          'entries': [
+            {
+              'id': 'old',
+              'tripId': 'lisbon',
+              'time': '2026-05-01T07:15:00.000Z',
+              'utcOffsetMinutes': 60,
+              'note': 'From version 1',
+              'placeName': null,
+              'location': null,
+            },
+          ],
+        }),
+      );
+
+      final entries = await JsonFileEntryRepository(
+        file,
+      ).watchEntries('lisbon').first;
+
+      expect(entries.single.note, 'From version 1');
+      expect(entries.single.photoPaths, isEmpty);
+    });
+
     test('refuses an unknown future version instead of losing data', () async {
-      file.writeAsStringSync(jsonEncode({'version': 2, 'entries': []}));
+      file.writeAsStringSync(jsonEncode({'version': 3, 'entries': []}));
       final repository = JsonFileEntryRepository(file);
 
       await expectLater(
@@ -90,7 +119,7 @@ void main() {
         throwsStateError,
       );
       await expectLater(repository.saveEntry(dinner), throwsStateError);
-      expect(jsonDecode(file.readAsStringSync())['version'], 2);
+      expect(jsonDecode(file.readAsStringSync())['version'], 3);
     });
   });
 }
