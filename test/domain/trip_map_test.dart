@@ -34,7 +34,11 @@ void main() {
       ]);
 
       expect(points.map((point) => point.number), [1, 2, 3]);
-      expect(points.map((point) => point.entryId), ['lisbon', 'sintra', 'porto']);
+      expect(points.map((point) => point.entryId), [
+        'lisbon',
+        'sintra',
+        'porto',
+      ]);
       expect(points.first.location, lisbon);
     });
 
