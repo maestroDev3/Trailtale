@@ -102,9 +102,102 @@ ThemeData _buildTheme(ColorScheme scheme) {
     colorScheme: scheme,
     fontFamily: textFontFamily,
   );
+  final textTheme = _textTheme(base.textTheme);
+  RoundedRectangleBorder rounded(double radius, [BorderSide? side]) =>
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radius),
+        side: side ?? BorderSide.none,
+      );
+  final buttonText = textTheme.labelLarge?.copyWith(fontSize: 16);
+  OutlineInputBorder inputBorder(Color color, [double width = 1]) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: color, width: width),
+      );
   return base.copyWith(
     scaffoldBackgroundColor: scheme.surface,
-    textTheme: _textTheme(base.textTheme),
+    textTheme: textTheme,
+    appBarTheme: AppBarTheme(
+      backgroundColor: scheme.surface,
+      foregroundColor: scheme.onSurface,
+      scrolledUnderElevation: 0,
+      titleTextStyle: textTheme.titleLarge?.copyWith(color: scheme.onSurface),
+    ),
+    cardTheme: CardThemeData(
+      color: scheme.surfaceContainerLowest,
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: rounded(22, BorderSide(color: scheme.outlineVariant)),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.disabled)
+              ? scheme.onSurface.withValues(alpha: 0.12)
+              : scheme.primary,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.disabled)
+              ? scheme.onSurface.withValues(alpha: 0.38)
+              : scheme.onPrimary,
+        ),
+        minimumSize: const WidgetStatePropertyAll(Size(64, 52)),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 22),
+        ),
+        shape: WidgetStatePropertyAll(rounded(18)),
+        textStyle: WidgetStatePropertyAll(buttonText),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(scheme.onSurface),
+        side: WidgetStatePropertyAll(
+          BorderSide(color: scheme.onSurface, width: 2),
+        ),
+        minimumSize: const WidgetStatePropertyAll(Size(64, 52)),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 22),
+        ),
+        shape: WidgetStatePropertyAll(rounded(18)),
+        textStyle: WidgetStatePropertyAll(buttonText),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: scheme.primary,
+      foregroundColor: scheme.onPrimary,
+      shape: rounded(20),
+      extendedTextStyle: buttonText,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.surfaceContainerLowest,
+      border: inputBorder(scheme.outlineVariant),
+      enabledBorder: inputBorder(scheme.outlineVariant),
+      focusedBorder: inputBorder(scheme.primary, 2),
+      errorBorder: inputBorder(scheme.error),
+      focusedErrorBorder: inputBorder(scheme.error, 2),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: scheme.secondaryContainer,
+      labelStyle: textTheme.labelLarge?.copyWith(
+        color: scheme.onSecondaryContainer,
+      ),
+      side: BorderSide.none,
+      shape: const StadiumBorder(),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: scheme.inverseSurface,
+      contentTextStyle: textTheme.bodyMedium?.copyWith(
+        color: scheme.onInverseSurface,
+      ),
+      shape: rounded(14),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: scheme.surfaceContainerLowest,
+      shape: rounded(28),
+    ),
   );
 }
 
