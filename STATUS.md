@@ -8,33 +8,32 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #15.
+- Nothing – next up is #71.
 
 ## Up next
 
-- #15 Backup and export (next epic without open decisions; Location capture and Map wait for decisions)
+- #71 Field journal theme and typography (epic #70 Look & feel), then Backup (#15), Map (#12), Location (#21)
 
 ## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
+| #70 Look & feel | #71 Field journal theme and typography → #72 App icon and wordmark → #73 Trip cover photos and a richer home screen → #74 Timeline redesign for the trip → #75 Welcome screen and photo-first entry form |
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
-| #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
-| #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
 | #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
+| #11 Map | #12 Entries as markers on a map → #13 Draw the trip route |
+| #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry |
 
 ## Recently done
 
+- Decisions: field-journal look (#70), OpenStreetMap (#11), offline city list + GPS while in use (#20), backups to Google Drive (#14)
 - #10 Trip summary (days, entries, places, photos, km)
 - #9 Entries grouped by day ("Day n" headers, local time)
 - #7 Take date and location from EXIF (asks for media location access)
 - #6 Add photos from the gallery (system photo picker, copies in the app, thumbnails)
-- #4 Entries with text, date and place (manual): entry list, form, `GeoPoint`, local time
 
 ## Open decisions (user only)
 
-- Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
-- Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?

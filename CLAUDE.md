@@ -124,7 +124,7 @@ configuration, load and follow the skill `.claude/skills/flutter-dart/SKILL.md`
   directly in logic.
 - Data access only through repository interfaces, so a backend or sync can be
   added later.
-- Permissions: Read photos/media (with the photos epic), `ACCESS_FINE_LOCATION` only “while in use”, `INTERNET` only after choosing a map provider (map tiles).
+- Permissions: Read photos/media incl. `ACCESS_MEDIA_LOCATION` (photos epic), `ACCESS_FINE_LOCATION` only “while in use”, `INTERNET` for map tiles (OpenStreetMap, decided).
 - `flutter analyze` must report no issues.
 
 ## Environment note
@@ -134,8 +134,22 @@ blocked). Tests therefore run via **GitHub Actions** (`.github/workflows/ci.yml`
 results are read via the GitHub API (on failure, CI posts the output as a
 commit comment).
 
+## Decisions (made by the user)
+
+- **Look & feel (2026-09-30):** “field journal” design from the Trailtale Design
+  canvas – paper `#F6F1E7`, ink `#1F3B34`, clay `#B84A22`, sunset `#E07A45`,
+  sea `#2F6F7E`; Fraunces (headings) + Manrope (text), bundled; app icon concept A
+  (dotted trail to a pin). Epic #70.
+- **Map (2026-09-30):** OpenStreetMap with `flutter_map`. OSM tile servers
+  directly for now (unique User-Agent, visible attribution, caching, no bulk or
+  offline download); switch to a tile provider with a free tier before a Play
+  Store release. `INTERNET` is allowed for map tiles. Epic #11.
+- **Location (2026-09-30):** place names from a bundled offline city list
+  (GeoNames, CC BY 4.0) incl. reverse lookup; GPS “current position” only while
+  in use; **no background tracking**. Epic #20.
+- **Backup (2026-09-30):** very important; export/restore everything incl.
+  photos, ideally automatic backups to Google Drive. Epic #14.
+
 ## Open decisions (only the user decides)
 
-- Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
-- Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?
