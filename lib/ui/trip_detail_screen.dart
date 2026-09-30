@@ -14,6 +14,7 @@ import 'entry_form_screen.dart';
 import 'formatting.dart';
 import 'trip_form_screen.dart';
 import 'widgets/photo_thumbnail.dart';
+import 'widgets/stat_tile.dart';
 import 'widgets/trip_dates.dart';
 
 /// Shows one trip with its dates and entries, and offers editing and
@@ -146,61 +147,33 @@ class _TripHeader extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _Stat(
+              StatTile(
                 key: const Key('summary-days'),
                 value: '${summary.dayCount}',
                 label: l10n.summaryDaysLabel(summary.dayCount),
               ),
-              _Stat(
+              StatTile(
                 key: const Key('summary-entries'),
                 value: '${summary.entryCount}',
                 label: l10n.summaryEntriesLabel(summary.entryCount),
               ),
-              _Stat(
+              StatTile(
                 key: const Key('summary-places'),
                 value: '${summary.placeCount}',
                 label: l10n.summaryPlacesLabel(summary.placeCount),
               ),
-              _Stat(
+              StatTile(
                 key: const Key('summary-photos'),
                 value: '${summary.photoCount}',
                 label: l10n.summaryPhotosLabel(summary.photoCount),
               ),
-              _Stat(
+              StatTile(
                 key: const Key('summary-distance'),
                 value: formatKilometers(summary.distanceMeters, locale),
                 label: l10n.summaryKilometersLabel,
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A number with its label, e.g. "4" over "days".
-class _Stat extends StatelessWidget {
-  const _Stat({super.key, required this.value, required this.label});
-
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      constraints: const BoxConstraints(minWidth: 64),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(value, style: theme.textTheme.titleLarge),
-          Text(label, style: theme.textTheme.bodySmall),
         ],
       ),
     );

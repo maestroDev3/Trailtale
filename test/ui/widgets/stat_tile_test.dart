@@ -11,7 +11,9 @@ void main() {
     ) async {
       await pumpApp(
         tester,
-        const Scaffold(body: StatTile(value: '548', label: 'km')),
+        const Scaffold(
+          body: StatTile(value: '548', label: 'km'),
+        ),
       );
 
       final value = tester.widget<Text>(find.text('548'));
