@@ -245,5 +245,60 @@
   "yourTrips": "Your trips",
   "@yourTrips": {
     "description": "Heading above the list of trips on the home screen."
+  },
+  "onTheRoad": "On the road · Day {day} of {count}",
+  "@onTheRoad": {
+    "description": "Badge on the trip that is running today.",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreJourneys": "More journeys",
+  "@moreJourneys": {
+    "description": "Heading above the other trips below the featured running trip."
+  },
+  "entryCount": "{count, plural, =1{1 entry} other{{count} entries}}",
+  "@entryCount": {
+    "description": "Number of entries of a trip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "placeCount": "{count, plural, =1{1 place} other{{count} places}}",
+  "@placeCount": {
+    "description": "Number of distinct places of a trip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "distanceKm": "{distance} km",
+  "@distanceKm": {
+    "description": "A formatted distance in kilometers.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "tripFacts": "{days} · {distance} km",
+  "@tripFacts": {
+    "description": "Days and distance of a trip on its card, e.g. '4 days · 5.5 km'.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
   }
 }
