@@ -241,5 +241,9 @@
   "summaryKilometersLabel": "km",
   "@summaryKilometersLabel": {
     "description": "Label under the distance in kilometers in the trip summary."
+  },
+  "yourTrips": "Your trips",
+  "@yourTrips": {
+    "description": "Heading above the list of trips on the home screen."
   }
 }

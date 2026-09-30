@@ -32,9 +32,7 @@ void main() {
       expect(find.text('No trips yet'), findsOneWidget);
     });
 
-    testWidgets('shows the logo, the wordmark and the heading', (
-      tester,
-    ) async {
+    testWidgets('shows the logo, the wordmark and the heading', (tester) async {
       await pumpApp(tester, HomeScreen(services: testServices()));
 
       expect(find.byType(TrailtaleLogo), findsOneWidget);
