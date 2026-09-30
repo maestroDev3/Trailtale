@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'trip_detail_screen.dart';
 import 'trip_form_screen.dart';
+import 'widgets/trailtale_logo.dart';
 import 'widgets/trip_dates.dart';
 
 /// Start screen of the app: lists the trips newest first and, until there
@@ -33,13 +34,30 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: StreamBuilder<List<Trip>>(
         stream: services.tripRepository.watchTrips(),
         builder: (context, snapshot) {
           return CustomScrollView(
             slivers: [
-              SliverAppBar.large(title: Text(l10n.appTitle)),
+              SliverAppBar(
+                floating: true,
+                titleSpacing: 20,
+                title: Row(
+                  children: [
+                    const TrailtaleLogo(size: 34),
+                    const SizedBox(width: 10),
+                    Text(l10n.appTitle, style: textTheme.titleLarge),
+                  ],
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                sliver: SliverToBoxAdapter(
+                  child: Text(l10n.yourTrips, style: textTheme.headlineLarge),
+                ),
+              ),
               switch (snapshot) {
                 AsyncSnapshot(hasError: true) => _Message(l10n.tripsLoadError),
                 AsyncSnapshot(:final data?) when data.isEmpty => _Message(

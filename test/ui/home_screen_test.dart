@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/home_screen.dart';
+import 'package:trailtale/ui/widgets/trailtale_logo.dart';
 
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
@@ -29,6 +30,15 @@ void main() {
 
       expect(find.text('Trailtale'), findsWidgets);
       expect(find.text('No trips yet'), findsOneWidget);
+    });
+
+    testWidgets('shows the logo, the wordmark and the heading', (tester) async {
+      await pumpApp(tester, HomeScreen(services: testServices()));
+
+      expect(find.byType(TrailtaleLogo), findsOneWidget);
+      final wordmark = tester.widget<Text>(find.text('Trailtale'));
+      expect(wordmark.style?.fontFamily ?? '', isNot(isEmpty));
+      expect(find.text('Your trips'), findsOneWidget);
     });
 
     testWidgets('shows a trip with title, date range and number of days', (
