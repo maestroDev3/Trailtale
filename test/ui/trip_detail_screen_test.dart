@@ -4,8 +4,10 @@ import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
+import 'package:trailtale/ui/widgets/photo_thumbnail.dart';
 
 import '../support/fake_entry_repository.dart';
+import '../support/fake_photo_library.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
@@ -153,6 +155,78 @@ void main() {
 
       expect(find.text('Sardines'), findsOneWidget);
       expect(find.text('No entries yet'), findsNothing);
+    });
+
+    testWidgets('show one thumbnail per photo', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          breakfast.copyWith(photoPaths: ['photos/1.jpg', 'photos/2.jpg']),
+        ],
+      );
+
+      expect(find.byType(PhotoThumbnail), findsNWidgets(2));
+      expect(find.textContaining('+'), findsNothing);
+    });
+
+    testWidgets('show at most four thumbnails and a badge for the rest', (
+      tester,
+    ) async {
+      await openLisbon(
+        tester,
+        entries: [
+          breakfast.copyWith(
+            photoPaths: [for (var i = 1; i <= 6; i++) 'photos/$i.jpg'],
+          ),
+        ],
+      );
+
+      expect(find.byType(PhotoThumbnail), findsNWidgets(4));
+      expect(find.text('+2'), findsOneWidget);
+    });
+
+    testWidgets('show a placeholder for a missing photo file', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          breakfast.copyWith(photoPaths: ['photos/missing.jpg']),
+        ],
+      );
+
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 200)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.broken_image_outlined), findsOneWidget);
+    });
+
+    testWidgets('deleting the trip deletes the photos of its entries', (
+      tester,
+    ) async {
+      final library = FakePhotoLibrary();
+      final trips = FakeTripRepository([lisbon]);
+      await pumpApp(
+        tester,
+        HomeScreen(
+          services: testServices(
+            trips: trips,
+            entries: FakeEntryRepository([
+              breakfast.copyWith(photoPaths: ['photos/1.jpg']),
+            ]),
+            photoLibrary: library,
+          ),
+        ),
+      );
+      await tester.tap(find.text('Lisbon'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Delete trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+      await tester.pumpAndSettle();
+
+      expect(library.deleted, ['photos/1.jpg']);
     });
 
     testWidgets('can be added with the New entry button', (tester) async {
