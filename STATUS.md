@@ -22,7 +22,7 @@ The GitHub issues are authoritative; this file is the summary.
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
-| #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF |
+| #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF → #111 Store the release signing key safely (user task, after vacation) |
 | #11 Map | #12 Entries as markers on a map (`in-progress`) → #13 Draw the trip route |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry |
 
