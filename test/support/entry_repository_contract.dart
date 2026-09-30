@@ -78,8 +78,9 @@ void entryRepositoryContract(Future<EntryRepository> Function() create) {
       await repository.saveEntry(dinner);
       await repository.saveEntry(hike);
 
-      await repository.deleteEntriesOfTrip('lisbon');
+      final deleted = await repository.deleteEntriesOfTrip('lisbon');
 
+      expect(deleted, [breakfast, dinner]);
       expect(await repository.watchEntries('lisbon').first, isEmpty);
       expect(await repository.watchEntries('alps').first, [hike]);
     });

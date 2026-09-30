@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -8,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'entry_form_screen.dart';
 import 'trip_form_screen.dart';
+import 'widgets/photo_thumbnail.dart';
 import 'widgets/trip_dates.dart';
 
 /// Shows one trip with its dates and entries, and offers editing and
@@ -55,6 +58,7 @@ class TripDetailScreen extends StatelessWidget {
     await deleteTripWithEntries(
       tripRepository: services.tripRepository,
       entryRepository: services.entryRepository,
+      photoLibrary: services.photoLibrary,
       tripId: current.id,
     );
     if (!context.mounted) return;
@@ -92,6 +96,7 @@ class TripDetailScreen extends StatelessWidget {
               _EntryList(
                 entries: services.entryRepository.watchEntries(current.id),
                 onOpen: (entry) => _openEntryForm(context, current, entry),
+                photoFile: services.photoLibrary.fileFor,
               ),
             ],
           ),
@@ -131,10 +136,15 @@ class _TripHeader extends StatelessWidget {
 }
 
 class _EntryList extends StatelessWidget {
-  const _EntryList({required this.entries, required this.onOpen});
+  const _EntryList({
+    required this.entries,
+    required this.onOpen,
+    required this.photoFile,
+  });
 
   final Stream<List<Entry>> entries;
   final ValueChanged<Entry> onOpen;
+  final File Function(String relativePath) photoFile;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +157,11 @@ class _EntryList extends StatelessWidget {
             itemCount: data.length,
             itemBuilder: (context, index) {
               final entry = data[index];
-              return _EntryCard(entry: entry, onTap: () => onOpen(entry));
+              return _EntryCard(
+                entry: entry,
+                onTap: () => onOpen(entry),
+                photoFile: photoFile,
+              );
             },
           ),
         ),
@@ -159,10 +173,15 @@ class _EntryList extends StatelessWidget {
 }
 
 class _EntryCard extends StatelessWidget {
-  const _EntryCard({required this.entry, required this.onTap});
+  const _EntryCard({
+    required this.entry,
+    required this.onTap,
+    required this.photoFile,
+  });
 
   final Entry entry;
   final VoidCallback onTap;
+  final File Function(String relativePath) photoFile;
 
   @override
   Widget build(BuildContext context) {
@@ -187,8 +206,64 @@ class _EntryCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 _PlaceName(name: placeName),
               ],
+              if (entry.photoPaths.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _PhotoStrip(files: entry.photoPaths.map(photoFile).toList()),
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoStrip extends StatelessWidget {
+  const _PhotoStrip({required this.files});
+
+  static const maxShown = 4;
+  static const size = 64.0;
+
+  final List<File> files;
+
+  @override
+  Widget build(BuildContext context) {
+    final hidden = files.length - maxShown;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        for (final file in files.take(maxShown))
+          PhotoThumbnail(file: file, size: size),
+        if (hidden > 0) _MorePhotos(count: hidden),
+      ],
+    );
+  }
+}
+
+class _MorePhotos extends StatelessWidget {
+  const _MorePhotos({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      constraints: const BoxConstraints(
+        minWidth: _PhotoStrip.size,
+        minHeight: _PhotoStrip.size,
+      ),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        AppLocalizations.of(context).morePhotos(count),
+        style: theme.textTheme.titleMedium?.copyWith(
+          color: theme.colorScheme.onSecondaryContainer,
         ),
       ),
     );

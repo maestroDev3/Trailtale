@@ -45,9 +45,14 @@ class JsonFileEntryRepository implements EntryRepository {
       _store.update((entries) => _without(entries, (entry) => entry.id == id));
 
   @override
-  Future<void> deleteEntriesOfTrip(String tripId) => _store.update(
-    (entries) => _without(entries, (entry) => entry.tripId == tripId),
-  );
+  Future<List<Entry>> deleteEntriesOfTrip(String tripId) async {
+    var deleted = const <Entry>[];
+    await _store.update((entries) {
+      deleted = _entriesOf(entries, tripId);
+      return _without(entries, (entry) => entry.tripId == tripId);
+    });
+    return deleted;
+  }
 }
 
 List<Entry> _entriesOf(List<Entry> entries, String tripId) =>

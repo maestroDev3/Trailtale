@@ -34,9 +34,11 @@ class FakeEntryRepository implements EntryRepository {
   }
 
   @override
-  Future<void> deleteEntriesOfTrip(String tripId) async {
-    if (_entries.every((entry) => entry.tripId != tripId)) return;
+  Future<List<Entry>> deleteEntriesOfTrip(String tripId) async {
+    final deleted = _entriesOf(tripId);
+    if (deleted.isEmpty) return deleted;
     _update(_entries.where((entry) => entry.tripId != tripId).toList());
+    return deleted;
   }
 
   List<Entry> _entriesOf(String tripId) =>
