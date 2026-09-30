@@ -156,7 +156,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       (true, false) => l10n.takenFromPhotoDate,
       _ => l10n.takenFromPhotoPlace,
     };
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _removePhoto(String path) {
