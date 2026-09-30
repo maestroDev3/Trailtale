@@ -201,5 +201,45 @@
         "format": "yMMMEd"
       }
     }
+  },
+  "summaryDaysLabel": "{count, plural, =1{day} other{days}}",
+  "@summaryDaysLabel": {
+    "description": "Label under the number of days in the trip summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryEntriesLabel": "{count, plural, =1{entry} other{entries}}",
+  "@summaryEntriesLabel": {
+    "description": "Label under the number of entries in the trip summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPlacesLabel": "{count, plural, =1{place} other{places}}",
+  "@summaryPlacesLabel": {
+    "description": "Label under the number of distinct places in the trip summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPhotosLabel": "{count, plural, =1{photo} other{photos}}",
+  "@summaryPhotosLabel": {
+    "description": "Label under the number of photos in the trip summary.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryKilometersLabel": "km",
+  "@summaryKilometersLabel": {
+    "description": "Label under the distance in kilometers in the trip summary."
   }
 }
