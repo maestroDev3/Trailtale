@@ -82,34 +82,34 @@ class TripDetailScreen extends StatelessWidget {
             stream: services.entryRepository.watchEntries(current.id),
             builder: (context, entriesSnapshot) => CustomScrollView(
               slivers: [
-              SliverAppBar.large(
-                title: Text(current.title),
-                actions: [
-                  IconButton(
-                    tooltip: l10n.editTrip,
-                    icon: const Icon(Icons.edit_outlined),
-                    onPressed: () => _openEditForm(context, current),
-                  ),
-                  IconButton(
-                    tooltip: l10n.deleteTrip,
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _confirmDelete(context, current),
-                  ),
-                ],
-              ),
-              SliverToBoxAdapter(
-                child: _TripHeader(
-                  trip: current,
-                  entries: entriesSnapshot.data ?? const [],
+                SliverAppBar.large(
+                  title: Text(current.title),
+                  actions: [
+                    IconButton(
+                      tooltip: l10n.editTrip,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => _openEditForm(context, current),
+                    ),
+                    IconButton(
+                      tooltip: l10n.deleteTrip,
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _confirmDelete(context, current),
+                    ),
+                  ],
                 ),
-              ),
-              _EntryList(
-                trip: current,
-                entries: entriesSnapshot.data,
-                onOpen: (entry) => _openEntryForm(context, current, entry),
-                photoFile: services.photoLibrary.fileFor,
-              ),
-            ],
+                SliverToBoxAdapter(
+                  child: _TripHeader(
+                    trip: current,
+                    entries: entriesSnapshot.data ?? const [],
+                  ),
+                ),
+                _EntryList(
+                  trip: current,
+                  entries: entriesSnapshot.data,
+                  onOpen: (entry) => _openEntryForm(context, current, entry),
+                  photoFile: services.photoLibrary.fileFor,
+                ),
+              ],
             ),
           ),
           floatingActionButton: FloatingActionButton.extended(
