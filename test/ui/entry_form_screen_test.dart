@@ -101,12 +101,12 @@ void main() {
       expect(find.byType(TimePickerDialog), findsOneWidget);
     });
 
-    testWidgets('does not save without a note or a place', (tester) async {
+    testWidgets('does not save without a note, a place or a photo', (tester) async {
       final entries = await openNewEntryForm(tester);
 
       await save(tester);
 
-      expect(find.text('Add a note or a place'), findsOneWidget);
+      expect(find.text('Add a note, a place or a photo'), findsOneWidget);
       expect(entries.entries, isEmpty);
     });
 
