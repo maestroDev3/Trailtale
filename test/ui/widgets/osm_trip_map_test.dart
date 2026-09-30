@@ -63,7 +63,10 @@ void main() {
       await pumpMap(tester);
 
       final layer = tester.widget<TileLayer>(find.byType(TileLayer));
-      expect(layer.urlTemplate, 'https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+      expect(
+        layer.urlTemplate,
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      );
       expect(
         layer.tileProvider.headers['User-Agent'],
         contains('de.maestrodev.trailtale'),

@@ -15,6 +15,7 @@ import 'data/zip_backup_service.dart';
 import 'ui/app.dart';
 import 'ui/app_services.dart';
 import 'ui/theme.dart';
+import 'ui/widgets/osm_trip_map.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,12 @@ Future<void> main() async {
         ),
         fileSharer: SharePlusFileSharer(),
         documentPicker: FileSelectorDocumentPicker(),
+        tripMap: ({required points, required onOpenEntry, interactive = true}) =>
+            OsmTripMap(
+              points: points,
+              onOpenEntry: onOpenEntry,
+              interactive: interactive,
+            ),
       ),
     ),
   );

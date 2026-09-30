@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Keeps GPS data in picked photos so entries can take their place (#7). -->
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <!-- Loads OpenStreetMap tiles for the trip map (#12). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Trailtale"
         android:name="${applicationName}"
