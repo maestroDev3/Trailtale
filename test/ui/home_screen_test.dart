@@ -4,6 +4,7 @@ import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/home_screen.dart';
+import 'package:trailtale/ui/trip_form_screen.dart';
 import 'package:trailtale/ui/widgets/trailtale_logo.dart';
 import 'package:trailtale/ui/widgets/trip_cover.dart';
 
@@ -27,13 +28,13 @@ void main() {
   );
 
   group('HomeScreen', () {
-    testWidgets('shows the app title and the empty trips message', (
+    testWidgets('shows the app title and the welcome headline', (
       tester,
     ) async {
       await pumpApp(tester, HomeScreen(services: testServices()));
 
       expect(find.text('Trailtale'), findsWidgets);
-      expect(find.text('No trips yet'), findsOneWidget);
+      expect(find.text('Every trip tells a tale'), findsOneWidget);
     });
 
     testWidgets('shows the logo, the wordmark and the heading', (tester) async {
@@ -56,7 +57,7 @@ void main() {
       expect(find.text('Lisbon'), findsOneWidget);
       expect(find.text('May 1, 2026 – May 4, 2026'), findsOneWidget);
       expect(find.text('4 days'), findsOneWidget);
-      expect(find.text('No trips yet'), findsNothing);
+      expect(find.text('Every trip tells a tale'), findsNothing);
     });
 
     testWidgets('shows a one-day trip with a single date', (tester) async {
@@ -93,7 +94,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Lisbon'), findsOneWidget);
-      expect(find.text('No trips yet'), findsNothing);
+      expect(find.text('Every trip tells a tale'), findsNothing);
     });
 
     testWidgets('offers a button to create a new trip', (tester) async {
@@ -261,6 +262,57 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byTooltip('Edit trip'), findsOneWidget);
+    });
+  });
+
+  group('HomeScreen welcome', () {
+    testWidgets('greets with illustration, text and a start button', (
+      tester,
+    ) async {
+      await pumpApp(tester, HomeScreen(services: testServices()));
+
+      expect(find.bySemanticsLabel('A dotted trail leading to a pin'), findsOne);
+      expect(find.text('Every trip tells a tale'), findsOneWidget);
+      expect(
+        find.textContaining('Add places, notes and photos'),
+        findsOneWidget,
+      );
+      expect(
+        find.widgetWithText(FilledButton, 'Start your first trip'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('starts the first trip', (tester) async {
+      await pumpApp(tester, HomeScreen(services: testServices()));
+
+      final button = find.widgetWithText(FilledButton, 'Start your first trip');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TripFormScreen), findsOneWidget);
+    });
+
+    testWidgets('is not shown when there are trips', (tester) async {
+      await pumpApp(
+        tester,
+        HomeScreen(
+          services: testServices(
+            trips: FakeTripRepository([
+              Trip(
+                id: 'a',
+                title: 'Lisbon',
+                startDate: DateTime(2026, 5, 1),
+                endDate: DateTime(2026, 5, 2),
+              ),
+            ]),
+          ),
+        ),
+      );
+
+      expect(find.text('Every trip tells a tale'), findsNothing);
+      expect(find.text('Start your first trip'), findsNothing);
     });
   });
 }
