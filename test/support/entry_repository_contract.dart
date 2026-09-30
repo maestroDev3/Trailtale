@@ -85,6 +85,37 @@ void entryRepositoryContract(Future<EntryRepository> Function() create) {
       expect(await repository.watchEntries('alps').first, [hike]);
     });
 
+    test('emits the entries of all trips in chronological order', () async {
+      final repository = await create();
+
+      await repository.saveEntry(hike);
+      await repository.saveEntry(dinner);
+      await repository.saveEntry(breakfast);
+
+      expect(await repository.watchAllEntries().first, [
+        breakfast,
+        dinner,
+        hike,
+      ]);
+    });
+
+    test('emits all entries again after every change', () async {
+      final repository = await create();
+      final emissions = expectLater(
+        repository.watchAllEntries(),
+        emitsInOrder([
+          isEmpty,
+          [hike],
+          [breakfast, hike],
+        ]),
+      );
+
+      await repository.saveEntry(hike);
+      await repository.saveEntry(breakfast);
+
+      await emissions;
+    });
+
     test('emits again after every change of the trip', () async {
       final repository = await create();
       final emissions = expectLater(
