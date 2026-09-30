@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -7,6 +10,7 @@ import '../domain/entry.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'widgets/photo_thumbnail.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
 /// deleting it.
@@ -34,6 +38,11 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late final TextEditingController _longitude;
   late DateTime _date;
   late TimeOfDay _time;
+  late final List<String> _photos;
+
+  /// Photos imported while this form is open; deleted again unless saved.
+  final _importedPhotos = <String>{};
+  var _saved = false;
 
   @override
   void initState() {
@@ -49,10 +58,14 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         : entry.localDateTime;
     _date = DateTime(start.year, start.month, start.day);
     _time = TimeOfDay(hour: start.hour, minute: start.minute);
+    _photos = [...?entry?.photoPaths];
   }
 
   @override
   void dispose() {
+    if (!_saved && _importedPhotos.isNotEmpty) {
+      unawaited(widget.services.photoLibrary.deletePhotos(_importedPhotos));
+    }
     _note.dispose();
     _place.dispose();
     _latitude.dispose();
@@ -77,10 +90,28 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     setState(() => _time = picked);
   }
 
+  Future<void> _addPhotos() async {
+    final services = widget.services;
+    final picked = await services.photoPicker.pickImages();
+    final imported = <String>[];
+    for (final source in picked) {
+      imported.add(await services.photoLibrary.importPhoto(source));
+    }
+    _importedPhotos.addAll(imported);
+    if (!mounted) return;
+    setState(() => _photos.addAll(imported));
+  }
+
+  void _removePhoto(String path) {
+    setState(() => _photos.remove(path));
+  }
+
   String? _validateNote(String? note) {
     final l10n = AppLocalizations.of(context);
     final hasContent =
-        (note ?? '').trim().isNotEmpty || _place.text.trim().isNotEmpty;
+        (note ?? '').trim().isNotEmpty ||
+        _place.text.trim().isNotEmpty ||
+        _photos.isNotEmpty;
     return hasContent ? null : l10n.entryNeedsContent;
   }
 
@@ -117,8 +148,17 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       note: _note.text,
       placeName: _place.text,
       location: location,
+      photoPaths: _photos,
     );
     await widget.services.entryRepository.saveEntry(entry);
+    _saved = true;
+    final dropped = {
+      ...?widget.entry?.photoPaths,
+      ..._importedPhotos,
+    }.difference(_photos.toSet());
+    if (dropped.isNotEmpty) {
+      await widget.services.photoLibrary.deletePhotos(dropped);
+    }
     if (!mounted) return;
     await Navigator.of(context).maybePop();
   }
@@ -130,6 +170,11 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     );
     if (confirmed != true) return;
     await widget.services.entryRepository.deleteEntry(entry.id);
+    _saved = true;
+    await widget.services.photoLibrary.deletePhotos({
+      ...entry.photoPaths,
+      ..._importedPhotos,
+    });
     if (!mounted) return;
     await Navigator.of(context).maybePop();
   }
@@ -192,6 +237,15 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            _PhotoSection(
+              files: [
+                for (final path in _photos)
+                  (path, widget.services.photoLibrary.fileFor(path)),
+              ],
+              onAdd: _addPhotos,
+              onRemove: _removePhoto,
+            ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _latitude,
               keyboardType: const TextInputType.numberWithOptions(
@@ -221,6 +275,71 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PhotoSection extends StatelessWidget {
+  const _PhotoSection({
+    required this.files,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  /// Relative path and file of every photo, in order.
+  final List<(String, File)> files;
+  final VoidCallback onAdd;
+  final ValueChanged<String> onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (files.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final (path, file) in files)
+                _RemovablePhoto(file: file, onRemove: () => onRemove(path)),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
+        OutlinedButton.icon(
+          onPressed: onAdd,
+          icon: const Icon(Icons.add_photo_alternate_outlined),
+          label: Text(AppLocalizations.of(context).addPhotos),
+        ),
+      ],
+    );
+  }
+}
+
+class _RemovablePhoto extends StatelessWidget {
+  const _RemovablePhoto({required this.file, required this.onRemove});
+
+  final File file;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        PhotoThumbnail(file: file, size: 96),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton.filledTonal(
+            tooltip: AppLocalizations.of(context).removePhoto,
+            iconSize: 18,
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.close),
+            onPressed: onRemove,
+          ),
+        ),
+      ],
     );
   }
 }

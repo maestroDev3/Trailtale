@@ -3,6 +3,8 @@ import 'package:trailtale/domain/id_generator.dart';
 import 'package:trailtale/ui/app_services.dart';
 
 import 'fake_entry_repository.dart';
+import 'fake_photo_library.dart';
+import 'fake_photo_picker.dart';
 import 'fake_trip_repository.dart';
 
 /// Fixed "now" for widget tests: Tuesday, September 29, 2026, 10:30 local.
@@ -14,11 +16,15 @@ AppServices testServices({
   FakeEntryRepository? entries,
   Clock? clock,
   IdGenerator? newId,
+  FakePhotoLibrary? photoLibrary,
+  FakePhotoPicker? photoPicker,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
     entryRepository: entries ?? FakeEntryRepository(),
     newId: newId ?? () => 'id',
     clock: clock ?? () => testNow,
+    photoLibrary: photoLibrary ?? FakePhotoLibrary(),
+    photoPicker: photoPicker ?? FakePhotoPicker(),
   );
 }
