@@ -92,9 +92,8 @@ class TripDetailScreen extends StatelessWidget {
                   automaticallyImplyLeading: false,
                   leading: Center(
                     child: _RoundButton(
-                      tooltip: MaterialLocalizations.of(
-                        context,
-                      ).backButtonTooltip,
+                      tooltip: MaterialLocalizations.of(context)
+                          .backButtonTooltip,
                       icon: Icons.arrow_back,
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
@@ -211,7 +210,8 @@ class _TripHeader extends StatelessWidget {
               ),
             ],
           ),
-          if (routePlaces(entries) case final places when places.length > 1) ...[
+          if (routePlaces(entries) case final places
+              when places.length > 1) ...[
             const SizedBox(height: 16),
             _RouteStrip(places: places),
           ],
@@ -346,7 +346,11 @@ class _DotsPainter extends CustomPainter {
     if (axis == Axis.horizontal) {
       final y = size.height / 2;
       for (var x = 1.0; x < size.width; x += 6) {
-        canvas.drawLine(Offset(x, y), Offset(x + 0.1, y), paint..strokeWidth = 3);
+        canvas.drawLine(
+          Offset(x, y),
+          Offset(x + 0.1, y),
+          paint..strokeWidth = 3,
+        );
       }
     } else {
       for (var y = 0.0; y < size.height; y += 10) {
@@ -467,7 +471,7 @@ class _DayHeader extends StatelessWidget {
             child: number == null
                 ? Icon(Icons.event, size: 20, color: scheme.onInverseSurface)
                 : Text(
-                    '$number',
+                    number.toString(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: scheme.onInverseSurface,
                     ),
