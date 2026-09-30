@@ -127,6 +127,16 @@ configuration, load and follow the skill `.claude/skills/flutter-dart/SKILL.md`
 - Permissions: Read photos/media incl. `ACCESS_MEDIA_LOCATION` (photos epic), `ACCESS_FINE_LOCATION` only “while in use”, `INTERNET` for map tiles (OpenStreetMap, decided).
 - `flutter analyze` must report no issues.
 
+## Release signing
+
+APKs are signed with the release key from the repository secrets
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD` (CI decodes the keystore; `android/app/build.gradle.kts`
+reads it from the environment). Every CI build gets `github.run_number` as
+version code, so the phone accepts it as an update. Never commit the keystore
+or its passwords; the user keeps a backup of the keystore (losing it means no
+more updates for installed apps).
+
 ## Environment note
 
 Flutter cannot be installed in Claude's cloud environment (download servers
