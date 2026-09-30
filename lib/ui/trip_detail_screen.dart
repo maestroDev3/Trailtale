@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 
 import '../domain/delete_trip_with_entries.dart';
 import '../domain/entry.dart';
+import '../domain/route_places.dart';
 import '../domain/trip.dart';
 import '../domain/trip_day.dart';
+import '../domain/trip_overview.dart';
 import '../domain/trip_summary.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
@@ -15,6 +17,7 @@ import 'formatting.dart';
 import 'trip_form_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/stat_tile.dart';
+import 'widgets/trip_cover.dart';
 import 'widgets/trip_dates.dart';
 
 /// Shows one trip with its dates and entries, and offers editing and
@@ -83,20 +86,46 @@ class TripDetailScreen extends StatelessWidget {
             stream: services.entryRepository.watchEntries(current.id),
             builder: (context, entriesSnapshot) => CustomScrollView(
               slivers: [
-                SliverAppBar.large(
-                  title: Text(current.title),
+                SliverAppBar(
+                  pinned: true,
+                  expandedHeight: 240,
+                  automaticallyImplyLeading: false,
+                  leading: Center(
+                    child: _RoundButton(
+                      tooltip: MaterialLocalizations.of(context)
+                          .backButtonTooltip,
+                      icon: Icons.arrow_back,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
+                  ),
                   actions: [
-                    IconButton(
+                    _RoundButton(
                       tooltip: l10n.editTrip,
-                      icon: const Icon(Icons.edit_outlined),
+                      icon: Icons.edit_outlined,
                       onPressed: () => _openEditForm(context, current),
                     ),
-                    IconButton(
+                    const SizedBox(width: 8),
+                    _RoundButton(
                       tooltip: l10n.deleteTrip,
-                      icon: const Icon(Icons.delete_outline),
+                      icon: Icons.delete_outline,
                       onPressed: () => _confirmDelete(context, current),
                     ),
+                    const SizedBox(width: 12),
                   ],
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: TripCover(
+                      file: switch (coverPhotoOf(
+                        entriesSnapshot.data ?? const [],
+                      )) {
+                        final path? => services.photoLibrary.fileFor(path),
+                        null => null,
+                      },
+                    ),
+                  ),
+                  bottom: const PreferredSize(
+                    preferredSize: Size.fromHeight(28),
+                    child: _SheetEdge(),
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child: _TripHeader(
@@ -137,12 +166,19 @@ class _TripHeader extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final summary = summarizeTrip(trip, entries);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(tripDatesText(context, trip), style: textTheme.titleMedium),
-          const SizedBox(height: 12),
+          Text(trip.title, style: textTheme.headlineMedium),
+          const SizedBox(height: 4),
+          Text(
+            tripDatesText(context, trip),
+            style: textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -174,10 +210,158 @@ class _TripHeader extends StatelessWidget {
               ),
             ],
           ),
+          if (routePlaces(entries) case final places
+              when places.length > 1) ...[
+            const SizedBox(height: 16),
+            _RouteStrip(places: places),
+          ],
         ],
       ),
     );
   }
+}
+
+/// The start of the content sheet with rounded corners over the cover.
+class _SheetEdge extends StatelessWidget {
+  const _SheetEdge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 28,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+    );
+  }
+}
+
+/// A round icon button that stays readable on top of a photo.
+class _RoundButton extends StatelessWidget {
+  const _RoundButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return IconButton.filled(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon),
+      style: IconButton.styleFrom(
+        backgroundColor: scheme.surfaceContainerLowest,
+        foregroundColor: scheme.onSurface,
+      ),
+    );
+  }
+}
+
+/// The places of the trip in visiting order, joined by dotted lines.
+class _RouteStrip extends StatelessWidget {
+  const _RouteStrip({required this.places});
+
+  static const maxShown = 4;
+
+  final List<String> places;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.labelLarge?.copyWith(
+      color: theme.colorScheme.onInverseSurface,
+    );
+    final shown = places.take(maxShown).toList();
+    final hidden = places.length - shown.length;
+    return Container(
+      key: const Key('route-strip'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.inverseSurface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          for (final (index, place) in shown.indexed) ...[
+            if (index > 0) _DottedConnector(color: theme.colorScheme.tertiary),
+            Flexible(
+              child: Text(
+                place,
+                style: style,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+          if (hidden > 0) ...[
+            _DottedConnector(color: theme.colorScheme.tertiary),
+            Text(AppLocalizations.of(context).morePlaces(hidden), style: style),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DottedConnector extends StatelessWidget {
+  const _DottedConnector({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: CustomPaint(
+          size: const Size.fromHeight(4),
+          painter: _DotsPainter(color: color, axis: Axis.horizontal),
+        ),
+      ),
+    );
+  }
+}
+
+/// Paints a dotted (horizontal) or dashed (vertical) line through the middle
+/// of its box.
+class _DotsPainter extends CustomPainter {
+  const _DotsPainter({required this.color, required this.axis});
+
+  final Color color;
+  final Axis axis;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    if (axis == Axis.horizontal) {
+      final y = size.height / 2;
+      for (var x = 1.0; x < size.width; x += 6) {
+        canvas.drawLine(
+          Offset(x, y),
+          Offset(x + 0.1, y),
+          paint..strokeWidth = 3,
+        );
+      }
+    } else {
+      for (var y = 0.0; y < size.height; y += 10) {
+        canvas.drawLine(Offset(1, y), Offset(1, y + 5), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DotsPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.axis != axis;
 }
 
 class _EntryList extends StatelessWidget {
@@ -245,7 +429,7 @@ class _TimelineList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 104),
       sliver: SliverList.builder(
         itemCount: items.length,
         itemBuilder: (context, index) => switch (items[index]) {
@@ -270,16 +454,53 @@ class _DayHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final number = day.dayNumber;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-      child: Text(
-        switch (day.dayNumber) {
-          final number? => l10n.tripDayHeader(number, day.day),
-          null => l10n.otherDayHeader(day.day),
-        },
-        style: theme.textTheme.titleSmall?.copyWith(
-          color: theme.colorScheme.primary,
-        ),
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: scheme.inverseSurface,
+              shape: BoxShape.circle,
+            ),
+            child: number == null
+                ? Icon(Icons.event, size: 20, color: scheme.onInverseSurface)
+                : Text(
+                    number.toString(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: scheme.onInverseSurface,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: number == null
+                ? Text(
+                    l10n.otherDayHeader(day.day),
+                    style: theme.textTheme.titleSmall,
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.tripDayTitle(number),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      Text(
+                        l10n.tripDayDate(day.day),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -298,32 +519,53 @@ class _EntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     final locale = Localizations.localeOf(context).toLanguageTag();
     final time = DateFormat.jm(locale).format(entry.localDateTime);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
+    return Padding(
+      padding: const EdgeInsets.only(left: 19),
+      child: CustomPaint(
+        painter: _DotsPainter(
+          color: theme.colorScheme.outlineVariant,
+          axis: Axis.vertical,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(time, style: textTheme.labelLarge),
-              if (entry.note.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(entry.note, style: textTheme.bodyLarge),
-              ],
-              if (entry.placeName case final placeName?) ...[
-                const SizedBox(height: 4),
-                _PlaceName(name: placeName),
-              ],
-              if (entry.photoPaths.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _PhotoStrip(files: entry.photoPaths.map(photoFile).toList()),
-              ],
-            ],
+          padding: const EdgeInsets.only(left: 29, bottom: 6),
+          child: Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      time,
+                      style: textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    if (entry.note.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(entry.note, style: textTheme.bodyLarge),
+                    ],
+                    if (entry.placeName case final placeName?) ...[
+                      const SizedBox(height: 8),
+                      _PlaceChip(name: placeName),
+                    ],
+                    if (entry.photoPaths.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      _PhotoStrip(
+                        files: entry.photoPaths.map(photoFile).toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -383,24 +625,34 @@ class _MorePhotos extends StatelessWidget {
   }
 }
 
-class _PlaceName extends StatelessWidget {
-  const _PlaceName({required this.name});
+class _PlaceChip extends StatelessWidget {
+  const _PlaceChip({required this.name});
 
   final String name;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: [
-        Icon(
-          Icons.place_outlined,
-          size: 16,
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-        const SizedBox(width: 4),
-        Expanded(child: Text(name, style: theme.textTheme.bodyMedium)),
-      ],
+    final color = theme.colorScheme.onSecondaryContainer;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.place_outlined, size: 14, color: color),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              name,
+              style: theme.textTheme.labelLarge?.copyWith(color: color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

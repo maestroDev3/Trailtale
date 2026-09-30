@@ -179,19 +179,6 @@
   "@takenFromPhotoPlace": {
     "description": "Message after the coordinates of an entry were filled from a photo."
   },
-  "tripDayHeader": "Day {number} · {date}",
-  "@tripDayHeader": {
-    "description": "Header above the entries of one day of a trip.",
-    "placeholders": {
-      "number": {
-        "type": "int"
-      },
-      "date": {
-        "type": "DateTime",
-        "format": "MMMEd"
-      }
-    }
-  },
   "otherDayHeader": "{date}",
   "@otherDayHeader": {
     "description": "Header above entries recorded on a day outside the trip's dates.",
@@ -298,6 +285,34 @@
       },
       "distance": {
         "type": "String"
+      }
+    }
+  },
+  "tripDayTitle": "Day {number}",
+  "@tripDayTitle": {
+    "description": "Title of a day in the trip timeline.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "tripDayDate": "{date}",
+  "@tripDayDate": {
+    "description": "Weekday and date under the day title in the trip timeline.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMMEEEEd"
+      }
+    }
+  },
+  "morePlaces": "+{count}",
+  "@morePlaces": {
+    "description": "Number of further places at the end of the route strip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
       }
     }
   }

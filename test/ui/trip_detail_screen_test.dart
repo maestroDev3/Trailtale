@@ -6,6 +6,7 @@ import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
 import 'package:trailtale/ui/widgets/photo_thumbnail.dart';
+import 'package:trailtale/ui/widgets/trip_cover.dart';
 
 import '../support/fake_entry_repository.dart';
 import '../support/fake_photo_library.dart';
@@ -149,12 +150,14 @@ void main() {
     testWidgets('are grouped under a header per trip day', (tester) async {
       await openLisbon(tester, entries: [dinner, breakfast]);
 
-      expect(find.text('Day 1 · Fri, May 1'), findsOneWidget);
-      expect(find.text('Day 2 · Sat, May 2'), findsOneWidget);
+      expect(find.text('Day 1'), findsOneWidget);
+      expect(find.text('Friday, May 1'), findsOneWidget);
+      expect(find.text('Day 2'), findsOneWidget);
+      expect(find.text('Saturday, May 2'), findsOneWidget);
       final tops = [
-        find.text('Day 1 · Fri, May 1'),
+        find.text('Day 1'),
         find.text('Pastéis de nata'),
-        find.text('Day 2 · Sat, May 2'),
+        find.text('Day 2'),
         find.text('Sardines'),
       ].map((finder) => tester.getTopLeft(finder).dy).toList();
       expect(tops, orderedEquals([...tops]..sort()));
@@ -341,6 +344,104 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byKey(const Key('summary-distance')), findsOneWidget);
+    });
+  });
+
+  group('TripDetailScreen page', () {
+    Entry at(
+      String id,
+      int hour,
+      String place, {
+      List<String> photos = const [],
+    }) => Entry(
+      id: id,
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, hour),
+      utcOffset: Duration.zero,
+      placeName: place,
+      photoPaths: photos,
+    );
+
+    testWidgets('shows the first photo as cover', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          at('a', 8, 'Belém', photos: ['photos/cover.jpg']),
+        ],
+      );
+
+      final cover = tester.widget<TripCover>(find.byType(TripCover));
+      expect(cover.file?.path, endsWith('photos/cover.jpg'));
+    });
+
+    testWidgets('shows the cover placeholder without photos', (tester) async {
+      await openLisbon(tester);
+
+      expect(find.byKey(const Key('cover-placeholder')), findsOneWidget);
+    });
+
+    testWidgets('shows the route of places in visiting order', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          at('b', 12, 'Sintra'),
+          at('a', 8, 'Lisbon'),
+          at('c', 18, 'Porto'),
+        ],
+      );
+
+      final strip = find.byKey(const Key('route-strip'));
+      expect(strip, findsOneWidget);
+      final lefts = ['Lisbon', 'Sintra', 'Porto']
+          .map(
+            (name) => tester
+                .getTopLeft(
+                  find.descendant(of: strip, matching: find.text(name)),
+                )
+                .dx,
+          )
+          .toList();
+      expect(lefts, orderedEquals([...lefts]..sort()));
+    });
+
+    testWidgets('shortens a long route', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          for (final (index, place) in [
+            'Lisbon',
+            'Sintra',
+            'Cascais',
+            'Évora',
+            'Coimbra',
+            'Porto',
+          ].indexed)
+            at('e$index', 6 + index, place),
+        ],
+      );
+
+      final strip = find.byKey(const Key('route-strip'));
+      expect(find.descendant(of: strip, matching: find.text('+2')), findsOne);
+      expect(
+        find.descendant(of: strip, matching: find.text('Coimbra')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('shows no route with fewer than two places', (tester) async {
+      await openLisbon(tester, entries: [at('a', 8, 'Lisbon')]);
+
+      expect(find.byKey(const Key('route-strip')), findsNothing);
+    });
+
+    testWidgets('goes back with the round back button', (tester) async {
+      await openLisbon(tester);
+
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TripDetailScreen), findsNothing);
+      expect(find.text('Your trips'), findsOneWidget);
     });
   });
 }
