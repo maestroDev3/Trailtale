@@ -348,15 +348,19 @@ void main() {
   });
 
   group('TripDetailScreen page', () {
-    Entry at(String id, int hour, String place, {List<String> photos = const []}) =>
-        Entry(
-          id: id,
-          tripId: 'lisbon',
-          time: DateTime.utc(2026, 5, 1, hour),
-          utcOffset: Duration.zero,
-          placeName: place,
-          photoPaths: photos,
-        );
+    Entry at(
+      String id,
+      int hour,
+      String place, {
+      List<String> photos = const [],
+    }) => Entry(
+      id: id,
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, hour),
+      utcOffset: Duration.zero,
+      placeName: place,
+      photoPaths: photos,
+    );
 
     testWidgets('shows the first photo as cover', (tester) async {
       await openLisbon(
@@ -379,7 +383,11 @@ void main() {
     testWidgets('shows the route of places in visiting order', (tester) async {
       await openLisbon(
         tester,
-        entries: [at('b', 12, 'Sintra'), at('a', 8, 'Lisbon'), at('c', 18, 'Porto')],
+        entries: [
+          at('b', 12, 'Sintra'),
+          at('a', 8, 'Lisbon'),
+          at('c', 18, 'Porto'),
+        ],
       );
 
       final strip = find.byKey(const Key('route-strip'));
