@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android Auto Backup (Android 11 and older): only trips and entries.
+  Photos are left out because Auto Backup skips an app completely above 25 MB;
+  they are covered by the ZIP backup in the settings.
+-->
+<full-backup-content>
+    <include domain="root" path="app_flutter/trips.json" />
+    <include domain="root" path="app_flutter/entries.json" />
+</full-backup-content>

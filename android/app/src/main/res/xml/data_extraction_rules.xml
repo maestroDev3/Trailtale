@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android Auto Backup and device-to-device transfer (Android 12 and newer):
+  only trips and entries (see backup_rules.xml for why photos are left out).
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="root" path="app_flutter/trips.json" />
+        <include domain="root" path="app_flutter/entries.json" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="root" path="app_flutter/trips.json" />
+        <include domain="root" path="app_flutter/entries.json" />
+    </device-transfer>
+</data-extraction-rules>
