@@ -157,5 +157,14 @@
   "removePhoto": "Remove photo",
   "@removePhoto": {
     "description": "Tooltip of the button that removes a photo from an entry."
+  },
+  "morePhotos": "+{count}",
+  "@morePhotos": {
+    "description": "Badge on an entry card for photos that are not shown as thumbnails.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

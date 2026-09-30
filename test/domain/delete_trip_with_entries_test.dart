@@ -25,25 +25,28 @@ void main() {
       );
 
   group('deleteTripWithEntries', () {
-    test('deletes the trip, its entries and their photos, nothing else', () async {
-      final trips = FakeTripRepository([trip('lisbon'), trip('alps')]);
-      final entries = FakeEntryRepository([
-        entry('a', 'lisbon', photos: ['photos/a1.jpg', 'photos/a2.jpg']),
-        entry('b', 'lisbon'),
-        entry('c', 'alps', photos: ['photos/c1.jpg']),
-      ]);
-      final photos = FakePhotoLibrary();
+    test(
+      'deletes the trip, its entries and their photos, nothing else',
+      () async {
+        final trips = FakeTripRepository([trip('lisbon'), trip('alps')]);
+        final entries = FakeEntryRepository([
+          entry('a', 'lisbon', photos: ['photos/a1.jpg', 'photos/a2.jpg']),
+          entry('b', 'lisbon'),
+          entry('c', 'alps', photos: ['photos/c1.jpg']),
+        ]);
+        final photos = FakePhotoLibrary();
 
-      await deleteTripWithEntries(
-        tripRepository: trips,
-        entryRepository: entries,
-        photoLibrary: photos,
-        tripId: 'lisbon',
-      );
+        await deleteTripWithEntries(
+          tripRepository: trips,
+          entryRepository: entries,
+          photoLibrary: photos,
+          tripId: 'lisbon',
+        );
 
-      expect(trips.trips.map((trip) => trip.id), ['alps']);
-      expect(entries.entries.map((entry) => entry.id), ['c']);
-      expect(photos.deleted, ['photos/a1.jpg', 'photos/a2.jpg']);
-    });
+        expect(trips.trips.map((trip) => trip.id), ['alps']);
+        expect(entries.entries.map((entry) => entry.id), ['c']);
+        expect(photos.deleted, ['photos/a1.jpg', 'photos/a2.jpg']);
+      },
+    );
   });
 }
