@@ -27,18 +27,22 @@ void main() {
       File('${gallery.path}/$name')..writeAsBytesSync(bytes);
 
   group('FilePhotoLibrary.importPhoto', () {
-    test('copies the image into the photos folder and returns its path', () async {
-      final source = galleryImage('IMG_0001.JPG', [1, 2, 3]);
+    test(
+      'copies the image into the photos folder and returns its path',
+      () async {
+        final source = galleryImage('IMG_0001.JPG', [1, 2, 3]);
 
-      final path = await library.importPhoto(source.path);
+        final path = await library.importPhoto(source.path);
 
-      expect(path, 'photos/photo1.jpg');
-      expect(
-        File('${documents.path}/photos/photo1.jpg').readAsBytesSync(),
-        [1, 2, 3],
-      );
-      expect(source.existsSync(), isTrue);
-    });
+        expect(path, 'photos/photo1.jpg');
+        expect(File('${documents.path}/photos/photo1.jpg').readAsBytesSync(), [
+          1,
+          2,
+          3,
+        ]);
+        expect(source.existsSync(), isTrue);
+      },
+    );
 
     test('keeps the extension in lower case', () async {
       final source = galleryImage('picture.HEIC', [4]);
