@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #9.
+- #9 Entries grouped by day – tasks #62, #63
 
 ## Up next
 
-- #9 Entries grouped by day
+- #10 Trip summary (places, days, kilometers)
 
 ## Backlog by epic
 
@@ -20,7 +20,7 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
-| #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
+| #8 Timeline | #9 Entries grouped by day (`in-progress`) → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
 | #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
 | #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
