@@ -38,12 +38,13 @@ Future<void> main() async {
         ),
         fileSharer: SharePlusFileSharer(),
         documentPicker: FileSelectorDocumentPicker(),
-        tripMap: ({required points, required onOpenEntry, interactive = true}) =>
-            OsmTripMap(
-              points: points,
-              onOpenEntry: onOpenEntry,
-              interactive: interactive,
-            ),
+        tripMap:
+            ({required points, required onOpenEntry, interactive = true}) =>
+                OsmTripMap(
+                  points: points,
+                  onOpenEntry: onOpenEntry,
+                  interactive: interactive,
+                ),
       ),
     ),
   );

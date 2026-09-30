@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/trip_map.dart';
+import '../../l10n/app_localizations.dart';
 
 /// The trip map on OpenStreetMap tiles with numbered markers.
 ///
@@ -61,7 +62,10 @@ class OsmTripMap extends StatelessWidget {
           markers: [
             for (final point in points)
               Marker(
-                point: LatLng(point.location.latitude, point.location.longitude),
+                point: LatLng(
+                  point.location.latitude,
+                  point.location.longitude,
+                ),
                 width: 36,
                 height: 36,
                 child: _NumberMarker(
@@ -132,7 +136,7 @@ class _Attribution extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
-          '© OpenStreetMap contributors',
+          AppLocalizations.of(context).osmAttribution,
           style: theme.textTheme.labelSmall,
         ),
       ),
