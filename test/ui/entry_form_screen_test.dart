@@ -496,4 +496,46 @@ void main() {
       expect(find.byTooltip('Remove photo'), findsOneWidget);
     });
   });
+
+  group('EntryFormScreen layout', () {
+    double top(WidgetTester tester, Finder finder) =>
+        tester.getTopLeft(finder).dy;
+
+    testWidgets('starts with the photos', (tester) async {
+      await openNewEntryForm(tester);
+
+      final addPhotos = find.widgetWithText(OutlinedButton, 'Add photos');
+      expect(top(tester, addPhotos), lessThan(top(tester, find.text('May 1, 2026'))));
+      expect(top(tester, addPhotos), lessThan(top(tester, field('Note'))));
+    });
+
+    testWidgets('shows date and time next to each other', (tester) async {
+      await openNewEntryForm(tester);
+
+      expect(
+        top(tester, find.text('May 1, 2026')),
+        top(tester, find.textContaining('10:30')),
+      );
+    });
+
+    testWidgets('shows latitude and longitude next to each other', (
+      tester,
+    ) async {
+      await openNewEntryForm(tester);
+
+      expect(
+        top(tester, field('Latitude (optional)')),
+        top(tester, field('Longitude (optional)')),
+      );
+    });
+
+    testWidgets('writes the note in the display font', (tester) async {
+      await openNewEntryForm(tester);
+
+      final note = tester.widget<EditableText>(
+        find.descendant(of: field('Note'), matching: find.byType(EditableText)),
+      );
+      expect(note.style.fontFamily, 'Fraunces');
+    });
+  });
 }
