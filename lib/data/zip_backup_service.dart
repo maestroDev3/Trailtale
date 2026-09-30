@@ -134,16 +134,16 @@ class ZipBackupService implements BackupService {
     await documents.create(recursive: true);
     for (final name in managed) {
       final restored = '${staging.path}/$name';
-      if (FileSystemEntity.typeSync(restored) != FileSystemEntityType.notFound) {
+      if (FileSystemEntity.typeSync(restored) !=
+          FileSystemEntityType.notFound) {
         await _entity(restored).rename('${documents.path}/$name');
       }
     }
     await previous.delete(recursive: true);
   }
 
-  FileSystemEntity _entity(String path) => FileSystemEntity.isDirectorySync(path)
-      ? Directory(path)
-      : File(path);
+  FileSystemEntity _entity(String path) =>
+      FileSystemEntity.isDirectorySync(path) ? Directory(path) : File(path);
 
   List<File> _photoFiles() {
     final photos = Directory('${documents.path}/$_photos');
