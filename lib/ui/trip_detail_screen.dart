@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../domain/delete_trip_with_entries.dart';
 import '../domain/entry.dart';
 import '../domain/trip.dart';
+import '../domain/trip_day.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'entry_form_screen.dart';
@@ -94,6 +95,7 @@ class TripDetailScreen extends StatelessWidget {
               ),
               SliverToBoxAdapter(child: _TripHeader(trip: current)),
               _EntryList(
+                trip: current,
                 entries: services.entryRepository.watchEntries(current.id),
                 onOpen: (entry) => _openEntryForm(context, current, entry),
                 photoFile: services.photoLibrary.fileFor,
@@ -137,11 +139,13 @@ class _TripHeader extends StatelessWidget {
 
 class _EntryList extends StatelessWidget {
   const _EntryList({
+    required this.trip,
     required this.entries,
     required this.onOpen,
     required this.photoFile,
   });
 
+  final Trip trip;
   final Stream<List<Entry>> entries;
   final ValueChanged<Entry> onOpen;
   final File Function(String relativePath) photoFile;
@@ -151,23 +155,90 @@ class _EntryList extends StatelessWidget {
     return StreamBuilder<List<Entry>>(
       stream: entries,
       builder: (context, snapshot) => switch (snapshot) {
-        AsyncSnapshot(:final data?) when data.isNotEmpty => SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-          sliver: SliverList.builder(
-            itemCount: data.length,
-            itemBuilder: (context, index) {
-              final entry = data[index];
-              return _EntryCard(
-                entry: entry,
-                onTap: () => onOpen(entry),
-                photoFile: photoFile,
-              );
-            },
-          ),
+        AsyncSnapshot(:final data?) when data.isNotEmpty => _TimelineList(
+          items: [
+            for (final day in groupEntriesByDay(trip, data)) ...[
+              _DayHeaderItem(day),
+              for (final entry in day.entries) _EntryItem(entry),
+            ],
+          ],
+          onOpen: onOpen,
+          photoFile: photoFile,
         ),
         AsyncSnapshot(:final data?) when data.isEmpty => const _NoEntries(),
         _ => const SliverToBoxAdapter(),
       },
+    );
+  }
+}
+
+/// One row of the timeline: a day header or an entry.
+sealed class _TimelineItem {
+  const _TimelineItem();
+}
+
+class _DayHeaderItem extends _TimelineItem {
+  const _DayHeaderItem(this.day);
+
+  final TripDay day;
+}
+
+class _EntryItem extends _TimelineItem {
+  const _EntryItem(this.entry);
+
+  final Entry entry;
+}
+
+class _TimelineList extends StatelessWidget {
+  const _TimelineList({
+    required this.items,
+    required this.onOpen,
+    required this.photoFile,
+  });
+
+  final List<_TimelineItem> items;
+  final ValueChanged<Entry> onOpen;
+  final File Function(String relativePath) photoFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+      sliver: SliverList.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) => switch (items[index]) {
+          _DayHeaderItem(:final day) => _DayHeader(day: day),
+          _EntryItem(:final entry) => _EntryCard(
+            entry: entry,
+            onTap: () => onOpen(entry),
+            photoFile: photoFile,
+          ),
+        },
+      ),
+    );
+  }
+}
+
+class _DayHeader extends StatelessWidget {
+  const _DayHeader({required this.day});
+
+  final TripDay day;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      child: Text(
+        switch (day.dayNumber) {
+          final number? => l10n.tripDayHeader(number, day.day),
+          null => l10n.otherDayHeader(day.day),
+        },
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.primary,
+        ),
+      ),
     );
   }
 }
@@ -187,7 +258,7 @@ class _EntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final time = DateFormat.yMMMd(locale).add_jm().format(entry.localDateTime);
+    final time = DateFormat.jm(locale).format(entry.localDateTime);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(

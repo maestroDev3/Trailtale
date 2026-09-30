@@ -127,16 +127,54 @@ void main() {
   });
 
   group('TripDetailScreen entries', () {
-    testWidgets('show local date and time, note and place name', (
-      tester,
-    ) async {
+    testWidgets('show local time, note and place name', (tester) async {
       await openLisbon(tester, entries: [breakfast]);
 
-      expect(find.textContaining('May 1, 2026'), findsWidgets);
       expect(find.textContaining('8:30'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Text &&
+              (widget.data ?? '').contains('8:30') &&
+              (widget.data ?? '').contains('May'),
+        ),
+        findsNothing,
+      );
       expect(find.text('Pastéis de nata'), findsOneWidget);
       expect(find.text('Belém'), findsOneWidget);
       expect(find.text('No entries yet'), findsNothing);
+    });
+
+    testWidgets('are grouped under a header per trip day', (tester) async {
+      await openLisbon(tester, entries: [dinner, breakfast]);
+
+      expect(find.text('Day 1 · Fri, May 1'), findsOneWidget);
+      expect(find.text('Day 2 · Sat, May 2'), findsOneWidget);
+      final tops = [
+        find.text('Day 1 · Fri, May 1'),
+        find.text('Pastéis de nata'),
+        find.text('Day 2 · Sat, May 2'),
+        find.text('Sardines'),
+      ].map((finder) => tester.getTopLeft(finder).dy).toList();
+      expect(tops, orderedEquals([...tops]..sort()));
+    });
+
+    testWidgets('outside the trip dates show only the date', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          Entry(
+            id: 'arrival',
+            tripId: 'lisbon',
+            time: DateTime.utc(2026, 4, 26, 16),
+            utcOffset: const Duration(hours: 1),
+            note: 'Flight',
+          ),
+        ],
+      );
+
+      expect(find.text('Sun, Apr 26, 2026'), findsOneWidget);
+      expect(find.textContaining('Day'), findsNothing);
     });
 
     testWidgets('appear in chronological order', (tester) async {
