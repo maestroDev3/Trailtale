@@ -9,9 +9,10 @@ import 'versioned_json_list.dart';
 /// Stores the entries of all trips in one versioned JSON file, e.g.
 /// `entries.json` in the app documents directory.
 ///
-/// Format version 1: `{"version": 1, "entries": [{"id", "tripId", "time"
+/// Format version 2: `{"version": 2, "entries": [{"id", "tripId", "time"
 /// (ISO-8601 UTC), "utcOffsetMinutes", "note", "placeName", "location":
-/// {"latitude", "longitude"} | null}]}`.
+/// {"latitude", "longitude"} | null, "photoPaths": [...]}]}`.
+/// Version 1 is the same without `photoPaths` and is still read.
 class JsonFileEntryRepository implements EntryRepository {
   JsonFileEntryRepository(File file)
     : _store = VersionedJsonList(
@@ -19,6 +20,8 @@ class JsonFileEntryRepository implements EntryRepository {
         listKey: 'entries',
         fromJson: _entryFromJson,
         toJson: _entryToJson,
+        version: 2,
+        readableVersions: const {1, 2},
       );
 
   final VersionedJsonList<Entry> _store;
@@ -70,6 +73,7 @@ Map<String, Object?> _entryToJson(Entry entry) => {
     },
     null => null,
   },
+  'photoPaths': entry.photoPaths,
 };
 
 Entry _entryFromJson(Map<String, dynamic> json) => Entry(
@@ -86,4 +90,5 @@ Entry _entryFromJson(Map<String, dynamic> json) => Entry(
     ),
     _ => null,
   },
+  photoPaths: [...?(json['photoPaths'] as List<dynamic>?)?.cast<String>()],
 );

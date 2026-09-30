@@ -7,7 +7,9 @@ import 'dart:io';
 ///
 /// Writes go to a temporary file that is renamed afterwards, so a crash never
 /// leaves a half-written file. A file with an unknown version is refused with
-/// a [StateError] and never overwritten.
+/// a [StateError] and never overwritten. Older versions listed in
+/// [readableVersions] are read (so [fromJson] must handle them) and written
+/// back in the current [version] with the next change.
 class VersionedJsonList<T> {
   VersionedJsonList({
     required this.file,
@@ -15,11 +17,13 @@ class VersionedJsonList<T> {
     required this.fromJson,
     required this.toJson,
     this.version = 1,
-  });
+    Set<int>? readableVersions,
+  }) : readableVersions = readableVersions ?? {version};
 
   final File file;
   final String listKey;
   final int version;
+  final Set<int> readableVersions;
   final T Function(Map<String, dynamic> json) fromJson;
   final Map<String, Object?> Function(T item) toJson;
 
@@ -57,9 +61,10 @@ class VersionedJsonList<T> {
     if (!file.existsSync()) return _items = List<T>.unmodifiable(const []);
     final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
     final storedVersion = json['version'];
-    if (storedVersion != version) {
+    if (!readableVersions.contains(storedVersion)) {
       throw StateError(
-        'Unsupported version $storedVersion in ${file.path} (expected $version)',
+        'Unsupported version $storedVersion in ${file.path} '
+        '(readable: $readableVersions)',
       );
     }
     final items = (json[listKey] as List<dynamic>)

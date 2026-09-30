@@ -12,6 +12,7 @@ void main() {
     String note = 'Pastéis de nata',
     String? placeName = 'Belém',
     GeoPoint? location,
+    List<String> photoPaths = const [],
   }) {
     return Entry(
       id: id,
@@ -21,6 +22,7 @@ void main() {
       note: note,
       placeName: placeName,
       location: location,
+      photoPaths: photoPaths,
     );
   }
 
@@ -84,6 +86,59 @@ void main() {
       expect(entry(), entry());
       expect(entry().hashCode, entry().hashCode);
       expect(entry(), isNot(entry(note: 'Other')));
+    });
+  });
+
+  group('Entry photos', () {
+    test('has no photos by default', () {
+      expect(entry().photoPaths, isEmpty);
+    });
+
+    test('keeps photo paths in order and does not allow changing them', () {
+      final result = entry(photoPaths: ['photos/b.jpg', 'photos/a.jpg']);
+
+      expect(result.photoPaths, ['photos/b.jpg', 'photos/a.jpg']);
+      expect(
+        () => result.photoPaths.add('photos/c.jpg'),
+        throwsUnsupportedError,
+      );
+    });
+
+    test('is valid with only photos', () {
+      final result = entry(
+        note: '',
+        placeName: null,
+        photoPaths: ['photos/a.jpg'],
+      );
+
+      expect(result.photoPaths, ['photos/a.jpg']);
+    });
+
+    test('rejects blank and absolute photo paths', () {
+      expect(() => entry(photoPaths: [' ']), throwsArgumentError);
+      expect(() => entry(photoPaths: ['/sdcard/a.jpg']), throwsArgumentError);
+    });
+
+    test('compares photo paths by value', () {
+      expect(
+        entry(photoPaths: ['photos/a.jpg']),
+        entry(photoPaths: ['photos/a.jpg']),
+      );
+      expect(
+        entry(photoPaths: ['photos/a.jpg']).hashCode,
+        entry(photoPaths: ['photos/a.jpg']).hashCode,
+      );
+      expect(
+        entry(photoPaths: ['photos/a.jpg']),
+        isNot(entry(photoPaths: ['photos/b.jpg'])),
+      );
+    });
+
+    test('can be changed with copyWith', () {
+      final changed = entry().copyWith(photoPaths: ['photos/a.jpg']);
+
+      expect(changed.photoPaths, ['photos/a.jpg']);
+      expect(changed.note, 'Pastéis de nata');
     });
   });
 
