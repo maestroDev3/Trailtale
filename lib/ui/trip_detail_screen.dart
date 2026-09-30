@@ -7,9 +7,11 @@ import '../domain/delete_trip_with_entries.dart';
 import '../domain/entry.dart';
 import '../domain/trip.dart';
 import '../domain/trip_day.dart';
+import '../domain/trip_summary.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'entry_form_screen.dart';
+import 'formatting.dart';
 import 'trip_form_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/trip_dates.dart';
@@ -76,31 +78,39 @@ class TripDetailScreen extends StatelessWidget {
         final current = snapshot.data;
         if (current == null) return const Scaffold();
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar.large(
-                title: Text(current.title),
-                actions: [
-                  IconButton(
-                    tooltip: l10n.editTrip,
-                    icon: const Icon(Icons.edit_outlined),
-                    onPressed: () => _openEditForm(context, current),
+          body: StreamBuilder<List<Entry>>(
+            stream: services.entryRepository.watchEntries(current.id),
+            builder: (context, entriesSnapshot) => CustomScrollView(
+              slivers: [
+                SliverAppBar.large(
+                  title: Text(current.title),
+                  actions: [
+                    IconButton(
+                      tooltip: l10n.editTrip,
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => _openEditForm(context, current),
+                    ),
+                    IconButton(
+                      tooltip: l10n.deleteTrip,
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _confirmDelete(context, current),
+                    ),
+                  ],
+                ),
+                SliverToBoxAdapter(
+                  child: _TripHeader(
+                    trip: current,
+                    entries: entriesSnapshot.data ?? const [],
                   ),
-                  IconButton(
-                    tooltip: l10n.deleteTrip,
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _confirmDelete(context, current),
-                  ),
-                ],
-              ),
-              SliverToBoxAdapter(child: _TripHeader(trip: current)),
-              _EntryList(
-                trip: current,
-                entries: services.entryRepository.watchEntries(current.id),
-                onOpen: (entry) => _openEntryForm(context, current, entry),
-                photoFile: services.photoLibrary.fileFor,
-              ),
-            ],
+                ),
+                _EntryList(
+                  trip: current,
+                  entries: entriesSnapshot.data,
+                  onOpen: (entry) => _openEntryForm(context, current, entry),
+                  photoFile: services.photoLibrary.fileFor,
+                ),
+              ],
+            ),
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _openEntryForm(context, current),
@@ -114,23 +124,83 @@ class TripDetailScreen extends StatelessWidget {
 }
 
 class _TripHeader extends StatelessWidget {
-  const _TripHeader({required this.trip});
+  const _TripHeader({required this.trip, required this.entries});
 
   final Trip trip;
+  final List<Entry> entries;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
     final textTheme = Theme.of(context).textTheme;
+    final summary = summarizeTrip(trip, entries);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(tripDatesText(context, trip), style: textTheme.titleMedium),
-          Text(
-            AppLocalizations.of(context).tripDayCount(trip.dayCount),
-            style: textTheme.bodyMedium,
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _Stat(
+                key: const Key('summary-days'),
+                value: '${summary.dayCount}',
+                label: l10n.summaryDaysLabel(summary.dayCount),
+              ),
+              _Stat(
+                key: const Key('summary-entries'),
+                value: '${summary.entryCount}',
+                label: l10n.summaryEntriesLabel(summary.entryCount),
+              ),
+              _Stat(
+                key: const Key('summary-places'),
+                value: '${summary.placeCount}',
+                label: l10n.summaryPlacesLabel(summary.placeCount),
+              ),
+              _Stat(
+                key: const Key('summary-photos'),
+                value: '${summary.photoCount}',
+                label: l10n.summaryPhotosLabel(summary.photoCount),
+              ),
+              _Stat(
+                key: const Key('summary-distance'),
+                value: formatKilometers(summary.distanceMeters, locale),
+                label: l10n.summaryKilometersLabel,
+              ),
+            ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A number with its label, e.g. "4" over "days".
+class _Stat extends StatelessWidget {
+  const _Stat({super.key, required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      constraints: const BoxConstraints(minWidth: 64),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(value, style: theme.textTheme.titleLarge),
+          Text(label, style: theme.textTheme.bodySmall),
         ],
       ),
     );
@@ -146,29 +216,28 @@ class _EntryList extends StatelessWidget {
   });
 
   final Trip trip;
-  final Stream<List<Entry>> entries;
+
+  /// The trip's entries; `null` while they are loading.
+  final List<Entry>? entries;
   final ValueChanged<Entry> onOpen;
   final File Function(String relativePath) photoFile;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Entry>>(
-      stream: entries,
-      builder: (context, snapshot) => switch (snapshot) {
-        AsyncSnapshot(:final data?) when data.isNotEmpty => _TimelineList(
-          items: [
-            for (final day in groupEntriesByDay(trip, data)) ...[
-              _DayHeaderItem(day),
-              for (final entry in day.entries) _EntryItem(entry),
-            ],
+    return switch (entries) {
+      null => const SliverToBoxAdapter(),
+      [] => const _NoEntries(),
+      final entries => _TimelineList(
+        items: [
+          for (final day in groupEntriesByDay(trip, entries)) ...[
+            _DayHeaderItem(day),
+            for (final entry in day.entries) _EntryItem(entry),
           ],
-          onOpen: onOpen,
-          photoFile: photoFile,
-        ),
-        AsyncSnapshot(:final data?) when data.isEmpty => const _NoEntries(),
-        _ => const SliverToBoxAdapter(),
-      },
-    );
+        ],
+        onOpen: onOpen,
+        photoFile: photoFile,
+      ),
+    };
   }
 }
 

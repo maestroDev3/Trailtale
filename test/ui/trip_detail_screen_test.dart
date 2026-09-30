@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
@@ -271,6 +272,75 @@ void main() {
       await openLisbon(tester);
 
       expect(find.widgetWithText(FloatingActionButton, 'New entry'), findsOne);
+    });
+  });
+
+  group('TripDetailScreen summary', () {
+    final inLisbon = Entry(
+      id: 'lisbon-entry',
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, 9),
+      utcOffset: const Duration(hours: 1),
+      placeName: 'Lisbon',
+      location: GeoPoint(latitude: 38.7223, longitude: -9.1393),
+      photoPaths: ['photos/1.jpg', 'photos/2.jpg'],
+    );
+    final inPorto = Entry(
+      id: 'porto-entry',
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 2, 9),
+      utcOffset: const Duration(hours: 1),
+      placeName: 'Porto',
+      location: GeoPoint(latitude: 41.1579, longitude: -8.6291),
+    );
+
+    Finder stat(String key, String text) =>
+        find.descendant(of: find.byKey(Key(key)), matching: find.text(text));
+
+    testWidgets('shows days, entries, places, photos and kilometers', (
+      tester,
+    ) async {
+      await openLisbon(tester, entries: [inLisbon, inPorto]);
+
+      expect(stat('summary-days', '4'), findsOneWidget);
+      expect(stat('summary-days', 'days'), findsOneWidget);
+      expect(stat('summary-entries', '2'), findsOneWidget);
+      expect(stat('summary-entries', 'entries'), findsOneWidget);
+      expect(stat('summary-places', '2'), findsOneWidget);
+      expect(stat('summary-places', 'places'), findsOneWidget);
+      expect(stat('summary-photos', '2'), findsOneWidget);
+      expect(stat('summary-photos', 'photos'), findsOneWidget);
+      expect(stat('summary-distance', '274'), findsOneWidget);
+      expect(stat('summary-distance', 'km'), findsOneWidget);
+    });
+
+    testWidgets('uses singular labels', (tester) async {
+      await openLisbon(tester, entries: [inPorto]);
+
+      expect(stat('summary-entries', 'entry'), findsOneWidget);
+      expect(stat('summary-places', 'place'), findsOneWidget);
+      expect(stat('summary-photos', 'photos'), findsOneWidget);
+    });
+
+    testWidgets('updates when entries change', (tester) async {
+      final (_, entries) = await openLisbon(tester, entries: [inLisbon]);
+      expect(stat('summary-distance', '0'), findsOneWidget);
+
+      await entries.saveEntry(inPorto);
+      await tester.pumpAndSettle();
+
+      expect(stat('summary-entries', '2'), findsOneWidget);
+      expect(stat('summary-distance', '274'), findsOneWidget);
+    });
+
+    testWidgets('does not overflow with large fonts', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await openLisbon(tester, entries: [inLisbon, inPorto]);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const Key('summary-distance')), findsOneWidget);
     });
   });
 }
