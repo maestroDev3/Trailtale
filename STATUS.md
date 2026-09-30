@@ -20,7 +20,7 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|
 | ~~#70 Look & feel~~ (done) | ~~#71~~ → ~~#72~~ → ~~#73~~ → ~~#74~~ → ~~#75~~ |
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
-| ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
+| #5 Photos | ~~#6~~ → ~~#7~~ → #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
 | #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF → #111 Store the release signing key safely (user task, after vacation) |
 | #11 Map | ~~#12 Entries as markers on a map~~ → #13 Draw the trip route |
@@ -36,4 +36,5 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Open decisions (user only)
 
+- #114 Evening recap: allow notifications and reading the gallery? Reminder time?
 - Android only, or iOS later?
