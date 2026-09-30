@@ -84,18 +84,30 @@ jobs:
             echo "::warning::ANDROID_KEYSTORE_BASE64 is not set – the APK is signed with a temporary debug key and cannot update an installed app."
           fi
       # Temporary diagnosis: shows only checksums, lengths and results, never values.
+      # Temporary diagnosis: posts only checksums, lengths and results, never values.
       - name: Check signing secrets
         if: env.ANDROID_KEYSTORE_PATH != ''
         env:
           SP: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KA: ${{ secrets.ANDROID_KEY_ALIAS }}
           KP: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "keystore sha256: $(sha256sum "$ANDROID_KEYSTORE_PATH" | cut -c1-16)"
-          echo "store password length: ${#SP}, key password length: ${#KP}, alias: '$KA'"
-          [ "$SP" = "$KP" ] && echo "passwords: same" || echo "passwords: differ"
-          keytool -list -storetype PKCS12 -keystore "$ANDROID_KEYSTORE_PATH" -storepass "$SP" 2>&1 | grep -iE "entries|trailtale|error|exception" || true
-          java -version 2>&1 | head -1
+          {
+            echo '### Signing check'
+            echo '```'
+            echo "keystore sha256: $(sha256sum "$ANDROID_KEYSTORE_PATH" | cut -c1-16)"
+            echo "keystore bytes: $(wc -c < "$ANDROID_KEYSTORE_PATH")"
+            echo "store password length: ${#SP}, key password length: ${#KP}, alias length: ${#KA}"
+            [ "$SP" = "$KP" ] && echo "passwords: same" || echo "passwords: differ"
+            [ "$KA" = "trailtale" ] && echo "alias: ok" || echo "alias: unexpected"
+            keytool -list -storetype PKCS12 -keystore "$ANDROID_KEYSTORE_PATH" -storepass "$SP" 2>&1 | grep -iE "entries|trailtale|error|exception|incorrect" || true
+            java -version 2>&1 | head -1
+            echo '```'
+          } > signing.md
+          jq -Rs '{body: .}' signing.md > body.json
+          curl -sS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -d @body.json > /dev/null
       - name: Build APK
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
