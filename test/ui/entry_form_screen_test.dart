@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
+import 'package:trailtale/domain/photo_metadata.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
@@ -9,6 +10,7 @@ import 'package:trailtale/ui/trip_detail_screen.dart';
 
 import '../support/fake_entry_repository.dart';
 import '../support/fake_photo_library.dart';
+import '../support/fake_photo_metadata_reader.dart';
 import '../support/fake_photo_picker.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
@@ -35,6 +37,7 @@ void main() {
     List<Entry> entries = const [],
     FakePhotoLibrary? photoLibrary,
     FakePhotoPicker? photoPicker,
+    FakePhotoMetadataReader? photoMetadataReader,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -45,6 +48,7 @@ void main() {
           entries: entryRepository,
           photoLibrary: photoLibrary,
           photoPicker: photoPicker,
+          photoMetadataReader: photoMetadataReader,
         ),
       ),
     );
@@ -57,11 +61,13 @@ void main() {
     WidgetTester tester, {
     FakePhotoLibrary? photoLibrary,
     FakePhotoPicker? photoPicker,
+    FakePhotoMetadataReader? photoMetadataReader,
   }) async {
     final entries = await openTrip(
       tester,
       photoLibrary: photoLibrary,
       photoPicker: photoPicker,
+      photoMetadataReader: photoMetadataReader,
     );
     await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
     await tester.pumpAndSettle();
@@ -335,6 +341,119 @@ void main() {
 
       expect(entries.entries, isEmpty);
       expect(library.deleted, ['photos/old.jpg']);
+    });
+  });
+
+  group('EntryFormScreen details from photos', () {
+    final lisbonPhoto = FakePhotoMetadataReader({
+      'imported1.jpg': PhotoMetadata(
+        takenAt: DateTime(2026, 5, 2, 9, 15, 30),
+        utcOffset: const Duration(hours: 1),
+        location: GeoPoint(latitude: 38.7128, longitude: -9.136),
+      ),
+    });
+
+    Future<void> addPhoto(WidgetTester tester) async {
+      final button = find.widgetWithText(OutlinedButton, 'Add photos');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    String fieldText(WidgetTester tester, String label) =>
+        tester.widget<TextFormField>(field(label)).controller?.text ?? '';
+
+    testWidgets('fills date, time and coordinates of a new entry', (
+      tester,
+    ) async {
+      final entries = await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: lisbonPhoto,
+      );
+
+      await addPhoto(tester);
+
+      expect(find.text('May 2, 2026'), findsOneWidget);
+      expect(find.textContaining('9:15'), findsOneWidget);
+      expect(fieldText(tester, 'Latitude (optional)'), startsWith('38.7128'));
+      expect(fieldText(tester, 'Longitude (optional)'), startsWith('-9.136'));
+      expect(find.text('Date and place taken from the photo'), findsOneWidget);
+
+      await tester.enterText(field('Note'), 'Tram 28');
+      await save(tester);
+
+      final entry = entries.entries.single;
+      expect(entry.time, DateTime.utc(2026, 5, 2, 8, 15));
+      expect(entry.utcOffset, const Duration(hours: 1));
+      expect(entry.location?.latitude, closeTo(38.7128, 0.000001));
+      expect(entry.location?.longitude, closeTo(-9.136, 0.000001));
+    });
+
+    testWidgets('keeps a date and time the user has set', (tester) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: lisbonPhoto,
+      );
+      await tester.tap(find.textContaining('10:30'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      await addPhoto(tester);
+
+      expect(find.text('May 1, 2026'), findsOneWidget);
+      expect(find.textContaining('10:30'), findsOneWidget);
+      expect(fieldText(tester, 'Latitude (optional)'), startsWith('38.7128'));
+    });
+
+    testWidgets('keeps coordinates the user has entered', (tester) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: lisbonPhoto,
+      );
+      await tester.enterText(field('Latitude (optional)'), '41.1579');
+      await tester.enterText(field('Longitude (optional)'), '-8.6291');
+
+      await addPhoto(tester);
+
+      expect(fieldText(tester, 'Latitude (optional)'), '41.1579');
+      expect(fieldText(tester, 'Longitude (optional)'), '-8.6291');
+      expect(find.text('May 2, 2026'), findsOneWidget);
+    });
+
+    testWidgets('does not change the time of an existing entry', (
+      tester,
+    ) async {
+      await openTrip(
+        tester,
+        entries: [breakfast],
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: FakePhotoMetadataReader({
+          'imported1.jpg': PhotoMetadata(takenAt: DateTime(2026, 5, 3, 18)),
+        }),
+      );
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await addPhoto(tester);
+
+      expect(find.text('May 2, 2026'), findsOneWidget);
+    });
+
+    testWidgets('changes nothing for a photo without metadata', (tester) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+      );
+
+      await addPhoto(tester);
+
+      expect(find.text('May 1, 2026'), findsOneWidget);
+      expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
+      expect(find.byType(SnackBar), findsNothing);
     });
   });
 }

@@ -166,5 +166,17 @@
         "type": "int"
       }
     }
+  },
+  "takenFromPhotoDateAndPlace": "Date and place taken from the photo",
+  "@takenFromPhotoDateAndPlace": {
+    "description": "Message after date, time and coordinates of an entry were filled from a photo."
+  },
+  "takenFromPhotoDate": "Date taken from the photo",
+  "@takenFromPhotoDate": {
+    "description": "Message after date and time of an entry were filled from a photo."
+  },
+  "takenFromPhotoPlace": "Place taken from the photo",
+  "@takenFromPhotoPlace": {
+    "description": "Message after the coordinates of an entry were filled from a photo."
   }
 }

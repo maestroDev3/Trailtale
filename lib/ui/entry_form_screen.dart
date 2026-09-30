@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../domain/coordinates_input.dart';
 import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
+import '../domain/photo_metadata.dart';
+import '../domain/photo_suggestion.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
@@ -43,6 +45,16 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   /// Photos imported while this form is open; deleted again unless saved.
   final _importedPhotos = <String>{};
   var _saved = false;
+
+  /// Metadata of the photos added while this form is open.
+  final _addedMetadata = <PhotoMetadata>[];
+
+  /// Whether the user picked date or time by hand; photos then keep off.
+  var _dateTimeSetByUser = false;
+
+  /// Offset recorded by the photo whose time was applied; `null` means the
+  /// device's offset at that time.
+  Duration? _photoOffset;
 
   @override
   void initState() {
@@ -81,13 +93,21 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       lastDate: DateTime(2200),
     );
     if (picked == null || !mounted) return;
-    setState(() => _date = picked);
+    setState(() {
+      _date = picked;
+      _dateTimeSetByUser = true;
+      _photoOffset = null;
+    });
   }
 
   Future<void> _pickTime() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked == null || !mounted) return;
-    setState(() => _time = picked);
+    setState(() {
+      _time = picked;
+      _dateTimeSetByUser = true;
+      _photoOffset = null;
+    });
   }
 
   Future<void> _addPhotos() async {
@@ -98,8 +118,46 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       imported.add(await services.photoLibrary.importPhoto(source));
     }
     _importedPhotos.addAll(imported);
+    for (final path in imported) {
+      final file = services.photoLibrary.fileFor(path);
+      _addedMetadata.add(await services.photoMetadataReader.read(file));
+    }
     if (!mounted) return;
     setState(() => _photos.addAll(imported));
+    _applySuggestion(suggestFromPhotos(_addedMetadata));
+  }
+
+  /// Fills date, time and coordinates from photos where the user has not
+  /// set them, and tells the user what was taken over.
+  void _applySuggestion(PhotoSuggestion suggestion) {
+    final takenAt = suggestion.takenAt;
+    final applyTime =
+        takenAt != null && widget.entry == null && !_dateTimeSetByUser;
+    final location = suggestion.location;
+    final applyPlace =
+        location != null &&
+        _latitude.text.trim().isEmpty &&
+        _longitude.text.trim().isEmpty;
+    if (!applyTime && !applyPlace) return;
+    setState(() {
+      if (applyTime) {
+        _date = DateTime(takenAt.year, takenAt.month, takenAt.day);
+        _time = TimeOfDay(hour: takenAt.hour, minute: takenAt.minute);
+        _photoOffset = suggestion.utcOffset;
+      }
+      if (applyPlace) {
+        _latitude.text = location.latitude.toStringAsFixed(6);
+        _longitude.text = location.longitude.toStringAsFixed(6);
+      }
+    });
+    final l10n = AppLocalizations.of(context);
+    final message = switch ((applyTime, applyPlace)) {
+      (true, true) => l10n.takenFromPhotoDateAndPlace,
+      (true, false) => l10n.takenFromPhotoDate,
+      _ => l10n.takenFromPhotoPlace,
+    };
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _removePhoto(String path) {
@@ -135,21 +193,31 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ValidCoordinates(:final point) => point,
       _ => null,
     };
-    final entry = Entry.atLocalTime(
-      id: widget.entry?.id ?? widget.services.newId(),
-      tripId: widget.trip.id,
-      localTime: DateTime(
-        _date.year,
-        _date.month,
-        _date.day,
-        _time.hour,
-        _time.minute,
+    final id = widget.entry?.id ?? widget.services.newId();
+    final (year, month, day) = (_date.year, _date.month, _date.day);
+    final (hour, minute) = (_time.hour, _time.minute);
+    final entry = switch (_photoOffset) {
+      // The photo's own offset keeps its local time, wherever the phone is.
+      final offset? => Entry(
+        id: id,
+        tripId: widget.trip.id,
+        time: DateTime.utc(year, month, day, hour, minute).subtract(offset),
+        utcOffset: offset,
+        note: _note.text,
+        placeName: _place.text,
+        location: location,
+        photoPaths: _photos,
       ),
-      note: _note.text,
-      placeName: _place.text,
-      location: location,
-      photoPaths: _photos,
-    );
+      null => Entry.atLocalTime(
+        id: id,
+        tripId: widget.trip.id,
+        localTime: DateTime(year, month, day, hour, minute),
+        note: _note.text,
+        placeName: _place.text,
+        location: location,
+        photoPaths: _photos,
+      ),
+    };
     await widget.services.entryRepository.saveEntry(entry);
     _saved = true;
     final dropped = {
