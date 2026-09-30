@@ -12,13 +12,8 @@ void main() {
   );
   const plusTwo = Duration(hours: 2);
 
-  Entry entry(String id, DateTime utc, {Duration offset = plusTwo}) => Entry(
-    id: id,
-    tripId: 'lisbon',
-    time: utc,
-    utcOffset: offset,
-    note: id,
-  );
+  Entry entry(String id, DateTime utc, {Duration offset = plusTwo}) =>
+      Entry(id: id, tripId: 'lisbon', time: utc, utcOffset: offset, note: id);
 
   group('groupEntriesByDay', () {
     test('returns no days without entries', () {
@@ -80,7 +75,11 @@ void main() {
 
     test('uses each entry’s own offset', () {
       final instant = DateTime.utc(2026, 5, 1, 23);
-      final inLisbon = entry('lisbon', instant, offset: const Duration(hours: 1));
+      final inLisbon = entry(
+        'lisbon',
+        instant,
+        offset: const Duration(hours: 1),
+      );
       final inAzores = entry('azores', instant, offset: Duration.zero);
 
       final days = groupEntriesByDay(trip, [inLisbon, inAzores]);
