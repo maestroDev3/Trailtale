@@ -8,6 +8,8 @@ import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
 
 import '../support/fake_entry_repository.dart';
+import '../support/fake_photo_library.dart';
+import '../support/fake_photo_picker.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
@@ -31,6 +33,8 @@ void main() {
   Future<FakeEntryRepository> openTrip(
     WidgetTester tester, {
     List<Entry> entries = const [],
+    FakePhotoLibrary? photoLibrary,
+    FakePhotoPicker? photoPicker,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -39,6 +43,8 @@ void main() {
         services: testServices(
           trips: FakeTripRepository([lisbon]),
           entries: entryRepository,
+          photoLibrary: photoLibrary,
+          photoPicker: photoPicker,
         ),
       ),
     );
@@ -47,8 +53,16 @@ void main() {
     return entryRepository;
   }
 
-  Future<FakeEntryRepository> openNewEntryForm(WidgetTester tester) async {
-    final entries = await openTrip(tester);
+  Future<FakeEntryRepository> openNewEntryForm(
+    WidgetTester tester, {
+    FakePhotoLibrary? photoLibrary,
+    FakePhotoPicker? photoPicker,
+  }) async {
+    final entries = await openTrip(
+      tester,
+      photoLibrary: photoLibrary,
+      photoPicker: photoPicker,
+    );
     await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
     await tester.pumpAndSettle();
     return entries;
@@ -199,6 +213,128 @@ void main() {
 
       expect(entries.entries, [breakfast]);
       expect(find.byType(EntryFormScreen), findsOneWidget);
+    });
+  });
+
+  group('EntryFormScreen photos', () {
+    final withPhoto = breakfast.copyWith(photoPaths: ['photos/old.jpg']);
+
+    Future<void> tapAddPhotos(WidgetTester tester) async {
+      final button = find.widgetWithText(OutlinedButton, 'Add photos');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> tapRemovePhoto(WidgetTester tester) async {
+      final button = find.byTooltip('Remove photo').first;
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('imports picked photos and shows them', (tester) async {
+      final library = FakePhotoLibrary();
+      final picker = FakePhotoPicker(['/gallery/a.jpg', '/gallery/b.jpg']);
+      await openNewEntryForm(
+        tester,
+        photoLibrary: library,
+        photoPicker: picker,
+      );
+
+      await tapAddPhotos(tester);
+
+      expect(library.imported, [
+        'photos/imported1.jpg',
+        'photos/imported2.jpg',
+      ]);
+      expect(find.byTooltip('Remove photo'), findsNWidgets(2));
+    });
+
+    testWidgets('changes nothing when the picker is cancelled', (
+      tester,
+    ) async {
+      final library = FakePhotoLibrary();
+      final picker = FakePhotoPicker();
+      await openNewEntryForm(
+        tester,
+        photoLibrary: library,
+        photoPicker: picker,
+      );
+
+      await tapAddPhotos(tester);
+
+      expect(picker.openCount, 1);
+      expect(library.imported, isEmpty);
+      expect(find.byTooltip('Remove photo'), findsNothing);
+    });
+
+    testWidgets('saves an entry with only photos', (tester) async {
+      final entries = await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/a.jpg']),
+      );
+
+      await tapAddPhotos(tester);
+      await save(tester);
+
+      expect(entries.entries.single.photoPaths, ['photos/imported1.jpg']);
+      expect(entries.entries.single.note, isEmpty);
+    });
+
+    testWidgets('deletes a removed photo only when saving', (tester) async {
+      final library = FakePhotoLibrary();
+      final entries = await openTrip(
+        tester,
+        entries: [withPhoto],
+        photoLibrary: library,
+      );
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await tapRemovePhoto(tester);
+      expect(library.deleted, isEmpty);
+      await save(tester);
+
+      expect(entries.entries.single.photoPaths, isEmpty);
+      expect(library.deleted, ['photos/old.jpg']);
+    });
+
+    testWidgets('deletes imported photos when leaving without saving', (
+      tester,
+    ) async {
+      final library = FakePhotoLibrary();
+      final entries = await openNewEntryForm(
+        tester,
+        photoLibrary: library,
+        photoPicker: FakePhotoPicker(['/gallery/a.jpg']),
+      );
+
+      await tapAddPhotos(tester);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+
+      expect(entries.entries, isEmpty);
+      expect(library.deleted, ['photos/imported1.jpg']);
+    });
+
+    testWidgets('deleting an entry deletes its photos', (tester) async {
+      final library = FakePhotoLibrary();
+      final entries = await openTrip(
+        tester,
+        entries: [withPhoto],
+        photoLibrary: library,
+      );
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Delete entry'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+      await tester.pumpAndSettle();
+
+      expect(entries.entries, isEmpty);
+      expect(library.deleted, ['photos/old.jpg']);
     });
   });
 }
