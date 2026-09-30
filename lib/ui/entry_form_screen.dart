@@ -278,28 +278,48 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _PickerField(
-              icon: Icons.event,
-              value: DateFormat.yMMMd(locale).format(_date),
-              label: l10n.entryDateLabel,
-              onTap: _pickDate,
+            _PhotoSection(
+              files: [
+                for (final path in _photos)
+                  (path, widget.services.photoLibrary.fileFor(path)),
+              ],
+              onAdd: _addPhotos,
+              onRemove: _removePhoto,
             ),
-            const SizedBox(height: 8),
-            _PickerField(
-              icon: Icons.schedule,
-              value: _time.format(context),
-              label: l10n.entryTimeLabel,
-              onTap: _pickTime,
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _PickerField(
+                    icon: Icons.event,
+                    value: DateFormat.yMMMd(locale).format(_date),
+                    label: l10n.entryDateLabel,
+                    onTap: _pickDate,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _PickerField(
+                    icon: Icons.schedule,
+                    value: _time.format(context),
+                    label: l10n.entryTimeLabel,
+                    onTap: _pickTime,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _note,
-              minLines: 3,
+              minLines: 4,
               maxLines: null,
               textCapitalization: TextCapitalization.sentences,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w400),
               decoration: InputDecoration(
                 labelText: l10n.entryNoteLabel,
-                border: const OutlineInputBorder(),
+                alignLabelWithHint: true,
               ),
               validator: _validateNote,
             ),
@@ -310,42 +330,38 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               decoration: InputDecoration(
                 labelText: l10n.entryPlaceLabel,
                 prefixIcon: const Icon(Icons.place_outlined),
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            _PhotoSection(
-              files: [
-                for (final path in _photos)
-                  (path, widget.services.photoLibrary.fileFor(path)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _latitude,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: l10n.latitudeLabel,
+                      errorMaxLines: 3,
+                    ),
+                    validator: _validateCoordinates,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextFormField(
+                    controller: _longitude,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    decoration: InputDecoration(labelText: l10n.longitudeLabel),
+                  ),
+                ),
               ],
-              onAdd: _addPhotos,
-              onRemove: _removePhoto,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _latitude,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-                signed: true,
-              ),
-              decoration: InputDecoration(
-                labelText: l10n.latitudeLabel,
-                border: const OutlineInputBorder(),
-              ),
-              validator: _validateCoordinates,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _longitude,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-                signed: true,
-              ),
-              decoration: InputDecoration(
-                labelText: l10n.longitudeLabel,
-                border: const OutlineInputBorder(),
-              ),
             ),
             const SizedBox(height: 24),
             FilledButton(onPressed: _save, child: Text(l10n.save)),

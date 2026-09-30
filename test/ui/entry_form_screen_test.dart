@@ -505,7 +505,10 @@ void main() {
       await openNewEntryForm(tester);
 
       final addPhotos = find.widgetWithText(OutlinedButton, 'Add photos');
-      expect(top(tester, addPhotos), lessThan(top(tester, find.text('May 1, 2026'))));
+      expect(
+        top(tester, addPhotos),
+        lessThan(top(tester, find.text('May 1, 2026'))),
+      );
       expect(top(tester, addPhotos), lessThan(top(tester, field('Note'))));
     });
 
