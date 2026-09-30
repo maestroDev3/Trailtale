@@ -8,18 +8,18 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #6.
+- #6 Add photos from the gallery – tasks #46–#49
 
 ## Up next
 
-- #6 Add photos from the gallery
+- #7 Take date and location from EXIF
 
 ## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
-| #1 Foundation | ~~#2 Project setup~~ → ~~#3 Create, edit and delete trips~~ → ~~#4 Entries with text, date and place (manual)~~ |
-| #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
+| ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
+| #5 Photos | #6 Add photos from the gallery (`in-progress`) → #7 Take date and location from EXIF |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
 | #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
