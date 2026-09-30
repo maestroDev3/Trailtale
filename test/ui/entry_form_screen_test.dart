@@ -251,9 +251,7 @@ void main() {
       expect(find.byTooltip('Remove photo'), findsNWidgets(2));
     });
 
-    testWidgets('changes nothing when the picker is cancelled', (
-      tester,
-    ) async {
+    testWidgets('changes nothing when the picker is cancelled', (tester) async {
       final library = FakePhotoLibrary();
       final picker = FakePhotoPicker();
       await openNewEntryForm(

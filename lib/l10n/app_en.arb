@@ -130,9 +130,9 @@
   "@longitudeLabel": {
     "description": "Label of the text field for the longitude of an entry's place."
   },
-  "entryNeedsContent": "Add a note or a place",
+  "entryNeedsContent": "Add a note, a place or a photo",
   "@entryNeedsContent": {
-    "description": "Validation message when an entry has neither a note nor a place."
+    "description": "Validation message when an entry has neither a note, a place nor a photo."
   },
   "coordinatesIncomplete": "Enter both latitude and longitude",
   "@coordinatesIncomplete": {
@@ -149,5 +149,13 @@
   "deleteEntryQuestion": "Delete this entry?",
   "@deleteEntryQuestion": {
     "description": "Title of the dialog confirming that an entry is deleted."
+  },
+  "addPhotos": "Add photos",
+  "@addPhotos": {
+    "description": "Label of the button that picks photos from the gallery for an entry."
+  },
+  "removePhoto": "Remove photo",
+  "@removePhoto": {
+    "description": "Tooltip of the button that removes a photo from an entry."
   }
 }
