@@ -90,6 +90,16 @@ void main() {
       expect(jsonDecode(file.readAsStringSync())['version'], 2);
     });
 
+    test('reads a replaced file after reload', () async {
+      final repository = JsonFileTripRepository(file);
+      await repository.saveTrip(lisbon);
+      file.writeAsStringSync(jsonEncode({'version': 1, 'trips': []}));
+
+      await repository.reload();
+
+      expect(await repository.watchTrips().first, isEmpty);
+    });
+
     test('leaves no temporary file behind after writing', () async {
       await JsonFileTripRepository(file).saveTrip(lisbon);
 

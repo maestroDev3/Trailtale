@@ -89,5 +89,21 @@ void tripRepositoryContract(Future<TripRepository> Function() create) {
 
       await emissions;
     });
+
+    test('emits the stored data again after reload', () async {
+      final repository = await create();
+      await repository.saveTrip(lisbon);
+
+      final emissions = expectLater(
+        repository.watchTrips,
+        emitsInOrder([
+          [lisbon],
+          [lisbon],
+        ]),
+      );
+      await repository.reload();
+
+      await emissions;
+    });
   });
 }
