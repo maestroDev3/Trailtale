@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #15.
+- #15 Backup and export – tasks #98–#100
 
 ## Up next
 
-- #15 Backup and export, then Map (#12, #13) and Location (#21, #22)
+- Map (#12, #13), then Location (#21, #22)
 
 ## Backlog by epic
 
@@ -22,7 +22,7 @@ The GitHub issues are authoritative; this file is the summary.
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
-| #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
+| #14 Data safety and sharing | #15 Backup and export (`in-progress`) → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF |
 | #11 Map | #12 Entries as markers on a map → #13 Draw the trip route |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry |
 
