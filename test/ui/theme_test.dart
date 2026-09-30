@@ -150,4 +150,77 @@ void main() {
       expect(offenders, isEmpty);
     });
   });
+
+  group('component styles', () {
+    final theme = buildLightTheme();
+    final scheme = theme.colorScheme;
+    const states = <WidgetState>{};
+
+    test('cards are flat paper cards with a thin border', () {
+      final card = theme.cardTheme;
+      final shape = card.shape as RoundedRectangleBorder?;
+
+      expect(card.color, scheme.surfaceContainerLowest);
+      expect(card.elevation, 0);
+      expect(shape?.borderRadius, BorderRadius.circular(22));
+      expect(shape?.side.color, scheme.outlineVariant);
+      expect(shape?.side.width, 1);
+    });
+
+    test('filled buttons are clay with rounded corners', () {
+      final style = theme.filledButtonTheme.style;
+      final shape = style?.shape?.resolve(states) as RoundedRectangleBorder?;
+
+      expect(style?.backgroundColor?.resolve(states), scheme.primary);
+      expect(style?.foregroundColor?.resolve(states), scheme.onPrimary);
+      expect(style?.minimumSize?.resolve(states)?.height, 52);
+      expect(shape?.borderRadius, BorderRadius.circular(18));
+    });
+
+    test('outlined buttons have a strong ink border', () {
+      final style = theme.outlinedButtonTheme.style;
+      final side = style?.side?.resolve(states);
+
+      expect(side?.color, scheme.onSurface);
+      expect(side?.width, 2);
+      expect(style?.minimumSize?.resolve(states)?.height, 52);
+    });
+
+    test('the floating action button is clay', () {
+      final fab = theme.floatingActionButtonTheme;
+      final shape = fab.shape as RoundedRectangleBorder?;
+
+      expect(fab.backgroundColor, scheme.primary);
+      expect(fab.foregroundColor, scheme.onPrimary);
+      expect(shape?.borderRadius, BorderRadius.circular(20));
+    });
+
+    test('inputs are filled cards with a focused clay border', () {
+      final input = theme.inputDecorationTheme;
+      final border = input.enabledBorder as OutlineInputBorder?;
+      final focused = input.focusedBorder as OutlineInputBorder?;
+
+      expect(input.filled, isTrue);
+      expect(input.fillColor, scheme.surfaceContainerLowest);
+      expect(border?.borderRadius, BorderRadius.circular(16));
+      expect(border?.borderSide.color, scheme.outlineVariant);
+      expect(focused?.borderSide.color, scheme.primary);
+    });
+
+    test('app bars sit on the paper without a scroll tint', () {
+      final appBar = theme.appBarTheme;
+
+      expect(appBar.backgroundColor, scheme.surface);
+      expect(appBar.scrolledUnderElevation, 0);
+      expect(appBar.titleTextStyle?.fontFamily, 'Fraunces');
+    });
+
+    test('snack bars float with rounded corners', () {
+      final snackBar = theme.snackBarTheme;
+      final shape = snackBar.shape as RoundedRectangleBorder?;
+
+      expect(snackBar.behavior, SnackBarBehavior.floating);
+      expect(shape?.borderRadius, BorderRadius.circular(14));
+    });
+  });
 }
