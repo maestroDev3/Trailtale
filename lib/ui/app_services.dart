@@ -2,6 +2,7 @@ import '../domain/clock.dart';
 import '../domain/entry_repository.dart';
 import '../domain/id_generator.dart';
 import '../domain/photo_library.dart';
+import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
 import '../domain/trip_repository.dart';
 
@@ -14,6 +15,7 @@ class AppServices {
     required this.newId,
     required this.photoLibrary,
     required this.photoPicker,
+    required this.photoMetadataReader,
     this.clock = DateTime.now,
   });
 
@@ -22,5 +24,6 @@ class AppServices {
   final IdGenerator newId;
   final PhotoLibrary photoLibrary;
   final PhotoPicker photoPicker;
+  final PhotoMetadataReader photoMetadataReader;
   final Clock clock;
 }

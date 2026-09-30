@@ -443,9 +443,7 @@ void main() {
       expect(find.text('May 2, 2026'), findsOneWidget);
     });
 
-    testWidgets('changes nothing for a photo without metadata', (
-      tester,
-    ) async {
+    testWidgets('changes nothing for a photo without metadata', (tester) async {
       await openNewEntryForm(
         tester,
         photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
