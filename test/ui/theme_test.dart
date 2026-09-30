@@ -9,7 +9,8 @@ double _contrast(Color a, Color b) {
   final (lighter, darker) = a.computeLuminance() > b.computeLuminance()
       ? (a, b)
       : (b, a);
-  return (lighter.computeLuminance() + 0.05) / (darker.computeLuminance() + 0.05);
+  return (lighter.computeLuminance() + 0.05) /
+      (darker.computeLuminance() + 0.05);
 }
 
 void main() {
@@ -107,9 +108,10 @@ void main() {
   group('bundled fonts', () {
     test('are declared in pubspec.yaml and exist', () {
       final pubspec = File('pubspec.yaml').readAsStringSync();
-      final assets = RegExp(
-        r'asset:\s*(assets/fonts/\S+)',
-      ).allMatches(pubspec).map((match) => match.group(1) ?? '').toList();
+      final assets = RegExp(r'asset:\s*(assets/fonts/\S+)')
+          .allMatches(pubspec)
+          .map((match) => match.group(1) ?? '')
+          .toList();
 
       expect(pubspec, contains('family: Fraunces'));
       expect(pubspec, contains('family: Manrope'));
