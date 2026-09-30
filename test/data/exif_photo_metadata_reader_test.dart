@@ -58,7 +58,10 @@ void main() {
   group('parseExifOffset', () {
     test('parses positive, negative and half-hour offsets', () {
       expect(parseExifOffset('+01:00'), const Duration(hours: 1));
-      expect(parseExifOffset('-03:30'), const Duration(hours: -3, minutes: -30));
+      expect(
+        parseExifOffset('-03:30'),
+        const Duration(hours: -3, minutes: -30),
+      );
       expect(parseExifOffset('+05:45'), const Duration(hours: 5, minutes: 45));
     });
 
