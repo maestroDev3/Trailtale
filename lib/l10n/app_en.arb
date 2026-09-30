@@ -101,5 +101,53 @@
   "newEntry": "New entry",
   "@newEntry": {
     "description": "Label of the button that starts creating a new entry in a trip."
+  },
+  "editEntry": "Edit entry",
+  "@editEntry": {
+    "description": "Title of the form for changing an existing entry."
+  },
+  "entryDateLabel": "Date",
+  "@entryDateLabel": {
+    "description": "Label of the field showing and changing the date of an entry."
+  },
+  "entryTimeLabel": "Time",
+  "@entryTimeLabel": {
+    "description": "Label of the field showing and changing the time of an entry."
+  },
+  "entryNoteLabel": "Note",
+  "@entryNoteLabel": {
+    "description": "Label of the text field for the note of an entry."
+  },
+  "entryPlaceLabel": "Place (optional)",
+  "@entryPlaceLabel": {
+    "description": "Label of the text field for the place name of an entry."
+  },
+  "latitudeLabel": "Latitude (optional)",
+  "@latitudeLabel": {
+    "description": "Label of the text field for the latitude of an entry's place."
+  },
+  "longitudeLabel": "Longitude (optional)",
+  "@longitudeLabel": {
+    "description": "Label of the text field for the longitude of an entry's place."
+  },
+  "entryNeedsContent": "Add a note or a place",
+  "@entryNeedsContent": {
+    "description": "Validation message when an entry has neither a note nor a place."
+  },
+  "coordinatesIncomplete": "Enter both latitude and longitude",
+  "@coordinatesIncomplete": {
+    "description": "Validation message when only one coordinate is entered."
+  },
+  "coordinatesOutOfRange": "Latitude −90 to 90, longitude −180 to 180",
+  "@coordinatesOutOfRange": {
+    "description": "Validation message when coordinates are not numbers or out of range."
+  },
+  "deleteEntry": "Delete entry",
+  "@deleteEntry": {
+    "description": "Tooltip of the action that deletes an entry."
+  },
+  "deleteEntryQuestion": "Delete this entry?",
+  "@deleteEntryQuestion": {
+    "description": "Title of the dialog confirming that an entry is deleted."
   }
 }

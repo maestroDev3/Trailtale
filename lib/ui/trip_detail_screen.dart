@@ -6,6 +6,7 @@ import '../domain/entry.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'entry_form_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/trip_dates.dart';
 
@@ -32,6 +33,15 @@ class TripDetailScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TripFormScreen(services: services, trip: current),
+      ),
+    );
+  }
+
+  void _openEntryForm(BuildContext context, Trip current, [Entry? entry]) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            EntryFormScreen(services: services, trip: current, entry: entry),
       ),
     );
   }
@@ -81,11 +91,12 @@ class TripDetailScreen extends StatelessWidget {
               SliverToBoxAdapter(child: _TripHeader(trip: current)),
               _EntryList(
                 entries: services.entryRepository.watchEntries(current.id),
+                onOpen: (entry) => _openEntryForm(context, current, entry),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {},
+            onPressed: () => _openEntryForm(context, current),
             icon: const Icon(Icons.add),
             label: Text(l10n.newEntry),
           ),
@@ -120,9 +131,10 @@ class _TripHeader extends StatelessWidget {
 }
 
 class _EntryList extends StatelessWidget {
-  const _EntryList({required this.entries});
+  const _EntryList({required this.entries, required this.onOpen});
 
   final Stream<List<Entry>> entries;
+  final ValueChanged<Entry> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +145,10 @@ class _EntryList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
           sliver: SliverList.builder(
             itemCount: data.length,
-            itemBuilder: (context, index) => _EntryCard(entry: data[index]),
+            itemBuilder: (context, index) {
+              final entry = data[index];
+              return _EntryCard(entry: entry, onTap: () => onOpen(entry));
+            },
           ),
         ),
         AsyncSnapshot(:final data?) when data.isEmpty => const _NoEntries(),
@@ -144,9 +159,10 @@ class _EntryList extends StatelessWidget {
 }
 
 class _EntryCard extends StatelessWidget {
-  const _EntryCard({required this.entry});
+  const _EntryCard({required this.entry, required this.onTap});
 
   final Entry entry;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -155,21 +171,24 @@ class _EntryCard extends StatelessWidget {
     final time = DateFormat.yMMMd(locale).add_jm().format(entry.localDateTime);
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(time, style: textTheme.labelLarge),
-            if (entry.note.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(entry.note, style: textTheme.bodyLarge),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(time, style: textTheme.labelLarge),
+              if (entry.note.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(entry.note, style: textTheme.bodyLarge),
+              ],
+              if (entry.placeName case final placeName?) ...[
+                const SizedBox(height: 4),
+                _PlaceName(name: placeName),
+              ],
             ],
-            if (entry.placeName case final placeName?) ...[
-              const SizedBox(height: 4),
-              _PlaceName(name: placeName),
-            ],
-          ],
+          ),
         ),
       ),
     );
