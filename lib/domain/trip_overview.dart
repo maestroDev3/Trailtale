@@ -62,9 +62,7 @@ final class PastTrip extends TripProgress {
 TripProgress tripProgress(Trip trip, {required DateTime today}) {
   final day = dayOf(today);
   if (day.isBefore(trip.startDate)) {
-    return UpcomingTrip(
-      daysUntilStart: trip.startDate.difference(day).inDays,
-    );
+    return UpcomingTrip(daysUntilStart: trip.startDate.difference(day).inDays);
   }
   if (day.isAfter(trip.endDate)) return const PastTrip();
   return RunningTrip(
