@@ -52,6 +52,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   /// Whether the user picked date or time by hand; photos then keep off.
   var _dateTimeSetByUser = false;
 
+  /// Whether media location access was already requested in this form.
+  var _mediaLocationRequested = false;
+
   /// Offset recorded by the photo whose time was applied; `null` means the
   /// device's offset at that time.
   Duration? _photoOffset;
@@ -112,6 +115,12 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
 
   Future<void> _addPhotos() async {
     final services = widget.services;
+    if (!_mediaLocationRequested) {
+      _mediaLocationRequested = true;
+      // Denied access only means photos come without GPS data.
+      await services.mediaLocationAccess.request();
+      if (!mounted) return;
+    }
     final picked = await services.photoPicker.pickImages();
     final imported = <String>[];
     for (final source in picked) {

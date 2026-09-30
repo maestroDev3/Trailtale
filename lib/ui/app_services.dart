@@ -1,6 +1,7 @@
 import '../domain/clock.dart';
 import '../domain/entry_repository.dart';
 import '../domain/id_generator.dart';
+import '../domain/media_location_access.dart';
 import '../domain/photo_library.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
@@ -16,6 +17,7 @@ class AppServices {
     required this.photoLibrary,
     required this.photoPicker,
     required this.photoMetadataReader,
+    required this.mediaLocationAccess,
     this.clock = DateTime.now,
   });
 
@@ -25,5 +27,6 @@ class AppServices {
   final PhotoLibrary photoLibrary;
   final PhotoPicker photoPicker;
   final PhotoMetadataReader photoMetadataReader;
+  final MediaLocationAccess mediaLocationAccess;
   final Clock clock;
 }
