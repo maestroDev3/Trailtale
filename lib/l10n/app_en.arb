@@ -387,5 +387,9 @@
   "openSourceLicenses": "Open-source licenses",
   "@openSourceLicenses": {
     "description": "Settings action that shows the licenses of the used open-source software."
+  },
+  "osmAttribution": "© OpenStreetMap contributors",
+  "@osmAttribution": {
+    "description": "License attribution shown on the map. Required by OpenStreetMap; keep the wording, do not translate the name."
   }
 }

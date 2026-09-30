@@ -20,8 +20,11 @@ void main() {
       );
     });
 
-    test('declares no permission without a decided purpose', () {
-      expect(permissions(), isNot(contains('android.permission.INTERNET')));
+    test('declares internet access for map tiles', () {
+      expect(permissions(), contains('android.permission.INTERNET'));
+    });
+
+    test('declares no background location', () {
       expect(
         permissions(),
         isNot(contains('android.permission.ACCESS_BACKGROUND_LOCATION')),

@@ -9,6 +9,7 @@ import '../domain/photo_library.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
 import '../domain/trip_repository.dart';
+import 'widgets/trip_map_view.dart';
 
 /// Everything the screens need from outside the UI. Created once in
 /// `main.dart` and passed down, so tests can swap in fakes.
@@ -24,6 +25,7 @@ class AppServices {
     required this.backupService,
     required this.fileSharer,
     required this.documentPicker,
+    required this.tripMap,
     this.clock = DateTime.now,
   });
 
@@ -37,5 +39,8 @@ class AppServices {
   final BackupService backupService;
   final FileSharer fileSharer;
   final DocumentPicker documentPicker;
+
+  /// Builds the trip map (OpenStreetMap in the app, a placeholder in tests).
+  final TripMapBuilder tripMap;
   final Clock clock;
 }
