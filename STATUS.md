@@ -8,17 +8,17 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #74 Timeline redesign for the trip (epic #70)
+- #75 Welcome screen and photo-first entry form (epic #70)
 
 ## Up next
 
-- #75 Welcome screen; then Backup (#15), Map (#12), Location (#21)
+- Backup (#15), Map (#12), Location (#21)
 
 ## Backlog by epic
 
 | Epic | Stories (in order) |
 |---|---|
-| #70 Look & feel | ~~#71 Field journal theme and typography~~ → ~~#72 App icon and wordmark~~ → ~~#73 Trip cover photos and a richer home screen~~ → #74 Timeline redesign for the trip → #75 Welcome screen and photo-first entry form |
+| #70 Look & feel | ~~#71 Field journal theme and typography~~ → ~~#72 App icon and wordmark~~ → ~~#73 Trip cover photos and a richer home screen~~ → ~~#74 Timeline redesign for the trip~~ → #75 Welcome screen and photo-first entry form |
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
@@ -28,11 +28,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #74 Trip page: cover, route strip, timeline with day markers
 - #73 Cover photos and featured running trip on the home screen
 - #72 App icon (adaptive, themed) and wordmark
 - #71 Field journal theme and typography (colors, Fraunces/Manrope, component styles)
 - Decisions: field-journal look (#70), OpenStreetMap (#11), offline city list + GPS while in use (#20), backups to Google Drive (#14)
-- #10 Trip summary (days, entries, places, photos, km)
 
 ## Open decisions (user only)
 
