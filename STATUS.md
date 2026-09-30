@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #9 Entries grouped by day – tasks #62, #63
+- Nothing – next up is #10.
 
 ## Up next
 
@@ -20,18 +20,18 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
-| #8 Timeline | #9 Entries grouped by day (`in-progress`) → #10 Trip summary (places, days, kilometers) |
+| #8 Timeline | ~~#9 Entries grouped by day~~ → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
 | #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
 | #14 Data safety and sharing | #15 Backup and export → #16 Share a trip as image or PDF |
 
 ## Recently done
 
+- #9 Entries grouped by day ("Day n" headers, local time)
 - #7 Take date and location from EXIF (asks for media location access)
 - #6 Add photos from the gallery (system photo picker, copies in the app, thumbnails)
 - #4 Entries with text, date and place (manual): entry list, form, `GeoPoint`, local time
 - #3 Create, edit and delete trips (list, form, detail, JSON file storage)
-- #2 Project setup: theme, localization, app shell, `pumpApp`, `Clock`/`dayOf`; CI checks format
 
 ## Open decisions (user only)
 
