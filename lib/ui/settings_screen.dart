@@ -109,8 +109,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListTile(
               leading: const Icon(Icons.description_outlined),
               title: Text(l10n.openSourceLicenses),
-              onTap: () =>
-                  showLicensePage(context: context, applicationName: l10n.appTitle),
+              onTap: () => showLicensePage(
+                context: context,
+                applicationName: l10n.appTitle,
+              ),
             ),
           ),
         ],

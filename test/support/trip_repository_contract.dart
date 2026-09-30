@@ -95,7 +95,7 @@ void tripRepositoryContract(Future<TripRepository> Function() create) {
       await repository.saveTrip(lisbon);
 
       final emissions = expectLater(
-        repository.watchTrips,
+        repository.watchTrips(),
         emitsInOrder([
           [lisbon],
           [lisbon],
