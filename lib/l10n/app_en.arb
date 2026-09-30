@@ -391,5 +391,9 @@
   "osmAttribution": "© OpenStreetMap contributors",
   "@osmAttribution": {
     "description": "License attribution shown on the map. Required by OpenStreetMap; keep the wording, do not translate the name."
+  },
+  "openMap": "Open map",
+  "@openMap": {
+    "description": "Tooltip of the button that opens the trip map in full screen."
   }
 }

@@ -8,6 +8,7 @@ import '../domain/entry.dart';
 import '../domain/route_places.dart';
 import '../domain/trip.dart';
 import '../domain/trip_day.dart';
+import '../domain/trip_map.dart';
 import '../domain/trip_overview.dart';
 import '../domain/trip_summary.dart';
 import '../l10n/app_localizations.dart';
@@ -15,6 +16,7 @@ import 'app_services.dart';
 import 'entry_form_screen.dart';
 import 'formatting.dart';
 import 'trip_form_screen.dart';
+import 'trip_map_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/stat_tile.dart';
 import 'widgets/trip_cover.dart';
@@ -52,6 +54,24 @@ class TripDetailScreen extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (_) =>
             EntryFormScreen(services: services, trip: current, entry: entry),
+      ),
+    );
+  }
+
+  void _openEntryById(
+    BuildContext context,
+    Trip current,
+    List<Entry> entries,
+    String entryId,
+  ) {
+    final entry = entries.where((entry) => entry.id == entryId).firstOrNull;
+    if (entry != null) _openEntryForm(context, current, entry);
+  }
+
+  void _openMap(BuildContext context, Trip current) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TripMapScreen(services: services, trip: current),
       ),
     );
   }
@@ -133,6 +153,23 @@ class TripDetailScreen extends StatelessWidget {
                     entries: entriesSnapshot.data ?? const [],
                   ),
                 ),
+                if (tripMapPoints(entriesSnapshot.data ?? const [])
+                    case final points when points.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _MapCard(
+                      map: services.tripMap(
+                        points: points,
+                        interactive: false,
+                        onOpenEntry: (id) => _openEntryById(
+                          context,
+                          current,
+                          entriesSnapshot.data ?? const [],
+                          id,
+                        ),
+                      ),
+                      onExpand: () => _openMap(context, current),
+                    ),
+                  ),
                 _EntryList(
                   trip: current,
                   entries: entriesSnapshot.data,
@@ -216,6 +253,42 @@ class _TripHeader extends StatelessWidget {
             _RouteStrip(places: places),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// A small, non-interactive map of the trip with a button for the full map.
+class _MapCard extends StatelessWidget {
+  const _MapCard({required this.map, required this.onExpand});
+
+  final Widget map;
+  final VoidCallback onExpand;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          height: 200,
+          child: Stack(
+            children: [
+              Positioned.fill(child: map),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: _RoundButton(
+                  tooltip: AppLocalizations.of(context).openMap,
+                  icon: Icons.open_in_full,
+                  onPressed: onExpand,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

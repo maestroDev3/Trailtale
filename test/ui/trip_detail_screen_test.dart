@@ -3,14 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
+import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
+import 'package:trailtale/ui/trip_map_screen.dart';
 import 'package:trailtale/ui/widgets/photo_thumbnail.dart';
 import 'package:trailtale/ui/widgets/trip_cover.dart';
 
 import '../support/fake_entry_repository.dart';
 import '../support/fake_photo_library.dart';
 import '../support/fake_trip_repository.dart';
+import '../support/placeholder_trip_map.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
 
@@ -442,6 +445,69 @@ void main() {
 
       expect(find.byType(TripDetailScreen), findsNothing);
       expect(find.text('Your trips'), findsOneWidget);
+    });
+  });
+
+  group('TripDetailScreen map', () {
+    final atBelem = Entry(
+      id: 'belem',
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, 9),
+      utcOffset: const Duration(hours: 1),
+      placeName: 'Belém',
+      location: GeoPoint(latitude: 38.6916, longitude: -9.2160),
+    );
+    final atAlfama = Entry(
+      id: 'alfama',
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, 17),
+      utcOffset: const Duration(hours: 1),
+      placeName: 'Alfama',
+      location: GeoPoint(latitude: 38.7117, longitude: -9.1300),
+    );
+
+    Future<void> tapMarker(WidgetTester tester, String text) async {
+      await tester.ensureVisible(find.text(text));
+      await tester.tap(find.text(text));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the located entries on a map', (tester) async {
+      await openLisbon(tester, entries: [atAlfama, atBelem]);
+
+      expect(find.byType(PlaceholderTripMap), findsOneWidget);
+      expect(find.text('Marker 1: Belém'), findsOneWidget);
+      expect(find.text('Marker 2: Alfama'), findsOneWidget);
+    });
+
+    testWidgets('shows no map without located entries', (tester) async {
+      await openLisbon(tester, entries: [breakfast]);
+
+      expect(find.byType(PlaceholderTripMap), findsNothing);
+      expect(find.byTooltip('Open map'), findsNothing);
+    });
+
+    testWidgets('opens the entry of a tapped marker', (tester) async {
+      await openLisbon(tester, entries: [atBelem]);
+
+      await tapMarker(tester, 'Marker 1: Belém');
+
+      expect(find.byType(EntryFormScreen), findsOneWidget);
+      expect(find.text('Edit entry'), findsOneWidget);
+    });
+
+    testWidgets('opens the full-screen map', (tester) async {
+      await openLisbon(tester, entries: [atBelem, atAlfama]);
+
+      await tester.ensureVisible(find.byTooltip('Open map'));
+      await tester.tap(find.byTooltip('Open map'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TripMapScreen), findsOneWidget);
+      expect(find.text('Marker 2: Alfama'), findsOneWidget);
+
+      await tapMarker(tester, 'Marker 2: Alfama');
+      expect(find.byType(EntryFormScreen), findsOneWidget);
     });
   });
 }
