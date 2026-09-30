@@ -28,9 +28,7 @@ void main() {
   );
 
   group('HomeScreen', () {
-    testWidgets('shows the app title and the welcome headline', (
-      tester,
-    ) async {
+    testWidgets('shows the app title and the welcome headline', (tester) async {
       await pumpApp(tester, HomeScreen(services: testServices()));
 
       expect(find.text('Trailtale'), findsWidgets);
@@ -271,7 +269,10 @@ void main() {
     ) async {
       await pumpApp(tester, HomeScreen(services: testServices()));
 
-      expect(find.bySemanticsLabel('A dotted trail leading to a pin'), findsOne);
+      expect(
+        find.bySemanticsLabel('A dotted trail leading to a pin'),
+        findsOne,
+      );
       expect(find.text('Every trip tells a tale'), findsOneWidget);
       expect(
         find.textContaining('Add places, notes and photos'),

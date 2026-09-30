@@ -10,9 +10,7 @@ import '../support/test_services.dart';
 
 void main() {
   group('TrailtaleApp', () {
-    testWidgets('shows the app title and the welcome headline', (
-      tester,
-    ) async {
+    testWidgets('shows the app title and the welcome headline', (tester) async {
       await tester.pumpWidget(TrailtaleApp(services: testServices()));
       await tester.pumpAndSettle();
 

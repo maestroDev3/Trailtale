@@ -11,6 +11,7 @@ import 'formatting.dart';
 import 'trip_detail_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/trailtale_logo.dart';
+import 'widgets/welcome_illustration.dart';
 import 'widgets/trip_cover.dart';
 import 'widgets/trip_dates.dart';
 
@@ -70,8 +71,8 @@ class HomeScreen extends StatelessWidget {
                   AsyncSnapshot(hasError: true) => _Message(
                     l10n.tripsLoadError,
                   ),
-                  AsyncSnapshot(:final data?) when data.isEmpty => _Message(
-                    l10n.emptyTripsMessage,
+                  AsyncSnapshot(:final data?) when data.isEmpty => _Welcome(
+                    onStart: () => _openNewTripForm(context),
                   ),
                   AsyncSnapshot(:final data?) => _Overview(
                     overviews: buildTripOverviews(
@@ -338,6 +339,51 @@ class _TripCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Welcome extends StatelessWidget {
+  const _Welcome({required this.onStart});
+
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 0, 28, 104),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const WelcomeIllustration(size: 260),
+            const SizedBox(height: 20),
+            Text(
+              l10n.welcomeTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.welcomeText,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: onStart,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.startFirstTrip),
+            ),
+          ],
         ),
       ),
     );
