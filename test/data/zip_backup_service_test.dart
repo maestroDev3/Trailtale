@@ -14,7 +14,8 @@ void main() {
   final now = DateTime.utc(2026, 9, 29, 10, 30);
 
   const tripsJson = '{"version":1,"trips":[{"id":"a"},{"id":"b"}]}';
-  const entriesJson = '{"version":2,"entries":[{"id":"1"},{"id":"2"},{"id":"3"}]}';
+  const entriesJson =
+      '{"version":2,"entries":[{"id":"1"},{"id":"2"},{"id":"3"}]}';
 
   void write(Directory directory, String path, List<int> bytes) {
     File('${directory.path}/$path')
@@ -107,7 +108,10 @@ void main() {
       await service.restoreBackup(backup);
 
       expect(File('${documents.path}/photos/newer.jpg').existsSync(), isFalse);
-      expect(File('${documents.path}/trips.json').readAsStringSync(), tripsJson);
+      expect(
+        File('${documents.path}/trips.json').readAsStringSync(),
+        tripsJson,
+      );
     });
 
     test('refuses a file that is not a ZIP and keeps the data', () async {
