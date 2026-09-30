@@ -12,8 +12,7 @@ Future<void> deleteTripWithEntries({
   required PhotoLibrary photoLibrary,
   required String tripId,
 }) async {
-  final entries = await entryRepository.watchEntries(tripId).first;
-  await entryRepository.deleteEntriesOfTrip(tripId);
+  final entries = await entryRepository.deleteEntriesOfTrip(tripId);
   await tripRepository.deleteTrip(tripId);
   final photos = [for (final entry in entries) ...entry.photoPaths];
   if (photos.isNotEmpty) await photoLibrary.deletePhotos(photos);

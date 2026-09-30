@@ -13,6 +13,7 @@ abstract interface class EntryRepository {
   /// Removes the entry with [id]; unknown ids are ignored.
   Future<void> deleteEntry(String id);
 
-  /// Removes all entries of [tripId], e.g. when the trip is deleted.
-  Future<void> deleteEntriesOfTrip(String tripId);
+  /// Removes all entries of [tripId], e.g. when the trip is deleted, and
+  /// returns them in chronological order (to clean up their photos).
+  Future<List<Entry>> deleteEntriesOfTrip(String tripId);
 }
