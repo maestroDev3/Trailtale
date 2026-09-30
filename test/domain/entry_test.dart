@@ -98,7 +98,10 @@ void main() {
       final result = entry(photoPaths: ['photos/b.jpg', 'photos/a.jpg']);
 
       expect(result.photoPaths, ['photos/b.jpg', 'photos/a.jpg']);
-      expect(() => result.photoPaths.add('photos/c.jpg'), throwsUnsupportedError);
+      expect(
+        () => result.photoPaths.add('photos/c.jpg'),
+        throwsUnsupportedError,
+      );
     });
 
     test('is valid with only photos', () {

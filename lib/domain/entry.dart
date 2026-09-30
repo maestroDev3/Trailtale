@@ -12,7 +12,8 @@ const Object _unchanged = Object();
 /// and day even when viewed in another time zone.
 class Entry {
   /// Creates a validated entry; throws [ArgumentError] if it has neither a
-  /// note, a place name nor a location.
+  /// note, a place name, a location nor photos, or if a photo path is blank
+  /// or absolute.
   factory Entry({
     required String id,
     required String tripId,
@@ -21,14 +22,25 @@ class Entry {
     String note = '',
     String? placeName,
     GeoPoint? location,
+    List<String> photoPaths = const [],
   }) {
+    for (final path in photoPaths) {
+      if (path.trim().isEmpty || path.startsWith('/')) {
+        throw ArgumentError.value(path, 'photoPaths', 'must be relative');
+      }
+    }
     final trimmedNote = note.trim();
     final trimmedPlace = placeName?.trim();
     final place = trimmedPlace == null || trimmedPlace.isEmpty
         ? null
         : trimmedPlace;
-    if (trimmedNote.isEmpty && place == null && location == null) {
-      throw ArgumentError('An entry needs a note, a place name or a location');
+    if (trimmedNote.isEmpty &&
+        place == null &&
+        location == null &&
+        photoPaths.isEmpty) {
+      throw ArgumentError(
+        'An entry needs a note, a place name, a location or photos',
+      );
     }
     return Entry._(
       id: id,
@@ -38,6 +50,7 @@ class Entry {
       note: trimmedNote,
       placeName: place,
       location: location,
+      photoPaths: List.unmodifiable(photoPaths),
     );
   }
 
@@ -50,6 +63,7 @@ class Entry {
     String note = '',
     String? placeName,
     GeoPoint? location,
+    List<String> photoPaths = const [],
   }) {
     return Entry(
       id: id,
@@ -59,6 +73,7 @@ class Entry {
       note: note,
       placeName: placeName,
       location: location,
+      photoPaths: photoPaths,
     );
   }
 
@@ -70,6 +85,7 @@ class Entry {
     required this.note,
     required this.placeName,
     required this.location,
+    required this.photoPaths,
   });
 
   final String id;
@@ -79,6 +95,9 @@ class Entry {
   final String note;
   final String? placeName;
   final GeoPoint? location;
+
+  /// Relative paths of the entry's photos in the photo library, in order.
+  final List<String> photoPaths;
 
   /// Wall-clock time where the entry was recorded. The value is flagged as
   /// UTC only so that its fields are not converted again; read its fields.
@@ -95,6 +114,7 @@ class Entry {
     String? note,
     Object? placeName = _unchanged,
     Object? location = _unchanged,
+    List<String>? photoPaths,
   }) {
     return Entry(
       id: id,
@@ -108,6 +128,7 @@ class Entry {
       location: identical(location, _unchanged)
           ? this.location
           : location as GeoPoint?,
+      photoPaths: photoPaths ?? this.photoPaths,
     );
   }
 
@@ -120,14 +141,31 @@ class Entry {
       other.utcOffset == utcOffset &&
       other.note == note &&
       other.placeName == placeName &&
-      other.location == location;
+      other.location == location &&
+      _sameList(other.photoPaths, photoPaths);
 
   @override
-  int get hashCode =>
-      Object.hash(id, tripId, time, utcOffset, note, placeName, location);
+  int get hashCode => Object.hash(
+    id,
+    tripId,
+    time,
+    utcOffset,
+    note,
+    placeName,
+    location,
+    Object.hashAll(photoPaths),
+  );
 
   @override
   String toString() => 'Entry($id, $time $utcOffset, $note, $placeName)';
+}
+
+bool _sameList(List<String> a, List<String> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 /// Orders entries by time, entries at the same instant by id, leaving the

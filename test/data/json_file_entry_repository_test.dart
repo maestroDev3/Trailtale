@@ -102,9 +102,9 @@ void main() {
         }),
       );
 
-      final entries = await JsonFileEntryRepository(
-        file,
-      ).watchEntries('lisbon').first;
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
 
       expect(entries.single.note, 'From version 1');
       expect(entries.single.photoPaths, isEmpty);
