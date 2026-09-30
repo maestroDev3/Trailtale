@@ -314,9 +314,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               minLines: 4,
               maxLines: null,
               textCapitalization: TextCapitalization.sentences,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w400),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w400),
               decoration: InputDecoration(
                 labelText: l10n.entryNoteLabel,
                 alignLabelWithHint: true,
