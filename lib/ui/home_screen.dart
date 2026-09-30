@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../domain/clock.dart';
-import '../domain/id_generator.dart';
 import '../domain/trip.dart';
-import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
+import 'app_services.dart';
 import 'trip_detail_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/trip_dates.dart';
@@ -12,26 +10,14 @@ import 'widgets/trip_dates.dart';
 /// Start screen of the app: lists the trips newest first and, until there
 /// are any, shows an empty state.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({
-    super.key,
-    required this.tripRepository,
-    required this.newId,
-    this.clock = DateTime.now,
-  });
+  const HomeScreen({super.key, required this.services});
 
-  final TripRepository tripRepository;
-  final IdGenerator newId;
-  final Clock clock;
+  final AppServices services;
 
   void _openTrip(BuildContext context, Trip trip) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TripDetailScreen(
-          trip: trip,
-          tripRepository: tripRepository,
-          newId: newId,
-          clock: clock,
-        ),
+        builder: (_) => TripDetailScreen(services: services, trip: trip),
       ),
     );
   }
@@ -39,11 +25,7 @@ class HomeScreen extends StatelessWidget {
   void _openNewTripForm(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TripFormScreen(
-          tripRepository: tripRepository,
-          newId: newId,
-          clock: clock,
-        ),
+        builder: (_) => TripFormScreen(services: services),
       ),
     );
   }
@@ -53,7 +35,7 @@ class HomeScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: StreamBuilder<List<Trip>>(
-        stream: tripRepository.watchTrips(),
+        stream: services.tripRepository.watchTrips(),
         builder: (context, snapshot) {
           return CustomScrollView(
             slivers: [

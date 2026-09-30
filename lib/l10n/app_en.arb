@@ -97,5 +97,9 @@
   "noEntriesYet": "No entries yet",
   "@noEntriesYet": {
     "description": "Shown on a trip while it has no entries."
+  },
+  "newEntry": "New entry",
+  "@newEntry": {
+    "description": "Label of the button that starts creating a new entry in a trip."
   }
 }
