@@ -4,12 +4,11 @@ Current project state for planning and Claude projects. Maintained by Claude
 after every status change (see CLAUDE.md, “Keeping the status”).
 The GitHub issues are authoritative; this file is the summary.
 
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 
 ## In progress
 
-- #4 Entries with text, date and place (manual) – #36, #37, #38 merged; #39 waits as PR #44; #40 open
-- **Blocked:** GitHub Actions does not start jobs (failed payment or spending limit), so there is no CI and no APK build right now
+- Nothing – next up is #6.
 
 ## Up next
 
@@ -19,7 +18,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | Stories (in order) |
 |---|---|
-| #1 Foundation | ~~#2 Project setup~~ → ~~#3 Create, edit and delete trips~~ → #4 Entries with text, date and place (manual) (`in-progress`) |
+| #1 Foundation | ~~#2 Project setup~~ → ~~#3 Create, edit and delete trips~~ → ~~#4 Entries with text, date and place (manual)~~ |
 | #5 Photos | #6 Add photos from the gallery → #7 Take date and location from EXIF |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
@@ -28,15 +27,14 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #4 Entries with text, date and place (manual): entry list, form, `GeoPoint`, local time
 - #3 Create, edit and delete trips (list, form, detail, JSON file storage)
 - #2 Project setup: theme, localization, app shell, `pumpApp`, `Clock`/`dayOf`; CI checks format
 - New epic #20 Location capture (backlog)
 - First start: labels, epics and stories created; Flutter project scaffolded, CI green
-- Repo created with CLAUDE.md, STATUS.md, Flutter skill and CI
 
 ## Open decisions (user only)
 
-- GitHub Actions billing: fix the payment / raise the spending limit, or make the repo public (free minutes)
 - Map provider: OpenStreetMap (`flutter_map`, no key, respect tile usage policy) or Google Maps (API key)
 - Location capture (GPS, manual places, route tracking) – see epic #20
 - Android only, or iOS later?
