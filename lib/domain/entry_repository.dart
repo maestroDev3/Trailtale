@@ -20,4 +20,8 @@ abstract interface class EntryRepository {
   /// Removes all entries of [tripId], e.g. when the trip is deleted, and
   /// returns them in chronological order (to clean up their photos).
   Future<List<Entry>> deleteEntriesOfTrip(String tripId);
+
+  /// Reads the stored entries again, e.g. after a backup was restored, and
+  /// emits them to all listeners.
+  Future<void> reload();
 }

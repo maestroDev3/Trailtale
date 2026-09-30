@@ -84,6 +84,16 @@ void main() {
       });
     });
 
+    test('reads a replaced file after reload', () async {
+      final repository = JsonFileEntryRepository(file);
+      await repository.saveEntry(breakfast);
+      file.writeAsStringSync(jsonEncode({'version': 2, 'entries': []}));
+
+      await repository.reload();
+
+      expect(await repository.watchEntries('lisbon').first, isEmpty);
+    });
+
     test('reads the version 1 format without photos', () async {
       file.writeAsStringSync(
         jsonEncode({

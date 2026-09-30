@@ -22,6 +22,9 @@ class JsonFileTripRepository implements TripRepository {
   final VersionedJsonList<Trip> _store;
 
   @override
+  Future<void> reload() => _store.reload();
+
+  @override
   Stream<List<Trip>> watchTrips() => currentThenChanges(
     () async => sortTripsNewestFirst(await _store.read()),
     _store.changes.map(sortTripsNewestFirst),

@@ -16,6 +16,15 @@ class FakeEntryRepository implements EntryRepository {
   /// All stored entries of all trips, in chronological order.
   List<Entry> get entries => _entries;
 
+  /// How often [reload] was called.
+  var reloadCount = 0;
+
+  @override
+  Future<void> reload() async {
+    reloadCount++;
+    _changes.add(_entries);
+  }
+
   @override
   Stream<List<Entry>> watchEntries(String tripId) => currentThenChanges(
     () async => _entriesOf(tripId),

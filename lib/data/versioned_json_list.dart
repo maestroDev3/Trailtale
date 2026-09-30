@@ -48,6 +48,13 @@ class VersionedJsonList<T> {
     });
   }
 
+  /// Forgets the cached list, reads the file again and emits it, e.g. after
+  /// the file was replaced by a restored backup.
+  Future<void> reload() => _serialized(() async {
+    _items = null;
+    _changes.add(await _load());
+  });
+
   /// Runs file operations one after another so concurrent writes never
   /// overwrite each other.
   Future<R> _serialized<R>(Future<R> Function() operation) {

@@ -11,4 +11,8 @@ abstract interface class TripRepository {
 
   /// Removes the trip with [id]; unknown ids are ignored.
   Future<void> deleteTrip(String id);
+
+  /// Reads the stored trips again, e.g. after a backup was restored, and
+  /// emits them to all listeners.
+  Future<void> reload();
 }

@@ -134,5 +134,21 @@ void entryRepositoryContract(Future<EntryRepository> Function() create) {
 
       await emissions;
     });
+
+    test('emits the stored data again after reload', () async {
+      final repository = await create();
+      await repository.saveEntry(dinner);
+
+      final emissions = expectLater(
+        repository.watchEntries('lisbon'),
+        emitsInOrder([
+          [dinner],
+          [dinner],
+        ]),
+      );
+      await repository.reload();
+
+      await emissions;
+    });
   });
 }

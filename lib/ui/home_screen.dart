@@ -8,6 +8,7 @@ import '../domain/trip_overview.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'formatting.dart';
+import 'settings_screen.dart';
 import 'trip_detail_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/trailtale_logo.dart';
@@ -26,6 +27,14 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TripDetailScreen(services: services, trip: trip),
+      ),
+    );
+  }
+
+  void _openSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SettingsScreen(services: services),
       ),
     );
   }
@@ -60,6 +69,14 @@ class HomeScreen extends StatelessWidget {
                       Text(l10n.appTitle, style: textTheme.titleLarge),
                     ],
                   ),
+                  actions: [
+                    IconButton.filledTonal(
+                      tooltip: l10n.settings,
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () => _openSettings(context),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
