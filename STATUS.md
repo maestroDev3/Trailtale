@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #12.
+- #12 Entries as markers on a map – tasks #105–#107
 
 ## Up next
 
-- #12 Entries as markers on a map → #13 Draw the trip route, then Location (#21, #22)
+- #13 Draw the trip route, then Location (#21, #22)
 
 ## Backlog by epic
 
@@ -23,7 +23,7 @@ The GitHub issues are authoritative; this file is the summary.
 | ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
 | #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF |
-| #11 Map | #12 Entries as markers on a map → #13 Draw the trip route |
+| #11 Map | #12 Entries as markers on a map (`in-progress`) → #13 Draw the trip route |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry |
 
 ## Recently done
