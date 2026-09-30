@@ -35,11 +35,16 @@ android {
 
     signingConfigs {
         if (releaseKeystore != null) {
+            // Values are trimmed (secrets pasted on a phone often end with a
+            // space or line break). A PKCS12 keystore uses the store password
+            // for its key, so it is the fallback for a missing key password.
+            val storeSecret = System.getenv("ANDROID_KEYSTORE_PASSWORD")?.trim()
             create("release") {
                 storeFile = releaseKeystore
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+                storePassword = storeSecret
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS")?.trim()
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: storeSecret
             }
         }
     }
