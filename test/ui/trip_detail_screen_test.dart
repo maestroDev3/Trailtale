@@ -110,7 +110,7 @@ void main() {
 
       expect(trips.trips, isEmpty);
       expect(find.byType(TripDetailScreen), findsNothing);
-      expect(find.text('No trips yet'), findsOneWidget);
+      expect(find.text('Every trip tells a tale'), findsOneWidget);
     });
 
     testWidgets('deleting the trip also deletes its entries', (tester) async {

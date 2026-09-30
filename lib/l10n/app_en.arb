@@ -4,10 +4,6 @@
   "@appTitle": {
     "description": "Name of the app, shown in the app bar and as the window title."
   },
-  "emptyTripsMessage": "No trips yet",
-  "@emptyTripsMessage": {
-    "description": "Shown on the home screen while the user has not created any trip."
-  },
   "newTrip": "New trip",
   "@newTrip": {
     "description": "Label of the button that starts creating a new trip."
@@ -315,5 +311,21 @@
         "type": "int"
       }
     }
+  },
+  "welcomeTitle": "Every trip tells a tale",
+  "@welcomeTitle": {
+    "description": "Headline of the welcome screen shown while there are no trips."
+  },
+  "welcomeText": "Add places, notes and photos as you go. Trailtale turns them into a day-by-day story.",
+  "@welcomeText": {
+    "description": "Explanation on the welcome screen."
+  },
+  "startFirstTrip": "Start your first trip",
+  "@startFirstTrip": {
+    "description": "Button on the welcome screen that creates the first trip."
+  },
+  "welcomeIllustration": "A dotted trail leading to a pin",
+  "@welcomeIllustration": {
+    "description": "Accessibility description of the welcome illustration."
   }
 }

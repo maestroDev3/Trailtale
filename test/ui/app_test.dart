@@ -10,14 +10,12 @@ import '../support/test_services.dart';
 
 void main() {
   group('TrailtaleApp', () {
-    testWidgets('shows the app title and the empty trips message', (
-      tester,
-    ) async {
+    testWidgets('shows the app title and the welcome headline', (tester) async {
       await tester.pumpWidget(TrailtaleApp(services: testServices()));
       await tester.pumpAndSettle();
 
       expect(find.text('Trailtale'), findsWidgets);
-      expect(find.text('No trips yet'), findsOneWidget);
+      expect(find.text('Every trip tells a tale'), findsOneWidget);
     });
 
     testWidgets('uses the localized app title as window title', (tester) async {
