@@ -16,9 +16,9 @@ String _read(String path) => File('$_res/$path').readAsStringSync();
 
 /// All x/y coordinates of the path data in a vector drawable.
 List<double> _coordinates(String vectorXml) {
-  final paths = RegExp(
-    r'android:pathData="([^"]+)"',
-  ).allMatches(vectorXml).map((match) => match.group(1) ?? '');
+  final paths = RegExp(r'android:pathData="([^"]+)"')
+      .allMatches(vectorXml)
+      .map((match) => match.group(1) ?? '');
   return [
     for (final path in paths)
       for (final number in RegExp(r'-?\d+(\.\d+)?').allMatches(path))
@@ -76,9 +76,8 @@ void main() {
     });
 
     test('is used by the manifest', () {
-      final manifest = File(
-        'android/app/src/main/AndroidManifest.xml',
-      ).readAsStringSync();
+      final manifest = File('android/app/src/main/AndroidManifest.xml')
+          .readAsStringSync();
 
       expect(manifest, contains('android:icon="@mipmap/ic_launcher"'));
     });
