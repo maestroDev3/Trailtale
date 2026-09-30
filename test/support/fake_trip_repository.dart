@@ -16,6 +16,15 @@ class FakeTripRepository implements TripRepository {
   /// The currently stored trips, newest first.
   List<Trip> get trips => _trips;
 
+  /// How often [reload] was called.
+  var reloadCount = 0;
+
+  @override
+  Future<void> reload() async {
+    reloadCount++;
+    _changes.add(_trips);
+  }
+
   @override
   Stream<List<Trip>> watchTrips() =>
       currentThenChanges(() async => _trips, _changes.stream);

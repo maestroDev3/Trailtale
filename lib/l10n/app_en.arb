@@ -327,5 +327,65 @@
   "welcomeIllustration": "A dotted trail leading to a pin",
   "@welcomeIllustration": {
     "description": "Accessibility description of the welcome illustration."
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Title of the settings screen and tooltip of its button."
+  },
+  "backupSection": "Backup",
+  "@backupSection": {
+    "description": "Heading of the backup section in the settings."
+  },
+  "backUpNow": "Back up now",
+  "@backUpNow": {
+    "description": "Settings action that creates a backup ZIP and shares it."
+  },
+  "backUpNowDescription": "Trips, entries and photos as one ZIP file – save it to Google Drive or anywhere else.",
+  "@backUpNowDescription": {
+    "description": "Explanation below “Back up now”."
+  },
+  "restoreBackup": "Restore from backup",
+  "@restoreBackup": {
+    "description": "Settings action that restores a backup ZIP."
+  },
+  "restoreBackupDescription": "Replaces all trips on this phone with the ones in a backup.",
+  "@restoreBackupDescription": {
+    "description": "Explanation below “Restore from backup”."
+  },
+  "autoBackupInfo": "Trips and entries are also saved automatically with your Android backup. Photos are only in the ZIP.",
+  "@autoBackupInfo": {
+    "description": "Hint about Android's automatic backup in the settings."
+  },
+  "restoreQuestion": "Restore this backup?",
+  "@restoreQuestion": {
+    "description": "Title of the dialog confirming a restore."
+  },
+  "restoreWarning": "All trips, entries and photos on this phone will be replaced by the ones in the backup.",
+  "@restoreWarning": {
+    "description": "Warning in the dialog confirming a restore."
+  },
+  "restore": "Restore",
+  "@restore": {
+    "description": "Button that confirms restoring a backup."
+  },
+  "backupRestored": "Backup restored",
+  "@backupRestored": {
+    "description": "Message after a backup was restored."
+  },
+  "invalidBackup": "This file is not a Trailtale backup.",
+  "@invalidBackup": {
+    "description": "Message when the chosen file cannot be restored."
+  },
+  "backupSubject": "Trailtale backup",
+  "@backupSubject": {
+    "description": "Subject used when sharing a backup file."
+  },
+  "aboutSection": "About",
+  "@aboutSection": {
+    "description": "Heading of the about section in the settings."
+  },
+  "openSourceLicenses": "Open-source licenses",
+  "@openSourceLicenses": {
+    "description": "Settings action that shows the licenses of the used open-source software."
   }
 }

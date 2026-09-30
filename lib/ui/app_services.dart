@@ -1,5 +1,8 @@
+import '../domain/backup_service.dart';
 import '../domain/clock.dart';
+import '../domain/document_picker.dart';
 import '../domain/entry_repository.dart';
+import '../domain/file_sharer.dart';
 import '../domain/id_generator.dart';
 import '../domain/media_location_access.dart';
 import '../domain/photo_library.dart';
@@ -18,6 +21,9 @@ class AppServices {
     required this.photoPicker,
     required this.photoMetadataReader,
     required this.mediaLocationAccess,
+    required this.backupService,
+    required this.fileSharer,
+    required this.documentPicker,
     this.clock = DateTime.now,
   });
 
@@ -28,5 +34,8 @@ class AppServices {
   final PhotoPicker photoPicker;
   final PhotoMetadataReader photoMetadataReader;
   final MediaLocationAccess mediaLocationAccess;
+  final BackupService backupService;
+  final FileSharer fileSharer;
+  final DocumentPicker documentPicker;
   final Clock clock;
 }

@@ -27,6 +27,9 @@ class JsonFileEntryRepository implements EntryRepository {
   final VersionedJsonList<Entry> _store;
 
   @override
+  Future<void> reload() => _store.reload();
+
+  @override
   Stream<List<Entry>> watchEntries(String tripId) => currentThenChanges(
     () async => _entriesOf(await _store.read(), tripId),
     _store.changes.map((entries) => _entriesOf(entries, tripId)),
