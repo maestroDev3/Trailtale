@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #7 Take date and location from EXIF – tasks #54–#57
+- Nothing – next up is #9.
 
 ## Up next
 
@@ -19,7 +19,7 @@ The GitHub issues are authoritative; this file is the summary.
 | Epic | Stories (in order) |
 |---|---|
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
-| #5 Photos | ~~#6 Add photos from the gallery~~ → #7 Take date and location from EXIF (`in-progress`) |
+| ~~#5 Photos~~ (done) | ~~#6~~ → ~~#7~~ |
 | #8 Timeline | #9 Entries grouped by day → #10 Trip summary (places, days, kilometers) |
 | #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry (open questions in #20) |
 | #11 Map | #12 Entries as markers on a map (after map provider decision) → #13 Draw the trip route |
@@ -27,11 +27,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #7 Take date and location from EXIF (asks for media location access)
 - #6 Add photos from the gallery (system photo picker, copies in the app, thumbnails)
 - #4 Entries with text, date and place (manual): entry list, form, `GeoPoint`, local time
 - #3 Create, edit and delete trips (list, form, detail, JSON file storage)
 - #2 Project setup: theme, localization, app shell, `pumpApp`, `Clock`/`dayOf`; CI checks format
-- New epic #20 Location capture (backlog)
 
 ## Open decisions (user only)
 
