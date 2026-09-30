@@ -33,6 +33,12 @@ class JsonFileEntryRepository implements EntryRepository {
   );
 
   @override
+  Stream<List<Entry>> watchAllEntries() => currentThenChanges(
+    () async => sortEntriesChronologically(await _store.read()),
+    _store.changes.map(sortEntriesChronologically),
+  );
+
+  @override
   Future<void> saveEntry(Entry entry) => _store.update(
     (entries) => sortEntriesChronologically([
       ...entries.where((stored) => stored.id != entry.id),

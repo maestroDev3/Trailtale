@@ -7,6 +7,10 @@ abstract interface class EntryRepository {
   /// after every change.
   Stream<List<Entry>> watchEntries(String tripId);
 
+  /// Emits the entries of all trips in chronological order, immediately
+  /// and after every change (e.g. for the overview of all trips).
+  Stream<List<Entry>> watchAllEntries();
+
   /// Stores [entry], replacing a stored entry with the same id.
   Future<void> saveEntry(Entry entry);
 

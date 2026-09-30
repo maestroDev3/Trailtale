@@ -23,6 +23,10 @@ class FakeEntryRepository implements EntryRepository {
   );
 
   @override
+  Stream<List<Entry>> watchAllEntries() =>
+      currentThenChanges(() async => _entries, _changes.stream);
+
+  @override
   Future<void> saveEntry(Entry entry) async {
     _update([..._entries.where((stored) => stored.id != entry.id), entry]);
   }
