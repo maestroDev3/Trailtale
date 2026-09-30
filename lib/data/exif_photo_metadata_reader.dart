@@ -41,12 +41,12 @@ Duration? parseExifOffset(String text) {
 
 /// Parses `yyyy:MM:dd HH:mm:ss` as local wall-clock time.
 DateTime? _parseDateTime(String? text) {
-  final match = RegExp(
-    r'^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})',
-  ).firstMatch(text?.trim() ?? '');
+  final match = RegExp(r'^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})')
+      .firstMatch(text?.trim() ?? '');
   if (match == null) return null;
   final [year, month, day, hour, minute, second] = [
-    for (var group = 1; group <= 6; group++) int.parse(match.group(group) ?? ''),
+    for (var group = 1; group <= 6; group++)
+      int.parse(match.group(group) ?? ''),
   ];
   if (year < 1900 || month < 1 || month > 12 || day < 1 || day > 31) {
     return null;
