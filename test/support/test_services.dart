@@ -3,6 +3,7 @@ import 'package:trailtale/domain/id_generator.dart';
 import 'package:trailtale/ui/app_services.dart';
 
 import 'fake_entry_repository.dart';
+import 'fake_media_location_access.dart';
 import 'fake_photo_library.dart';
 import 'fake_photo_metadata_reader.dart';
 import 'fake_photo_picker.dart';
@@ -20,6 +21,7 @@ AppServices testServices({
   FakePhotoLibrary? photoLibrary,
   FakePhotoPicker? photoPicker,
   FakePhotoMetadataReader? photoMetadataReader,
+  FakeMediaLocationAccess? mediaLocationAccess,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
@@ -29,5 +31,6 @@ AppServices testServices({
     photoLibrary: photoLibrary ?? FakePhotoLibrary(),
     photoPicker: photoPicker ?? FakePhotoPicker(),
     photoMetadataReader: photoMetadataReader ?? FakePhotoMetadataReader(),
+    mediaLocationAccess: mediaLocationAccess ?? FakeMediaLocationAccess(),
   );
 }

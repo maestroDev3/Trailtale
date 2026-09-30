@@ -9,6 +9,7 @@ import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
 
 import '../support/fake_entry_repository.dart';
+import '../support/fake_media_location_access.dart';
 import '../support/fake_photo_library.dart';
 import '../support/fake_photo_metadata_reader.dart';
 import '../support/fake_photo_picker.dart';
@@ -38,6 +39,7 @@ void main() {
     FakePhotoLibrary? photoLibrary,
     FakePhotoPicker? photoPicker,
     FakePhotoMetadataReader? photoMetadataReader,
+    FakeMediaLocationAccess? mediaLocationAccess,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -49,6 +51,7 @@ void main() {
           photoLibrary: photoLibrary,
           photoPicker: photoPicker,
           photoMetadataReader: photoMetadataReader,
+          mediaLocationAccess: mediaLocationAccess,
         ),
       ),
     );
@@ -454,6 +457,43 @@ void main() {
       expect(find.text('May 1, 2026'), findsOneWidget);
       expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
       expect(find.byType(SnackBar), findsNothing);
+    });
+  });
+
+  group('EntryFormScreen media location access', () {
+    Future<void> addPhotos(WidgetTester tester) async {
+      final button = find.widgetWithText(OutlinedButton, 'Add photos');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('is requested once before the picker opens', (tester) async {
+      final access = FakeMediaLocationAccess();
+      final picker = FakePhotoPicker();
+      await openTrip(tester, mediaLocationAccess: access, photoPicker: picker);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await addPhotos(tester);
+      await addPhotos(tester);
+
+      expect(access.requestCount, 1);
+      expect(picker.openCount, 2);
+    });
+
+    testWidgets('opens the picker even when access is denied', (tester) async {
+      final access = FakeMediaLocationAccess(granted: false);
+      final picker = FakePhotoPicker(['/gallery/a.jpg']);
+      await openTrip(tester, mediaLocationAccess: access, photoPicker: picker);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await addPhotos(tester);
+
+      expect(access.requestCount, 1);
+      expect(picker.openCount, 1);
+      expect(find.byTooltip('Remove photo'), findsOneWidget);
     });
   });
 }
