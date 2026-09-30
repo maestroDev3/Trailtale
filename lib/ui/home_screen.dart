@@ -63,10 +63,7 @@ class HomeScreen extends StatelessWidget {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                   sliver: SliverToBoxAdapter(
-                    child: Text(
-                      l10n.yourTrips,
-                      style: textTheme.headlineLarge,
-                    ),
+                    child: Text(l10n.yourTrips, style: textTheme.headlineLarge),
                   ),
                 ),
                 switch (snapshot) {
