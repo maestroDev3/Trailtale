@@ -8,11 +8,10 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #126.
+- #126 Bug: photo locations are lost when picking from the gallery (own gallery picker)
 
 ## Up next
 
-- #126 Bug: photo locations are lost when picking from the gallery
 - #123 Find small towns and villages (e.g. Kotor) → #22 GPS position → #124 Pick a place on the map → #13 Draw the trip route
 
 ## Backlog by epic
