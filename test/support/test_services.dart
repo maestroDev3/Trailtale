@@ -8,6 +8,7 @@ import 'fake_media_location_access.dart';
 import 'fake_photo_library.dart';
 import 'fake_photo_metadata_reader.dart';
 import 'fake_photo_picker.dart';
+import 'fake_place_directory.dart';
 import 'fake_trip_repository.dart';
 import 'placeholder_trip_map.dart';
 
@@ -27,6 +28,7 @@ AppServices testServices({
   FakeBackupService? backupService,
   FakeFileSharer? fileSharer,
   FakeDocumentPicker? documentPicker,
+  FakePlaceDirectory? placeDirectory,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
@@ -41,5 +43,6 @@ AppServices testServices({
     fileSharer: fileSharer ?? FakeFileSharer(),
     documentPicker: documentPicker ?? FakeDocumentPicker(),
     tripMap: PlaceholderTripMap.new,
+    placeDirectory: placeDirectory ?? FakePlaceDirectory(),
   );
 }
