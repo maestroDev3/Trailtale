@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #22.
+- #22 Use the current GPS position (foreground only)
 
 ## Up next
 
-- #22 GPS position → #124 Pick a place on the map → #13 Draw the trip route
+- #124 Pick a place on the map → #13 Draw the trip route
 
 ## Backlog by epic
 
