@@ -39,8 +39,7 @@ class _PlacePickerScreenState extends State<PlacePickerScreen> {
   static const _worldZoom = 2.0;
 
   final _map = PickerMapController();
-  late final Future<PlaceIndex> _places = widget.services.placeDirectory
-      .load();
+  late final Future<PlaceIndex> _places = widget.services.placeDirectory.load();
   late GeoPoint _center = widget.initialCenter ?? _worldCenter;
   Place? _nearest;
   var _locating = false;
@@ -104,9 +103,8 @@ class _PlacePickerScreenState extends State<PlacePickerScreen> {
     final center = _center;
     final nearest = (await _places).nearest(center);
     if (!mounted) return;
-    Navigator.of(context).pop<PickedPlace>(
-      (location: center, nearestPlace: nearest),
-    );
+    Navigator.of(context)
+        .pop<PickedPlace>((location: center, nearestPlace: nearest));
   }
 
   @override
@@ -195,8 +193,7 @@ class _TownSearchState extends State<_TownSearch> {
       textEditingController: _text,
       focusNode: _focus,
       displayStringForOption: (place) => place.name,
-      optionsBuilder: (value) async =>
-          (await widget.places).search(value.text),
+      optionsBuilder: (value) async => (await widget.places).search(value.text),
       onSelected: widget.onSelected,
       fieldViewBuilder: (context, controller, focusNode, _) => Material(
         elevation: 3,
