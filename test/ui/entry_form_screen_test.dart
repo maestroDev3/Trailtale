@@ -12,6 +12,7 @@ import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
+import 'package:trailtale/ui/widgets/picker_map.dart';
 
 import '../support/fake_entry_repository.dart';
 import '../support/fake_photo_gallery.dart';
@@ -21,6 +22,7 @@ import '../support/fake_photo_picker.dart';
 import '../support/fake_place_directory.dart';
 import '../support/fake_position_service.dart';
 import '../support/fake_trip_repository.dart';
+import '../support/placeholder_picker_map.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
 
@@ -49,6 +51,7 @@ void main() {
     FakePhotoGallery? photoGallery,
     FakePlaceDirectory? placeDirectory,
     FakePositionService? positionService,
+    PickerMapBuilder? pickerMap,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -63,6 +66,7 @@ void main() {
           photoGallery: photoGallery,
           placeDirectory: placeDirectory,
           positionService: positionService,
+          pickerMap: pickerMap,
         ),
       ),
     );
@@ -799,6 +803,114 @@ void main() {
       await useMyPosition(tester);
 
       expect(find.text('Your position could not be found'), findsOneWidget);
+      await showCoordinates(tester);
+      expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
+    });
+  });
+
+  group('EntryFormScreen pick on map', () {
+    final kotor = Place(
+      name: 'Kotor',
+      country: 'Montenegro',
+      countryCode: 'ME',
+      location: GeoPoint(latitude: 42.4207, longitude: 18.7682),
+      population: 5345,
+    );
+    final beach = GeoPoint(latitude: 42.4231, longitude: 18.76);
+
+    Future<void> openForm(WidgetTester tester) async {
+      await openTrip(
+        tester,
+        placeDirectory: FakePlaceDirectory([kotor]),
+        pickerMap: placeholderPickerMap(panTo: beach),
+      );
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> openPicker(WidgetTester tester) async {
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      final button = find.text('Pick on map');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> pickBeach(WidgetTester tester) async {
+      await openPicker(tester);
+      await tester.tap(find.text('Pan map'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Use this place'));
+      await tester.pumpAndSettle();
+    }
+
+    String fieldText(WidgetTester tester, String label) =>
+        tester.widget<TextFormField>(field(label)).controller?.text ?? '';
+
+    testWidgets('opens at the entry coordinates', (tester) async {
+      await openForm(tester);
+      await showCoordinates(tester);
+      await tester.enterText(field('Latitude (optional)'), '41.1579');
+      await tester.enterText(field('Longitude (optional)'), '-8.6291');
+
+      await openPicker(tester);
+
+      expect(find.text('Pick a place'), findsOneWidget);
+      expect(find.text('Map center: 41.1579, -8.6291'), findsOneWidget);
+    });
+
+    testWidgets('opens at the typed town', (tester) async {
+      await openForm(tester);
+      await tester.enterText(field('Place (optional)'), 'Kotor');
+      await tester.pumpAndSettle();
+
+      await openPicker(tester);
+
+      expect(find.text('Map center: 42.4207, 18.7682'), findsOneWidget);
+    });
+
+    testWidgets('opens on the world view without a hint', (tester) async {
+      await openForm(tester);
+
+      await openPicker(tester);
+
+      expect(find.text('Map center: 20.0000, 0.0000'), findsOneWidget);
+    });
+
+    testWidgets('fills coordinates and the nearest town', (tester) async {
+      await openForm(tester);
+
+      await pickBeach(tester);
+
+      expect(find.text('Pick a place'), findsNothing);
+      expect(fieldText(tester, 'Place (optional)'), 'Kotor');
+      await showCoordinates(tester);
+      expect(fieldText(tester, 'Latitude (optional)'), '42.423100');
+      expect(fieldText(tester, 'Longitude (optional)'), '18.760000');
+    });
+
+    testWidgets('keeps a typed place name', (tester) async {
+      await openForm(tester);
+      await tester.enterText(field('Place (optional)'), 'Old town beach');
+      await tester.pumpAndSettle();
+
+      await pickBeach(tester);
+
+      expect(fieldText(tester, 'Place (optional)'), 'Old town beach');
+      await showCoordinates(tester);
+      expect(fieldText(tester, 'Latitude (optional)'), '42.423100');
+    });
+
+    testWidgets('changes nothing when going back', (tester) async {
+      await openForm(tester);
+
+      await openPicker(tester);
+      await tester.tap(find.text('Pan map'));
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(fieldText(tester, 'Place (optional)'), isEmpty);
       await showCoordinates(tester);
       expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
     });
