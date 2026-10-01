@@ -43,11 +43,9 @@ class PlaceIndex {
   PlaceIndex(Iterable<Place> places)
     : _entries = [
         for (final place in places)
-          _IndexedPlace(
-            place,
-            foldText(place.name),
-            [for (final name in place.alternateNames) foldText(name)],
-          ),
+          _IndexedPlace(place, foldText(place.name), [
+            for (final name in place.alternateNames) foldText(name),
+          ]),
       ];
 
   /// Radius within which [nearest] accepts a place.
