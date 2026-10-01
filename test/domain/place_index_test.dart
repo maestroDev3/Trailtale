@@ -30,7 +30,14 @@ void main() {
   final paris = place('Paris', 'France', 48.8534, 2.3488, 2138551);
   final parisTexas = place('Paris', 'United States', 33.6609, -95.5555, 24782);
   final porto = place('Porto', 'Portugal', 41.1485, -8.611, 252687, ['Oporto']);
-  final index = PlaceIndex([lisburn, porto, parisTexas, lisbon, saoPaulo, paris]);
+  final index = PlaceIndex([
+    lisburn,
+    porto,
+    parisTexas,
+    lisbon,
+    saoPaulo,
+    paris,
+  ]);
 
   group('Place', () {
     test('has a label with its country', () {
