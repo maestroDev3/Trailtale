@@ -486,5 +486,46 @@
         "type": "int"
       }
     }
+  },
+  "useMyPosition": "Use my position",
+  "@useMyPosition": {
+    "description": "Button in the entry form that sets the coordinates to the phone's current position."
+  },
+  "locatingPosition": "Locating…",
+  "@locatingPosition": {
+    "description": "Button label while the current position is being determined."
+  },
+  "positionSet": "Position set (±{accuracy} m)",
+  "@positionSet": {
+    "description": "Message after the coordinates were set to the current position; accuracy in meters.",
+    "placeholders": {
+      "accuracy": {
+        "type": "int"
+      }
+    }
+  },
+  "positionDenied": "Location access was not allowed",
+  "@positionDenied": {
+    "description": "Message when the user did not allow location access."
+  },
+  "positionBlocked": "Location access is blocked",
+  "@positionBlocked": {
+    "description": "Message when location access is permanently denied and can only be allowed in the settings."
+  },
+  "positionOpenSettings": "Settings",
+  "@positionOpenSettings": {
+    "description": "Action that opens the app settings to allow location access."
+  },
+  "positionServiceOff": "Location is turned off",
+  "@positionServiceOff": {
+    "description": "Message when location is switched off on the phone."
+  },
+  "positionTurnOn": "Turn on",
+  "@positionTurnOn": {
+    "description": "Action that opens the phone's location settings."
+  },
+  "positionUnavailable": "Your position could not be found",
+  "@positionUnavailable": {
+    "description": "Message when no position fix was found in time."
   }
 }
