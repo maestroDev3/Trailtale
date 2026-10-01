@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #124.
+- #124 Pick a place on the map (crosshair picker)
 
 ## Up next
 
-- #124 Pick a place on the map, then #13 Draw the trip route
+- #13 Draw the trip route
 
 ## Backlog by epic
 
