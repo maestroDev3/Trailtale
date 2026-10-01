@@ -9,8 +9,8 @@ class Place {
     required this.location,
     required this.population,
     this.alternateNames = const [],
-    this.region,
-  });
+    String? region,
+  }) : region = region == '' ? null : region;
 
   final String name;
   final String country;
@@ -25,7 +25,7 @@ class Place {
   final String? region;
 
   /// Region and country, shown under the name in suggestions.
-  String get detail => throw UnimplementedError();
+  String get detail => region == null ? country : '$region, $country';
 
   /// Name with country, as shown in suggestions: “Lisbon, Portugal”.
   String get label => '$name, $country';
@@ -45,31 +45,61 @@ class Place {
 }
 
 /// Searches places by name and finds the nearest place to a position; built
-/// once from the whole list.
+/// once from the whole list (about 170,000 places, so built in the
+/// background and kept lean: one folded search text per place).
 class PlaceIndex {
   PlaceIndex(Iterable<Place> places)
-    : _entries = [
+    : _places = List.of(places, growable: false),
+      _searchTexts = [
         for (final place in places)
-          _IndexedPlace(place, foldText(place.name), [
+          [
+            '',
+            foldText(place.name),
             for (final name in place.alternateNames) foldText(name),
-          ]),
+          ].join(_separator),
       ];
 
   /// Radius within which [nearest] accepts a place.
   static const nearestRadiusMeters = 30000.0;
 
-  final List<_IndexedPlace> _entries;
+  /// Latitude difference beyond which a place is surely farther away than
+  /// [nearestRadiusMeters] (one degree of latitude is about 111 km).
+  static const _nearestLatitudeBand = nearestRadiusMeters / 111000 + 0.01;
+
+  /// Separates the names in a search text; never part of a name.
+  static const _separator = '\u0001';
+
+  final List<Place> _places;
+
+  /// Per place: the folded name, then the folded alternate names, each
+  /// preceded by [_separator].
+  final List<String> _searchTexts;
 
   /// Places whose name, a word of it or an alternate name starts with
-  /// [query] (case and accents ignored): exact names first, then the most
-  /// populous. Needs at least two characters.
+  /// [query] (case and accents ignored): exact names first, then exact
+  /// alternate names, then name prefixes, then other matches; within each
+  /// group the most populous first. Needs at least two characters.
   List<Place> search(String query, {int limit = 8}) {
     final folded = foldText(query.trim());
     if (folded.length < 2) return const [];
+    final namePrefix = '$_separator$folded';
+    final exactName = '$namePrefix$_separator';
+    final wordPrefixes = [' $folded', '-$folded'];
     final matches = <(int, Place)>[];
-    for (final entry in _entries) {
-      final rank = entry.rank(folded);
-      if (rank != null) matches.add((rank, entry.place));
+    for (var i = 0; i < _searchTexts.length; i++) {
+      final text = _searchTexts[i];
+      final int rank;
+      if (text.startsWith(namePrefix)) {
+        rank = text.startsWith(exactName) || text == namePrefix ? 0 : 2;
+      } else if (text.contains(namePrefix)) {
+        rank = text.contains(exactName) || text.endsWith(namePrefix) ? 1 : 3;
+      } else if (text.contains(wordPrefixes[0]) ||
+          text.contains(wordPrefixes[1])) {
+        rank = 3;
+      } else {
+        continue;
+      }
+      matches.add((rank, _places[i]));
     }
     matches.sort((a, b) {
       final byRank = a.$1.compareTo(b.$1);
@@ -82,41 +112,19 @@ class PlaceIndex {
   Place? nearest(GeoPoint point) {
     Place? best;
     var bestDistance = nearestRadiusMeters;
-    for (final entry in _entries) {
-      final distance = entry.place.location.distanceTo(point);
+    for (final place in _places) {
+      final location = place.location;
+      if ((location.latitude - point.latitude).abs() > _nearestLatitudeBand) {
+        continue;
+      }
+      final distance = location.distanceTo(point);
       if (distance <= bestDistance) {
-        best = entry.place;
+        best = place;
         bestDistance = distance;
       }
     }
     return best;
   }
-}
-
-class _IndexedPlace {
-  _IndexedPlace(this.place, this.name, this.alternates);
-
-  final Place place;
-  final String name;
-  final List<String> alternates;
-
-  /// 0 exact name, 1 exact alternate, 2 name prefix, 3 other match.
-  int? rank(String query) {
-    if (name == query) return 0;
-    if (alternates.contains(query)) return 1;
-    if (name.startsWith(query)) return 2;
-    if (_wordStarts(name, query) ||
-        alternates.any(
-          (alternate) =>
-              alternate.startsWith(query) || _wordStarts(alternate, query),
-        )) {
-      return 3;
-    }
-    return null;
-  }
-
-  static bool _wordStarts(String text, String query) =>
-      text.split(RegExp(r'[\s\-]+')).any((word) => word.startsWith(query));
 }
 
 const _accents = {
@@ -134,8 +142,10 @@ const _accents = {
 
 /// Lower case without accents, so “São” matches “sao”.
 String foldText(String text) {
+  final lower = text.toLowerCase();
+  if (lower.codeUnits.every((unit) => unit < 128)) return lower;
   final buffer = StringBuffer();
-  for (final char in text.toLowerCase().split('')) {
+  for (final char in lower.split('')) {
     buffer.write(_accents[char] ?? char);
   }
   return buffer.toString();
