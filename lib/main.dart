@@ -6,6 +6,7 @@ import 'data/asset_place_directory.dart';
 import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
 import 'data/file_selector_document_picker.dart';
+import 'data/geolocator_position_service.dart';
 import 'data/image_picker_photo_picker.dart';
 import 'data/photo_manager_gallery.dart';
 import 'data/json_file_entry_repository.dart';
@@ -49,6 +50,7 @@ Future<void> main() async {
                   onOpenEntry: onOpenEntry,
                   interactive: interactive,
                 ),
+        positionService: GeolocatorPositionService(),
         placeDirectory: AssetPlaceDirectory(
           loadBytes: () async =>
               (await rootBundle.load('assets/places/cities.tsv.gz')).buffer

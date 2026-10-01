@@ -11,6 +11,7 @@ import '../domain/photo_gallery.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_suggestion.dart';
 import '../domain/place.dart';
+import '../domain/position_service.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
@@ -54,6 +55,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
 
   /// Metadata of the photos added while this form is open.
   final _addedMetadata = <PhotoMetadata>[];
+
+  /// Whether the current position is being determined.
+  var _locating = false;
 
   /// Whether the user picked date or time by hand; photos then keep off.
   var _dateTimeSetByUser = false;
@@ -237,6 +241,54 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     };
   }
 
+  Future<void> _useMyPosition() async {
+    setState(() => _locating = true);
+    final positions = widget.services.positionService;
+    final result = await positions.currentPosition();
+    final nearestPlace = switch (result) {
+      PositionFound(:final location) when _place.text.trim().isEmpty =>
+        (await _places).nearest(location),
+      _ => null,
+    };
+    if (!mounted) return;
+    setState(() {
+      _locating = false;
+      if (result case PositionFound(:final location)) {
+        _latitude.text = location.latitude.toStringAsFixed(6);
+        _longitude.text = location.longitude.toStringAsFixed(6);
+        if (nearestPlace != null && _place.text.trim().isEmpty) {
+          _place.text = nearestPlace.name;
+        }
+      }
+    });
+    final l10n = AppLocalizations.of(context);
+    final (message, action) = switch (result) {
+      PositionFound(:final accuracyMeters) => (
+        l10n.positionSet(accuracyMeters.round()),
+        null,
+      ),
+      PositionDenied(permanently: false) => (l10n.positionDenied, null),
+      PositionDenied(permanently: true) => (
+        l10n.positionBlocked,
+        SnackBarAction(
+          label: l10n.positionOpenSettings,
+          onPressed: positions.openAppSettings,
+        ),
+      ),
+      PositionServiceOff() => (
+        l10n.positionServiceOff,
+        SnackBarAction(
+          label: l10n.positionTurnOn,
+          onPressed: positions.openLocationSettings,
+        ),
+      ),
+      PositionUnavailable() => (l10n.positionUnavailable, null),
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), action: action));
+  }
+
   void _selectPlace(Place place) {
     setState(() {
       _latitude.text = place.location.latitude.toStringAsFixed(4);
@@ -403,6 +455,13 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                     onSelected: onSelected,
                   ),
             ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _MyPositionButton(
+                locating: _locating,
+                onPressed: _useMyPosition,
+              ),
+            ),
             const SizedBox(height: 16),
             _CoordinatesHeader(
               value: switch (parseCoordinates(
@@ -527,6 +586,28 @@ class _RemovablePhoto extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _MyPositionButton extends StatelessWidget {
+  const _MyPositionButton({required this.locating, required this.onPressed});
+
+  final bool locating;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return TextButton.icon(
+      onPressed: locating ? null : onPressed,
+      icon: locating
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.my_location),
+      label: Text(locating ? l10n.locatingPosition : l10n.useMyPosition),
     );
   }
 }

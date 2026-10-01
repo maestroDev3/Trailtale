@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:trailtale/domain/position_service.dart';
 
 /// [PositionService] for tests that returns [result] and records calls.
@@ -6,6 +8,9 @@ class FakePositionService implements PositionService {
 
   /// What [currentPosition] returns.
   PositionResult result;
+
+  /// When set, [currentPosition] waits for it instead of returning [result].
+  Completer<PositionResult>? pending;
 
   /// How often a position was requested.
   var requests = 0;
@@ -16,7 +21,7 @@ class FakePositionService implements PositionService {
   @override
   Future<PositionResult> currentPosition() async {
     requests++;
-    return result;
+    return pending?.future ?? result;
   }
 
   @override
