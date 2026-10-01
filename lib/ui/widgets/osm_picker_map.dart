@@ -100,8 +100,9 @@ GeoPoint mapCenterToGeoPoint({
   required double latitude,
   required double longitude,
 }) {
-  var wrapped = (longitude + 180) % 360 - 180;
-  if (wrapped == -180 && longitude > 0) wrapped = 180;
+  final wrapped = longitude >= -180 && longitude <= 180
+      ? longitude
+      : (longitude + 180) % 360 - 180;
   return GeoPoint(
     latitude: latitude.clamp(-90, 90).toDouble(),
     longitude: wrapped,

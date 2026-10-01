@@ -19,10 +19,9 @@ class PickerMapController extends ChangeNotifier {
 /// Builds the map in which the user picks a place by moving it under a
 /// fixed crosshair. Screens only use this builder, so the map provider stays
 /// swappable and tests can use a placeholder.
-typedef PickerMapBuilder =
-    Widget Function({
-      required PickerMapController controller,
-      required GeoPoint initialCenter,
-      required double initialZoom,
-      required ValueChanged<GeoPoint> onCenterChanged,
-    });
+typedef PickerMapBuilder = Widget Function({
+  required PickerMapController controller,
+  required GeoPoint initialCenter,
+  required double initialZoom,
+  required ValueChanged<GeoPoint> onCenterChanged,
+});

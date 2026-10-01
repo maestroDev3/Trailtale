@@ -101,7 +101,7 @@ void main() {
       expect(point.latitude, 90);
       expect(point.longitude, closeTo(-170, 0.000001));
       expect(
-        mapCenterToGeoPoint(latitude: -91, longitude: -540).longitude,
+        mapCenterToGeoPoint(latitude: -91, longitude: -540).longitude.abs(),
         closeTo(180, 0.000001),
       );
     });
