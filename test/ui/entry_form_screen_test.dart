@@ -105,9 +105,8 @@ void main() {
 
   Future<void> save(WidgetTester tester) async {
     // A message from an earlier step may cover the button at the bottom.
-    ScaffoldMessenger.of(
-      tester.element(find.byType(EntryFormScreen)),
-    ).removeCurrentSnackBar();
+    ScaffoldMessenger.of(tester.element(find.byType(EntryFormScreen)))
+        .removeCurrentSnackBar();
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
