@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #126 Bug: photo locations are lost when picking from the gallery (own gallery picker)
+- Nothing – next up is #123.
 
 ## Up next
 
@@ -20,7 +20,7 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|
 | ~~#70 Look & feel~~ (done) | ~~#71~~ → ~~#72~~ → ~~#73~~ → ~~#74~~ → ~~#75~~ |
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
-| #5 Photos | ~~#6~~ → ~~#7~~ → #126 Bug: photo locations lost when picking → #114 Evening recap: add today's photos as entries (needs decision) |
+| #5 Photos | ~~#6~~ → ~~#7~~ → ~~#126 Bug: photo locations lost when picking~~ → #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
 | #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF → #111 Store the release signing key safely (user task, after vacation) |
 | #20 Location capture | ~~#21 Pick places manually (cities and places)~~ → #123 Find small towns and villages → #22 Use the current GPS position → #124 Pick a place on the map → #125 Create an entry from a place shared by another app |
@@ -28,11 +28,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #126 Own gallery picker (trip photos first) keeps the photos' GPS position; hint when a photo has no location
 - #21 Place suggestions from a bundled city list (34k cities, offline), coordinates and place names filled automatically
 - #12 Map with numbered markers (OpenStreetMap) on the trip page and in full screen
 - Release signing with a fixed key: APKs now update the installed app
 - #15 Backup: ZIP incl. photos via share sheet, restore, Android Auto Backup for trips/entries
-- #75 Welcome screen and photo-first entry form (epic #70 Look & feel done)
 
 ## Open decisions (user only)
 
