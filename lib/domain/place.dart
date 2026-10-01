@@ -9,6 +9,7 @@ class Place {
     required this.location,
     required this.population,
     this.alternateNames = const [],
+    this.region,
   });
 
   final String name;
@@ -19,6 +20,12 @@ class Place {
 
   /// Other spellings and names in other languages, e.g. “Lissabon”.
   final List<String> alternateNames;
+
+  /// First administrative level, e.g. “Kotor Municipality”, if known.
+  final String? region;
+
+  /// Region and country, shown under the name in suggestions.
+  String get detail => throw UnimplementedError();
 
   /// Name with country, as shown in suggestions: “Lisbon, Portugal”.
   String get label => '$name, $country';

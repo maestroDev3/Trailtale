@@ -43,6 +43,38 @@ void main() {
     test('has a label with its country', () {
       expect(lisbon.label, 'Lisbon, Portugal');
     });
+
+    test('describes region and country', () {
+      final kotor = Place(
+        name: 'Kotor',
+        country: 'Montenegro',
+        countryCode: 'ME',
+        location: GeoPoint(latitude: 42.4207, longitude: 18.7682),
+        population: 5345,
+        region: 'Kotor Municipality',
+      );
+
+      expect(kotor.detail, 'Kotor Municipality, Montenegro');
+    });
+
+    test('describes only the country without a region', () {
+      expect(lisbon.region, isNull);
+      expect(lisbon.detail, 'Portugal');
+    });
+
+    test('stores an empty region as null', () {
+      final place = Place(
+        name: 'Kotor',
+        country: 'Montenegro',
+        countryCode: 'ME',
+        location: GeoPoint(latitude: 42.4207, longitude: 18.7682),
+        population: 5345,
+        region: '',
+      );
+
+      expect(place.region, isNull);
+      expect(place.detail, 'Montenegro');
+    });
   });
 
   group('PlaceIndex.search', () {
@@ -62,6 +94,28 @@ void main() {
 
     test('finds a later word of the name', () {
       expect(index.search('paulo'), [saoPaulo]);
+    });
+
+    test('finds a later word of an alternate name', () {
+      final hercegNovi = place('Herceg Novi', 'Montenegro', 42.45, 18.54, 1, [
+        'Castelnuovo di Cattaro',
+      ]);
+
+      expect(PlaceIndex([hercegNovi, lisbon]).search('cattaro'), [hercegNovi]);
+      expect(PlaceIndex([hercegNovi, lisbon]).search('novi'), [hercegNovi]);
+    });
+
+    test('does not match inside a word', () {
+      expect(index.search('bon'), isEmpty);
+    });
+
+    test('puts exact alternate names before other matches', () {
+      final lisboaVillage = place('Lisboa Nova', 'Brazil', -7, -35, 9000000);
+
+      expect(PlaceIndex([lisboaVillage, lisbon]).search('lisboa'), [
+        lisbon,
+        lisboaVillage,
+      ]);
     });
 
     test('puts exact names first', () {
@@ -88,6 +142,12 @@ void main() {
   group('PlaceIndex.nearest', () {
     test('returns the closest place within 30 km', () {
       final near = index.nearest(GeoPoint(latitude: 38.71, longitude: -9.14));
+
+      expect(near, lisbon);
+    });
+
+    test('finds a place across the 30 km latitude band edge', () {
+      final near = index.nearest(GeoPoint(latitude: 38.98, longitude: -9.1498));
 
       expect(near, lisbon);
     });
