@@ -24,13 +24,16 @@ void main() {
     ),
   ];
 
-  Future<List<String>> pumpMap(WidgetTester tester) async {
+  Future<List<String>> pumpMap(
+    WidgetTester tester, {
+    List<MapPoint>? mapPoints,
+  }) async {
     final opened = <String>[];
     await pumpApp(
       tester,
       Scaffold(
         body: OsmTripMap(
-          points: points,
+          points: mapPoints ?? points,
           onOpenEntry: opened.add,
           tileProvider: OfflineTileProvider(),
         ),
@@ -85,6 +88,57 @@ void main() {
 
       final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
       expect(map.options.initialCameraFit, isNotNull);
+    });
+
+    testWidgets('draws the route below the markers in the route color', (
+      tester,
+    ) async {
+      await pumpMap(tester);
+
+      final layer = tester.widget<PolylineLayer>(find.byType(PolylineLayer));
+      final leg = layer.polylines.single;
+      final context = tester.element(find.byType(FlutterMap));
+      expect(leg.color, Theme.of(context).colorScheme.secondary);
+      expect(leg.strokeWidth, 4);
+      expect(leg.pattern, const StrokePattern.solid());
+      expect(leg.points.first.latitude, 38.7223);
+      expect(leg.points.last.latitude, 41.1579);
+
+      final children = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .children;
+      expect(
+        children.indexWhere((child) => child is PolylineLayer),
+        lessThan(children.indexWhere((child) => child is MarkerLayer)),
+      );
+    });
+
+    testWidgets('draws long legs dashed', (tester) async {
+      await pumpMap(
+        tester,
+        mapPoints: [
+          ...points,
+          MapPoint(
+            number: 3,
+            entryId: 'kotor',
+            location: GeoPoint(latitude: 42.4247, longitude: 18.7712),
+            label: 'Kotor',
+          ),
+        ],
+      );
+
+      final polylines = tester
+          .widget<PolylineLayer>(find.byType(PolylineLayer))
+          .polylines;
+      expect(polylines, hasLength(2));
+      expect(polylines[0].pattern, const StrokePattern.solid());
+      expect(polylines[1].pattern, isNot(const StrokePattern.solid()));
+    });
+
+    testWidgets('draws no route for a single point', (tester) async {
+      await pumpMap(tester, mapPoints: [points.first]);
+
+      expect(find.byType(PolylineLayer), findsNothing);
     });
   });
 }

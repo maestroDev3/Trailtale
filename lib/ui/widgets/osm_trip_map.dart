@@ -5,7 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../../domain/trip_map.dart';
 import 'osm_tiles.dart';
 
-/// The trip map on OpenStreetMap tiles with numbered markers.
+/// The trip map on OpenStreetMap tiles with the route and numbered markers.
 ///
 /// Follows the OSM tile usage policy: app-specific User-Agent, visible
 /// attribution, tiles cached by `flutter_map`, no bulk download.
@@ -30,6 +30,8 @@ class OsmTripMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bounds = boundsOf(points);
+    final legs = routeLegs(points);
+    final routeColor = Theme.of(context).colorScheme.secondary;
     return FlutterMap(
       options: MapOptions(
         initialCenter: const LatLng(0, 0),
@@ -55,6 +57,26 @@ class OsmTripMap extends StatelessWidget {
           userAgentPackageName: osmUserAgentPackageName,
           tileProvider: tileProvider,
         ),
+        if (legs.isNotEmpty)
+          PolylineLayer(
+            polylines: [
+              for (final leg in legs)
+                Polyline(
+                  points: [
+                    LatLng(leg.start.latitude, leg.start.longitude),
+                    LatLng(leg.end.latitude, leg.end.longitude),
+                  ],
+                  color: routeColor,
+                  strokeWidth: 4,
+                  strokeCap: StrokeCap.round,
+                  // Long legs are probably flights or ferries, not the way
+                  // actually travelled.
+                  pattern: leg.isLong
+                      ? StrokePattern.dashed(segments: const [12, 10])
+                      : const StrokePattern.solid(),
+                ),
+            ],
+          ),
         MarkerLayer(
           markers: [
             for (final point in points)
