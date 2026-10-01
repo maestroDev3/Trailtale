@@ -73,7 +73,8 @@ class PhotoManagerGallery implements PhotoGallery {
 
   @override
   Future<Uint8List?> thumbnail(String id) async =>
-      (await _asset(id))?.thumbnailDataWithSize(const ThumbnailSize.square(300));
+      (await _asset(id))
+          ?.thumbnailDataWithSize(const ThumbnailSize.square(300));
 
   @override
   Future<String?> originalFile(String id) async =>
