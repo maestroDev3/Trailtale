@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../domain/coordinates_input.dart';
 import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
+import '../domain/geo_point.dart';
 import '../domain/photo_gallery.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_suggestion.dart';
@@ -16,6 +17,7 @@ import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'gallery_picker_screen.dart';
+import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/position_feedback.dart';
 
@@ -275,6 +277,45 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ..showSnackBar(snackBar);
   }
 
+  Future<void> _pickOnMap() async {
+    final (center, zoom) = await _pickerStart();
+    if (!mounted) return;
+    final picked = await Navigator.of(context).push<PickedPlace>(
+      MaterialPageRoute(
+        builder: (context) => PlacePickerScreen(
+          services: widget.services,
+          initialCenter: center,
+          initialZoom: zoom,
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _latitude.text = picked.location.latitude.toStringAsFixed(6);
+      _longitude.text = picked.location.longitude.toStringAsFixed(6);
+      if (picked.nearestPlace case final nearest?
+          when _place.text.trim().isEmpty) {
+        _place.text = nearest.name;
+      }
+    });
+  }
+
+  /// Where the map picker starts: the entry's coordinates, else the town
+  /// typed as place, else no hint.
+  Future<(GeoPoint?, double)> _pickerStart() async {
+    if (parseCoordinates(_latitude.text, _longitude.text) case ValidCoordinates(
+      :final point,
+    )) {
+      return (point, 16.0);
+    }
+    final typed = _place.text.trim();
+    if (typed.isNotEmpty) {
+      final match = (await _places).search(typed, limit: 1).firstOrNull;
+      if (match != null) return (match.location, 13.0);
+    }
+    return (null, 15.0);
+  }
+
   void _selectPlace(Place place) {
     setState(() {
       _latitude.text = place.location.latitude.toStringAsFixed(4);
@@ -441,12 +482,18 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                     onSelected: onSelected,
                   ),
             ),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: _MyPositionButton(
-                locating: _locating,
-                onPressed: _useMyPosition,
-              ),
+            Wrap(
+              children: [
+                _MyPositionButton(
+                  locating: _locating,
+                  onPressed: _useMyPosition,
+                ),
+                TextButton.icon(
+                  onPressed: _pickOnMap,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(l10n.pickOnMap),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             _CoordinatesHeader(

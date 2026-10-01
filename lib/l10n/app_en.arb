@@ -556,5 +556,9 @@
   "pickerMyPosition": "My position",
   "@pickerMyPosition": {
     "description": "Tooltip of the button that moves the place picker to the current position."
+  },
+  "pickOnMap": "Pick on map",
+  "@pickOnMap": {
+    "description": "Button in the entry form that opens a map to pick the entry's place."
   }
 }
