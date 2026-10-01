@@ -11,6 +11,7 @@ import '../domain/photo_picker.dart';
 import '../domain/place.dart';
 import '../domain/position_service.dart';
 import '../domain/trip_repository.dart';
+import 'widgets/picker_map.dart';
 import 'widgets/trip_map_view.dart';
 
 /// Everything the screens need from outside the UI. Created once in
@@ -28,6 +29,7 @@ class AppServices {
     required this.fileSharer,
     required this.documentPicker,
     required this.tripMap,
+    required this.pickerMap,
     required this.placeDirectory,
     required this.positionService,
     this.clock = DateTime.now,
@@ -49,6 +51,10 @@ class AppServices {
 
   /// Builds the trip map (OpenStreetMap in the app, a placeholder in tests).
   final TripMapBuilder tripMap;
+
+  /// Builds the map for picking a place (OpenStreetMap in the app, a
+  /// placeholder in tests).
+  final PickerMapBuilder pickerMap;
 
   /// The bundled city list for place suggestions and place names.
   final PlaceDirectory placeDirectory;
