@@ -77,3 +77,63 @@ MapBounds? boundsOf(List<MapPoint> points) {
   }
   return MapBounds(south: south, west: west, north: north, east: east);
 }
+
+/// Legs longer than this are probably flights or ferries; drawn dashed.
+const longLegMeters = 300000.0;
+
+/// A straight line between two consecutive points of the route. Longitudes
+/// may lie beyond ±180 so that a leg across the date line takes the short
+/// way.
+class RouteLeg {
+  const RouteLeg({
+    required this.start,
+    required this.end,
+    required this.distanceMeters,
+  });
+
+  final ({double latitude, double longitude}) start;
+  final ({double latitude, double longitude}) end;
+  final double distanceMeters;
+
+  /// Whether the leg is longer than [longLegMeters].
+  bool get isLong => distanceMeters > longLegMeters;
+}
+
+/// The route through [points] in their order.
+List<RouteLeg> routeLegs(List<MapPoint> points) {
+  final legs = <RouteLeg>[];
+  GeoPoint? previous;
+  ({double latitude, double longitude})? previousEnd;
+  for (final point in points) {
+    final location = point.location;
+    if (previous != null && previousEnd != null) {
+      if (location.latitude == previous.latitude &&
+          location.longitude == previous.longitude) {
+        continue;
+      }
+      var longitude = location.longitude;
+      while (longitude - previousEnd.longitude > 180) {
+        longitude -= 360;
+      }
+      while (longitude - previousEnd.longitude < -180) {
+        longitude += 360;
+      }
+      final end = (latitude: location.latitude, longitude: longitude);
+      legs.add(
+        RouteLeg(
+          start: previousEnd,
+          end: end,
+          distanceMeters: previous.distanceTo(location),
+        ),
+      );
+      previousEnd = end;
+    } else {
+      previousEnd = (
+        latitude: location.latitude,
+        longitude: location.longitude,
+      );
+    }
+    previous = location;
+  }
+  return legs;
+}
