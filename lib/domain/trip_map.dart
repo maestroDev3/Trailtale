@@ -77,3 +77,27 @@ MapBounds? boundsOf(List<MapPoint> points) {
   }
   return MapBounds(south: south, west: west, north: north, east: east);
 }
+
+/// Legs longer than this are probably flights or ferries; drawn dashed.
+const longLegMeters = 300000.0;
+
+/// A straight line between two consecutive points of the route. Longitudes
+/// may lie beyond ±180 so that a leg across the date line takes the short
+/// way.
+class RouteLeg {
+  const RouteLeg({
+    required this.start,
+    required this.end,
+    required this.distanceMeters,
+  });
+
+  final ({double latitude, double longitude}) start;
+  final ({double latitude, double longitude}) end;
+  final double distanceMeters;
+
+  /// Whether the leg is longer than [longLegMeters].
+  bool get isLong => throw UnimplementedError();
+}
+
+/// The route through [points] in their order.
+List<RouteLeg> routeLegs(List<MapPoint> points) => throw UnimplementedError();

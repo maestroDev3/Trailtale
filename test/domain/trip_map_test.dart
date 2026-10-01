@@ -86,4 +86,62 @@ void main() {
       expect(bounds?.east, closeTo(-9.1293, 1e-9));
     });
   });
+
+  group('routeLegs', () {
+    MapPoint point(int number, double latitude, double longitude) => MapPoint(
+      number: number,
+      entryId: 'e$number',
+      location: GeoPoint(latitude: latitude, longitude: longitude),
+      label: '',
+    );
+
+    final lisbon = point(1, 38.7223, -9.1393);
+    final sintra = point(2, 38.8029, -9.3817);
+    final porto = point(3, 41.1579, -8.6291);
+    final kotor = point(4, 42.4247, 18.7712);
+
+    test('joins the points in their order', () {
+      final legs = routeLegs([lisbon, sintra, porto]);
+
+      expect(legs, hasLength(2));
+      expect(legs[0].start, (latitude: 38.7223, longitude: -9.1393));
+      expect(legs[0].end, (latitude: 38.8029, longitude: -9.3817));
+      expect(legs[1].start, legs[0].end);
+      expect(legs[1].end, (latitude: 41.1579, longitude: -8.6291));
+    });
+
+    test('has no legs with fewer than two points', () {
+      expect(routeLegs([]), isEmpty);
+      expect(routeLegs([lisbon]), isEmpty);
+    });
+
+    test('adds no leg for a point at the previous location', () {
+      final again = point(2, 38.7223, -9.1393);
+
+      final legs = routeLegs([lisbon, again, sintra]);
+
+      expect(legs, hasLength(1));
+      expect(legs.single.end, (latitude: 38.8029, longitude: -9.3817));
+    });
+
+    test('marks legs longer than 300 km as long', () {
+      final legs = routeLegs([lisbon, porto, kotor]);
+
+      expect(legs[0].distanceMeters, closeTo(274000, 2000));
+      expect(legs[0].isLong, isFalse);
+      expect(legs[1].isLong, isTrue);
+      expect(longLegMeters, 300000);
+    });
+
+    test('takes the short way across the date line', () {
+      final fiji = point(1, -17.7, 179.5);
+      final samoa = point(2, -17.7, -179.5);
+
+      final leg = routeLegs([fiji, samoa]).single;
+
+      expect(leg.start.longitude, 179.5);
+      expect(leg.end.longitude, closeTo(180.5, 0.000001));
+      expect(leg.distanceMeters, lessThan(120000));
+    });
+  });
 }
