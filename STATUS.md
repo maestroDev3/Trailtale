@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #123.
+- #123 Find small towns and villages (GeoNames places from 1,000 inhabitants, with region)
 
 ## Up next
 
-- #123 Find small towns and villages (e.g. Kotor) → #22 GPS position → #124 Pick a place on the map → #13 Draw the trip route
+- #22 GPS position → #124 Pick a place on the map → #13 Draw the trip route
 
 ## Backlog by epic
 
