@@ -8,11 +8,12 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #22.
+- Nothing – next up is #126.
 
 ## Up next
 
-- #22 Use the current GPS position, then #13 Draw the trip route
+- #126 Bug: photo locations are lost when picking from the gallery
+- #123 Find small towns and villages (e.g. Kotor) → #22 GPS position → #124 Pick a place on the map → #13 Draw the trip route
 
 ## Backlog by epic
 
@@ -20,10 +21,10 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|
 | ~~#70 Look & feel~~ (done) | ~~#71~~ → ~~#72~~ → ~~#73~~ → ~~#74~~ → ~~#75~~ |
 | ~~#1 Foundation~~ (done) | ~~#2~~ → ~~#3~~ → ~~#4~~ |
-| #5 Photos | ~~#6~~ → ~~#7~~ → #114 Evening recap: add today's photos as entries (needs decision) |
+| #5 Photos | ~~#6~~ → ~~#7~~ → #126 Bug: photo locations lost when picking → #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
 | #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF → #111 Store the release signing key safely (user task, after vacation) |
-| #20 Location capture | ~~#21 Pick places manually (cities and places)~~ → #22 Use the current GPS position for an entry |
+| #20 Location capture | ~~#21 Pick places manually (cities and places)~~ → #123 Find small towns and villages → #22 Use the current GPS position → #124 Pick a place on the map → #125 Create an entry from a place shared by another app |
 | #11 Map | ~~#12 Entries as markers on a map~~ → #13 Draw the trip route |
 
 ## Recently done
@@ -37,4 +38,5 @@ The GitHub issues are authoritative; this file is the summary.
 ## Open decisions (user only)
 
 - #114 Evening recap: allow notifications and reading the gallery? Reminder time?
+- #125 Google Maps links: may the app use the internet beyond map tiles to resolve them?
 - Android only, or iOS later?
