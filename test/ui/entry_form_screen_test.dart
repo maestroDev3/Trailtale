@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
@@ -5,6 +7,7 @@ import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/domain/photo_metadata.dart';
 import 'package:trailtale/domain/place.dart';
+import 'package:trailtale/domain/position_service.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
@@ -16,6 +19,7 @@ import '../support/fake_photo_library.dart';
 import '../support/fake_photo_metadata_reader.dart';
 import '../support/fake_photo_picker.dart';
 import '../support/fake_place_directory.dart';
+import '../support/fake_position_service.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
@@ -44,6 +48,7 @@ void main() {
     FakePhotoMetadataReader? photoMetadataReader,
     FakePhotoGallery? photoGallery,
     FakePlaceDirectory? placeDirectory,
+    FakePositionService? positionService,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -57,6 +62,7 @@ void main() {
           photoMetadataReader: photoMetadataReader,
           photoGallery: photoGallery,
           placeDirectory: placeDirectory,
+          positionService: positionService,
         ),
       ),
     );
@@ -654,6 +660,147 @@ void main() {
       expect(find.text('Choose photos'), findsNothing);
       expect(picker.openCount, 1);
       expect(library.sources, ['/system/picked.jpg']);
+    });
+  });
+
+  group('EntryFormScreen my position', () {
+    final kotor = Place(
+      name: 'Kotor',
+      country: 'Montenegro',
+      countryCode: 'ME',
+      location: GeoPoint(latitude: 42.4207, longitude: 18.7682),
+      population: 5345,
+    );
+    final found = PositionFound(
+      GeoPoint(latitude: 42.424712, longitude: 18.771234),
+      accuracyMeters: 11.6,
+    );
+
+    Future<void> openForm(
+      WidgetTester tester,
+      FakePositionService positions,
+    ) async {
+      await openTrip(
+        tester,
+        positionService: positions,
+        placeDirectory: FakePlaceDirectory([kotor]),
+      );
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> useMyPosition(WidgetTester tester) async {
+      final button = find.text('Use my position');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    String fieldText(WidgetTester tester, String label) =>
+        tester.widget<TextFormField>(field(label)).controller?.text ?? '';
+
+    testWidgets('fills coordinates and the nearest place', (tester) async {
+      await openForm(tester, FakePositionService(found));
+
+      await useMyPosition(tester);
+
+      expect(find.text('Position set (±12 m)'), findsOneWidget);
+      expect(fieldText(tester, 'Place (optional)'), 'Kotor');
+      await showCoordinates(tester);
+      expect(fieldText(tester, 'Latitude (optional)'), '42.424712');
+      expect(fieldText(tester, 'Longitude (optional)'), '18.771234');
+    });
+
+    testWidgets('replaces earlier coordinates', (tester) async {
+      await openForm(tester, FakePositionService(found));
+      await showCoordinates(tester);
+      await tester.enterText(field('Latitude (optional)'), '41.1579');
+      await tester.enterText(field('Longitude (optional)'), '-8.6291');
+
+      await useMyPosition(tester);
+
+      expect(fieldText(tester, 'Latitude (optional)'), '42.424712');
+      expect(fieldText(tester, 'Longitude (optional)'), '18.771234');
+    });
+
+    testWidgets('keeps a typed place name', (tester) async {
+      await openForm(tester, FakePositionService(found));
+      await tester.enterText(field('Place (optional)'), 'Old town');
+      await tester.pumpAndSettle();
+
+      await useMyPosition(tester);
+
+      expect(fieldText(tester, 'Place (optional)'), 'Old town');
+    });
+
+    testWidgets('shows progress and cannot be tapped twice', (tester) async {
+      final positions = FakePositionService()
+        ..pending = Completer<PositionResult>();
+      await openForm(tester, positions);
+      final button = find.text('Use my position');
+      await tester.ensureVisible(button);
+
+      await tester.tap(button);
+      await tester.pump();
+
+      expect(find.text('Locating…'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.tap(find.text('Locating…'));
+      await tester.pump();
+      expect(positions.requests, 1);
+
+      positions.pending?.complete(found);
+      await tester.pumpAndSettle();
+      expect(find.text('Use my position'), findsOneWidget);
+    });
+
+    testWidgets('says when access was not allowed', (tester) async {
+      await openForm(
+        tester,
+        FakePositionService(const PositionDenied(permanently: false)),
+      );
+
+      await useMyPosition(tester);
+
+      expect(find.text('Location access was not allowed'), findsOneWidget);
+    });
+
+    testWidgets('offers the app settings when access is blocked', (
+      tester,
+    ) async {
+      final positions = FakePositionService(
+        const PositionDenied(permanently: true),
+      );
+      await openForm(tester, positions);
+
+      await useMyPosition(tester);
+      expect(find.text('Location access is blocked'), findsOneWidget);
+      await tester.tap(find.widgetWithText(SnackBarAction, 'Settings'));
+      await tester.pumpAndSettle();
+
+      expect(positions.openedSettings, ['app']);
+    });
+
+    testWidgets('offers to turn location on', (tester) async {
+      final positions = FakePositionService(const PositionServiceOff());
+      await openForm(tester, positions);
+
+      await useMyPosition(tester);
+      expect(find.text('Location is turned off'), findsOneWidget);
+      await tester.tap(find.widgetWithText(SnackBarAction, 'Turn on'));
+      await tester.pumpAndSettle();
+
+      expect(positions.openedSettings, ['location']);
+    });
+
+    testWidgets('says when no position was found', (tester) async {
+      await openForm(tester, FakePositionService());
+
+      await useMyPosition(tester);
+
+      expect(find.text('Your position could not be found'), findsOneWidget);
+      await showCoordinates(tester);
+      expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
     });
   });
 

@@ -9,6 +9,7 @@ import '../domain/photo_library.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
 import '../domain/place.dart';
+import '../domain/position_service.dart';
 import '../domain/trip_repository.dart';
 import 'widgets/trip_map_view.dart';
 
@@ -28,6 +29,7 @@ class AppServices {
     required this.documentPicker,
     required this.tripMap,
     required this.placeDirectory,
+    required this.positionService,
     this.clock = DateTime.now,
   });
 
@@ -50,5 +52,8 @@ class AppServices {
 
   /// The bundled city list for place suggestions and place names.
   final PlaceDirectory placeDirectory;
+
+  /// The device's current position, only while the app is in use.
+  final PositionService positionService;
   final Clock clock;
 }
