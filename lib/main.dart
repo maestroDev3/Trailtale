@@ -7,9 +7,9 @@ import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
 import 'data/file_selector_document_picker.dart';
 import 'data/image_picker_photo_picker.dart';
+import 'data/photo_manager_gallery.dart';
 import 'data/json_file_entry_repository.dart';
 import 'data/json_file_trip_repository.dart';
-import 'data/permission_handler_media_location_access.dart';
 import 'data/random_id.dart';
 import 'data/share_plus_file_sharer.dart';
 import 'data/storage_locations.dart';
@@ -35,7 +35,7 @@ Future<void> main() async {
         photoLibrary: FilePhotoLibrary(documents: documents, newId: randomId),
         photoPicker: ImagePickerPhotoPicker(),
         photoMetadataReader: ExifPhotoMetadataReader(),
-        mediaLocationAccess: PermissionHandlerMediaLocationAccess(),
+        photoGallery: PhotoManagerGallery(),
         backupService: ZipBackupService(
           documents: documents,
           temporary: temporary,

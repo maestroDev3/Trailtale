@@ -473,5 +473,18 @@
   "gallerySelectMore": "Select more",
   "@gallerySelectMore": {
     "description": "Button that lets the user allow access to more photos."
+  },
+  "takenFromPhotoDateNoPlace": "Date taken from the photo – it has no location",
+  "@takenFromPhotoDateNoPlace": {
+    "description": "Message after date and time of an entry were filled from a photo that has no GPS position."
+  },
+  "photosWithoutLocation": "{count, plural, =1{This photo has no location} other{These photos have no location}}",
+  "@photosWithoutLocation": {
+    "description": "Message after adding photos without GPS position to an entry without coordinates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
