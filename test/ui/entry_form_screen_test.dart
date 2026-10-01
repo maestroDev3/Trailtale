@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
+import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/domain/photo_metadata.dart';
 import 'package:trailtale/domain/place.dart';
 import 'package:trailtale/domain/trip.dart';
@@ -10,7 +11,7 @@ import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
 
 import '../support/fake_entry_repository.dart';
-import '../support/fake_media_location_access.dart';
+import '../support/fake_photo_gallery.dart';
 import '../support/fake_photo_library.dart';
 import '../support/fake_photo_metadata_reader.dart';
 import '../support/fake_photo_picker.dart';
@@ -41,7 +42,7 @@ void main() {
     FakePhotoLibrary? photoLibrary,
     FakePhotoPicker? photoPicker,
     FakePhotoMetadataReader? photoMetadataReader,
-    FakeMediaLocationAccess? mediaLocationAccess,
+    FakePhotoGallery? photoGallery,
     FakePlaceDirectory? placeDirectory,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
@@ -54,7 +55,7 @@ void main() {
           photoLibrary: photoLibrary,
           photoPicker: photoPicker,
           photoMetadataReader: photoMetadataReader,
-          mediaLocationAccess: mediaLocationAccess,
+          photoGallery: photoGallery,
           placeDirectory: placeDirectory,
         ),
       ),
@@ -476,11 +477,60 @@ void main() {
       expect(find.text('May 1, 2026'), findsOneWidget);
       await showCoordinates(tester);
       expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
+      expect(find.text('This photo has no location'), findsOneWidget);
+    });
+
+    testWidgets('says when the photo has a date but no location', (
+      tester,
+    ) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: FakePhotoMetadataReader({
+          'imported1.jpg': PhotoMetadata(takenAt: DateTime(2026, 5, 2, 9)),
+        }),
+      );
+
+      await addPhoto(tester);
+
+      expect(
+        find.text('Date taken from the photo – it has no location'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('does not complain about a missing location when coordinates '
+        'are set', (tester) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+      );
+      await showCoordinates(tester);
+      await tester.enterText(field('Latitude (optional)'), '41.1579');
+      await tester.enterText(field('Longitude (optional)'), '-8.6291');
+
+      await addPhoto(tester);
+
       expect(find.byType(SnackBar), findsNothing);
     });
   });
 
-  group('EntryFormScreen media location access', () {
+  group('EntryFormScreen gallery', () {
+    GalleryPhoto photo(String id, DateTime takenAt) =>
+        GalleryPhoto(id: id, takenAt: takenAt);
+
+    FakePhotoGallery lisbonGallery({
+      GalleryAccess access = GalleryAccess.full,
+      Set<String> missingOriginals = const {},
+    }) => FakePhotoGallery(
+      access: access,
+      missingOriginals: missingOriginals,
+      photos: [
+        photo('tram', DateTime(2026, 5, 2, 9, 15)),
+        photo('castle', DateTime(2026, 5, 3, 11)),
+      ],
+    );
+
     Future<void> addPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
       await tester.ensureVisible(button);
@@ -488,32 +538,122 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('is requested once before the picker opens', (tester) async {
-      final access = FakeMediaLocationAccess();
-      final picker = FakePhotoPicker();
-      await openTrip(tester, mediaLocationAccess: access, photoPicker: picker);
+    Future<void> choose(WidgetTester tester, List<String> ids) async {
+      for (final id in ids) {
+        await tester.tap(find.byKey(ValueKey('gallery-photo-$id')));
+      }
+      await tester.pumpAndSettle();
+      final label = ids.length == 1
+          ? 'Add 1 photo'
+          : 'Add ${ids.length} photos';
+      await tester.tap(find.widgetWithText(FilledButton, label));
+      await tester.pumpAndSettle();
+    }
+
+    Future<({FakePhotoLibrary library, FakePhotoPicker picker})> openForm(
+      WidgetTester tester,
+      FakePhotoGallery gallery, {
+      FakePhotoMetadataReader? photoMetadataReader,
+    }) async {
+      final library = FakePhotoLibrary();
+      final picker = FakePhotoPicker(['/system/picked.jpg']);
+      await openTrip(
+        tester,
+        photoGallery: gallery,
+        photoLibrary: library,
+        photoPicker: picker,
+        photoMetadataReader: photoMetadataReader,
+      );
       await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
       await tester.pumpAndSettle();
+      return (library: library, picker: picker);
+    }
+
+    testWidgets('imports the original files of the chosen photos in order', (
+      tester,
+    ) async {
+      final gallery = lisbonGallery();
+      final (:library, :picker) = await openForm(tester, gallery);
 
       await addPhotos(tester);
-      await addPhotos(tester);
+      expect(find.text('Choose photos'), findsOneWidget);
+      await choose(tester, ['castle', 'tram']);
 
-      expect(access.requestCount, 1);
-      expect(picker.openCount, 2);
+      expect(gallery.accessRequests, 1);
+      expect(picker.openCount, 0);
+      expect(library.sources, ['/gallery/castle.jpg', '/gallery/tram.jpg']);
+      expect(find.byTooltip('Remove photo'), findsNWidgets(2));
     });
 
-    testWidgets('opens the picker even when access is denied', (tester) async {
-      final access = FakeMediaLocationAccess(granted: false);
-      final picker = FakePhotoPicker(['/gallery/a.jpg']);
-      await openTrip(tester, mediaLocationAccess: access, photoPicker: picker);
-      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+    testWidgets('opens the gallery picker with limited access too', (
+      tester,
+    ) async {
+      final gallery = lisbonGallery(access: GalleryAccess.limited);
+      final (:library, :picker) = await openForm(tester, gallery);
+
+      await addPhotos(tester);
+      await choose(tester, ['tram']);
+
+      expect(picker.openCount, 0);
+      expect(library.sources, ['/gallery/tram.jpg']);
+    });
+
+    testWidgets('fills the form from the chosen photo', (tester) async {
+      final (library: _, picker: _) = await openForm(
+        tester,
+        lisbonGallery(),
+        photoMetadataReader: FakePhotoMetadataReader({
+          'imported1.jpg': PhotoMetadata(
+            takenAt: DateTime(2026, 5, 2, 9, 15),
+            location: GeoPoint(latitude: 38.7128, longitude: -9.136),
+          ),
+        }),
+      );
+
+      await addPhotos(tester);
+      await choose(tester, ['tram']);
+
+      expect(find.text('Date and place taken from the photo'), findsOneWidget);
+      expect(find.text('May 2, 2026'), findsOneWidget);
+    });
+
+    testWidgets('skips photos whose original file is unavailable', (
+      tester,
+    ) async {
+      final gallery = lisbonGallery(missingOriginals: {'castle'});
+      final (:library, picker: _) = await openForm(tester, gallery);
+
+      await addPhotos(tester);
+      await choose(tester, ['castle', 'tram']);
+
+      expect(library.sources, ['/gallery/tram.jpg']);
+      expect(find.byTooltip('Remove photo'), findsOneWidget);
+    });
+
+    testWidgets('changes nothing when the gallery picker is closed', (
+      tester,
+    ) async {
+      final (:library, picker: _) = await openForm(tester, lisbonGallery());
+
+      await addPhotos(tester);
+      await tester.pageBack();
       await tester.pumpAndSettle();
+
+      expect(library.sources, isEmpty);
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('falls back to the system photo picker without access', (
+      tester,
+    ) async {
+      final gallery = lisbonGallery(access: GalleryAccess.denied);
+      final (:library, :picker) = await openForm(tester, gallery);
 
       await addPhotos(tester);
 
-      expect(access.requestCount, 1);
+      expect(find.text('Choose photos'), findsNothing);
       expect(picker.openCount, 1);
-      expect(find.byTooltip('Remove photo'), findsOneWidget);
+      expect(library.sources, ['/system/picked.jpg']);
     });
   });
 

@@ -1,10 +1,11 @@
 import 'package:trailtale/domain/clock.dart';
 import 'package:trailtale/domain/id_generator.dart';
+import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/ui/app_services.dart';
 
 import 'fake_backup.dart';
 import 'fake_entry_repository.dart';
-import 'fake_media_location_access.dart';
+import 'fake_photo_gallery.dart';
 import 'fake_photo_library.dart';
 import 'fake_photo_metadata_reader.dart';
 import 'fake_photo_picker.dart';
@@ -24,7 +25,7 @@ AppServices testServices({
   FakePhotoLibrary? photoLibrary,
   FakePhotoPicker? photoPicker,
   FakePhotoMetadataReader? photoMetadataReader,
-  FakeMediaLocationAccess? mediaLocationAccess,
+  FakePhotoGallery? photoGallery,
   FakeBackupService? backupService,
   FakeFileSharer? fileSharer,
   FakeDocumentPicker? documentPicker,
@@ -38,7 +39,9 @@ AppServices testServices({
     photoLibrary: photoLibrary ?? FakePhotoLibrary(),
     photoPicker: photoPicker ?? FakePhotoPicker(),
     photoMetadataReader: photoMetadataReader ?? FakePhotoMetadataReader(),
-    mediaLocationAccess: mediaLocationAccess ?? FakeMediaLocationAccess(),
+    // Without gallery access the system photo picker is used, so tests that
+    // only care about picked files can keep using [FakePhotoPicker].
+    photoGallery: photoGallery ?? FakePhotoGallery(access: GalleryAccess.denied),
     backupService: backupService ?? FakeBackupService(),
     fileSharer: fileSharer ?? FakeFileSharer(),
     documentPicker: documentPicker ?? FakeDocumentPicker(),
