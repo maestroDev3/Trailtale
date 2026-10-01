@@ -303,8 +303,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   /// Where the map picker starts: the entry's coordinates, else the town
   /// typed as place, else no hint.
   Future<(GeoPoint?, double)> _pickerStart() async {
-    if (parseCoordinates(_latitude.text, _longitude.text)
-        case ValidCoordinates(:final point)) {
+    if (parseCoordinates(_latitude.text, _longitude.text) case ValidCoordinates(
+      :final point,
+    )) {
       return (point, 16.0);
     }
     final typed = _place.text.trim();
