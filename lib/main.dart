@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'data/asset_place_directory.dart';
 import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
 import 'data/file_selector_document_picker.dart';
@@ -47,6 +49,11 @@ Future<void> main() async {
                   onOpenEntry: onOpenEntry,
                   interactive: interactive,
                 ),
+        placeDirectory: AssetPlaceDirectory(
+          loadBytes: () async => (await rootBundle.load(
+            'assets/places/cities.tsv.gz',
+          )).buffer.asUint8List(),
+        ),
       ),
     ),
   );

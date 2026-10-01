@@ -8,6 +8,7 @@ import '../domain/media_location_access.dart';
 import '../domain/photo_library.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
+import '../domain/place.dart';
 import '../domain/trip_repository.dart';
 import 'widgets/trip_map_view.dart';
 
@@ -26,6 +27,7 @@ class AppServices {
     required this.fileSharer,
     required this.documentPicker,
     required this.tripMap,
+    required this.placeDirectory,
     this.clock = DateTime.now,
   });
 
@@ -42,5 +44,8 @@ class AppServices {
 
   /// Builds the trip map (OpenStreetMap in the app, a placeholder in tests).
   final TripMapBuilder tripMap;
+
+  /// The bundled city list for place suggestions and place names.
+  final PlaceDirectory placeDirectory;
   final Clock clock;
 }

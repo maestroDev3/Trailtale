@@ -395,5 +395,25 @@
   "openMap": "Open map",
   "@openMap": {
     "description": "Tooltip of the button that opens the trip map in full screen."
+  },
+  "coordinatesTitle": "Coordinates",
+  "@coordinatesTitle": {
+    "description": "Title of the collapsible section with latitude and longitude of an entry."
+  },
+  "coordinatesHint": "Set by choosing a city or adding a photo with location",
+  "@coordinatesHint": {
+    "description": "Shown in the coordinates section while no coordinates are set."
+  },
+  "coordinatesValue": "{latitude}, {longitude}",
+  "@coordinatesValue": {
+    "description": "Coordinates shown in the collapsed coordinates section.",
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
   }
 }

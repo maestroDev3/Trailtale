@@ -594,10 +594,7 @@ void main() {
     testWidgets('fills name and coordinates from a picked place', (
       tester,
     ) async {
-      final entries = await openNewEntryForm(
-        tester,
-        placeDirectory: places(),
-      );
+      final entries = await openNewEntryForm(tester, placeDirectory: places());
 
       await tester.enterText(field('Place (optional)'), 'Lissab');
       await tester.pumpAndSettle();
@@ -611,13 +608,8 @@ void main() {
       expect(entry.location, GeoPoint(latitude: 38.7251, longitude: -9.1498));
     });
 
-    testWidgets('keeps a free text place without coordinates', (
-      tester,
-    ) async {
-      final entries = await openNewEntryForm(
-        tester,
-        placeDirectory: places(),
-      );
+    testWidgets('keeps a free text place without coordinates', (tester) async {
+      final entries = await openNewEntryForm(tester, placeDirectory: places());
 
       await tester.enterText(field('Place (optional)'), 'Alfama');
       await tester.pumpAndSettle();

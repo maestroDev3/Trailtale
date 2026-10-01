@@ -9,6 +9,7 @@ import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_suggestion.dart';
+import '../domain/place.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
@@ -38,6 +39,10 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late final TextEditingController _place;
   late final TextEditingController _latitude;
   late final TextEditingController _longitude;
+  final _placeFocus = FocusNode();
+  late final Future<PlaceIndex> _places = widget.services.placeDirectory
+      .load();
+  var _showCoordinates = false;
   late DateTime _date;
   late TimeOfDay _time;
   late final List<String> _photos;
@@ -83,6 +88,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     }
     _note.dispose();
     _place.dispose();
+    _placeFocus.dispose();
     _latitude.dispose();
     _longitude.dispose();
     super.dispose();
@@ -193,8 +199,21 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     };
   }
 
+  void _selectPlace(Place place) {
+    setState(() {
+      _latitude.text = place.location.latitude.toStringAsFixed(4);
+      _longitude.text = place.location.longitude.toStringAsFixed(4);
+    });
+  }
+
   Future<void> _save() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      if (parseCoordinates(_latitude.text, _longitude.text)
+          is InvalidCoordinates) {
+        setState(() => _showCoordinates = true);
+      }
+      return;
+    }
     final location = switch (parseCoordinates(
       _latitude.text,
       _longitude.text,
@@ -323,44 +342,80 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               validator: _validateNote,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _place,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                labelText: l10n.entryPlaceLabel,
-                prefixIcon: const Icon(Icons.place_outlined),
-              ),
+            RawAutocomplete<Place>(
+              textEditingController: _place,
+              focusNode: _placeFocus,
+              displayStringForOption: (place) => place.name,
+              optionsBuilder: (value) async =>
+                  (await _places).search(value.text),
+              onSelected: _selectPlace,
+              fieldViewBuilder: (context, controller, focusNode, _) =>
+                  TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: l10n.entryPlaceLabel,
+                      prefixIcon: const Icon(Icons.place_outlined),
+                    ),
+                  ),
+              optionsViewBuilder: (context, onSelected, options) =>
+                  _PlaceOptions(options: options.toList(), onSelected: onSelected),
             ),
             const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _latitude,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                      signed: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: l10n.latitudeLabel,
-                      errorMaxLines: 3,
-                    ),
-                    validator: _validateCoordinates,
-                  ),
+            _CoordinatesHeader(
+              value: switch (parseCoordinates(
+                _latitude.text,
+                _longitude.text,
+              )) {
+                ValidCoordinates(:final point) => l10n.coordinatesValue(
+                  point.latitude.toStringAsFixed(4),
+                  point.longitude.toStringAsFixed(4),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    controller: _longitude,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                      signed: true,
+                _ => null,
+              },
+              expanded: _showCoordinates,
+              onTap: () =>
+                  setState(() => _showCoordinates = !_showCoordinates),
+            ),
+            Visibility(
+              visible: _showCoordinates,
+              maintainState: true,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _latitude,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n.latitudeLabel,
+                          errorMaxLines: 3,
+                        ),
+                        validator: _validateCoordinates,
+                      ),
                     ),
-                    decoration: InputDecoration(labelText: l10n.longitudeLabel),
-                  ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _longitude,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n.longitudeLabel,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 24),
             FilledButton(onPressed: _save, child: Text(l10n.save)),
@@ -432,6 +487,73 @@ class _RemovablePhoto extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PlaceOptions extends StatelessWidget {
+  const _PlaceOptions({required this.options, required this.onSelected});
+
+  final List<Place> options;
+  final AutocompleteOnSelected<Place> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Material(
+        elevation: 4,
+        color: theme.colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: 280,
+            maxWidth: MediaQuery.sizeOf(context).width - 32,
+          ),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            children: [
+              for (final place in options)
+                ListTile(
+                  leading: const Icon(Icons.location_city_outlined),
+                  title: Text(place.label),
+                  onTap: () => onSelected(place),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CoordinatesHeader extends StatelessWidget {
+  const _CoordinatesHeader({
+    required this.value,
+    required this.expanded,
+    required this.onTap,
+  });
+
+  /// The current coordinates as text, `null` if none are set.
+  final String? value;
+  final bool expanded;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListTile(
+        leading: const Icon(Icons.my_location_outlined),
+        title: Text(l10n.coordinatesTitle),
+        subtitle: Text(value ?? l10n.coordinatesHint),
+        trailing: Icon(expanded ? Icons.expand_less : Icons.expand_more),
+        onTap: onTap,
+      ),
     );
   }
 }
