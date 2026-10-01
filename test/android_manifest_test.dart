@@ -20,6 +20,37 @@ void main() {
       );
     });
 
+    test('declares read access to images incl. selected photos only', () {
+      expect(
+        permissions(),
+        containsAll([
+          'android.permission.READ_MEDIA_IMAGES',
+          'android.permission.READ_MEDIA_VISUAL_USER_SELECTED',
+        ]),
+      );
+      expect(
+        manifest,
+        matches(
+          RegExp(
+            r'android:name="android.permission.READ_EXTERNAL_STORAGE"'
+            r'\s+android:maxSdkVersion="32"',
+          ),
+        ),
+      );
+    });
+
+    test('declares no video or audio access', () {
+      expect(
+        permissions(),
+        isNot(
+          anyOf(
+            contains('android.permission.READ_MEDIA_VIDEO'),
+            contains('android.permission.READ_MEDIA_AUDIO'),
+          ),
+        ),
+      );
+    });
+
     test('declares internet access for map tiles', () {
       expect(permissions(), contains('android.permission.INTERNET'));
     });
