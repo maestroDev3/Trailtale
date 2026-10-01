@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../domain/trip_map.dart';
-import '../../l10n/app_localizations.dart';
+import 'osm_tiles.dart';
 
 /// The trip map on OpenStreetMap tiles with numbered markers.
 ///
@@ -17,9 +17,6 @@ class OsmTripMap extends StatelessWidget {
     this.interactive = true,
     this.tileProvider,
   });
-
-  static const tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const userAgentPackageName = 'de.maestrodev.trailtale';
 
   final List<MapPoint> points;
   final ValueChanged<String> onOpenEntry;
@@ -54,8 +51,8 @@ class OsmTripMap extends StatelessWidget {
       ),
       children: [
         TileLayer(
-          urlTemplate: tileUrl,
-          userAgentPackageName: userAgentPackageName,
+          urlTemplate: osmTileUrl,
+          userAgentPackageName: osmUserAgentPackageName,
           tileProvider: tileProvider,
         ),
         MarkerLayer(
@@ -75,7 +72,7 @@ class OsmTripMap extends StatelessWidget {
               ),
           ],
         ),
-        const _Attribution(),
+        const OsmAttribution(),
       ],
     );
   }
@@ -111,33 +108,6 @@ class _NumberMarker extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// “© OpenStreetMap contributors”, always visible as the license requires.
-class _Attribution extends StatelessWidget {
-  const _Attribution();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Container(
-        margin: const EdgeInsets.all(6),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLowest.withValues(
-            alpha: 0.85,
-          ),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          AppLocalizations.of(context).osmAttribution,
-          style: theme.textTheme.labelSmall,
         ),
       ),
     );

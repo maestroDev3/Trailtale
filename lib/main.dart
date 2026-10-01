@@ -19,6 +19,7 @@ import 'ui/app.dart';
 import 'ui/app_services.dart';
 import 'ui/licenses.dart';
 import 'ui/theme.dart';
+import 'ui/widgets/osm_picker_map.dart';
 import 'ui/widgets/osm_trip_map.dart';
 
 Future<void> main() async {
@@ -50,6 +51,18 @@ Future<void> main() async {
                   onOpenEntry: onOpenEntry,
                   interactive: interactive,
                 ),
+        pickerMap:
+            ({
+              required controller,
+              required initialCenter,
+              required initialZoom,
+              required onCenterChanged,
+            }) => OsmPickerMap(
+              controller: controller,
+              initialCenter: initialCenter,
+              initialZoom: initialZoom,
+              onCenterChanged: onCenterChanged,
+            ),
         positionService: GeolocatorPositionService(),
         placeDirectory: AssetPlaceDirectory(
           loadBytes: () async =>

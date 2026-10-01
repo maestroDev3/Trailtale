@@ -12,6 +12,7 @@ import 'fake_position_service.dart';
 import 'fake_photo_picker.dart';
 import 'fake_place_directory.dart';
 import 'fake_trip_repository.dart';
+import 'placeholder_picker_map.dart';
 import 'placeholder_trip_map.dart';
 
 /// Fixed "now" for widget tests: Tuesday, September 29, 2026, 10:30 local.
@@ -49,6 +50,7 @@ AppServices testServices({
     fileSharer: fileSharer ?? FakeFileSharer(),
     documentPicker: documentPicker ?? FakeDocumentPicker(),
     tripMap: PlaceholderTripMap.new,
+    pickerMap: placeholderPickerMap(),
     placeDirectory: placeDirectory ?? FakePlaceDirectory(),
     positionService: positionService ?? FakePositionService(),
   );
