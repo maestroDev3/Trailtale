@@ -68,6 +68,8 @@ flutter:
   assets:
     - assets/fonts/Fraunces-OFL.txt
     - assets/fonts/Manrope-OFL.txt
+    - assets/places/cities.tsv.gz
+    - assets/places/GEONAMES_LICENSE.txt
 
   # Static instances of the variable Google Fonts (SIL Open Font License).
   fonts:
