@@ -41,7 +41,8 @@ AppServices testServices({
     photoMetadataReader: photoMetadataReader ?? FakePhotoMetadataReader(),
     // Without gallery access the system photo picker is used, so tests that
     // only care about picked files can keep using [FakePhotoPicker].
-    photoGallery: photoGallery ?? FakePhotoGallery(access: GalleryAccess.denied),
+    photoGallery:
+        photoGallery ?? FakePhotoGallery(access: GalleryAccess.denied),
     backupService: backupService ?? FakeBackupService(),
     fileSharer: fileSharer ?? FakeFileSharer(),
     documentPicker: documentPicker ?? FakeDocumentPicker(),

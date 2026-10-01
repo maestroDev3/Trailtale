@@ -152,7 +152,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     final gallery = services.photoGallery;
     final access = await gallery.requestAccess();
     if (!mounted) return null;
-    if (access == GalleryAccess.denied) return services.photoPicker.pickImages();
+    if (access == GalleryAccess.denied) {
+      return services.photoPicker.pickImages();
+    }
     final ids = await Navigator.of(context).push<List<String>>(
       MaterialPageRoute(
         builder: (context) => GalleryPickerScreen(
@@ -163,10 +165,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ),
     );
     if (ids == null) return null;
-    return [
-      for (final id in ids)
-        if (await gallery.originalFile(id) case final path?) path,
-    ];
+    return [for (final id in ids) ?await gallery.originalFile(id)];
   }
 
   /// Fills date, time and coordinates from photos where the user has not
