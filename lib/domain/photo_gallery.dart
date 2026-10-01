@@ -53,5 +53,10 @@ abstract interface class PhotoGallery {
 /// The time span whose photos belong to [trip]: from the start of its first
 /// day until the start of the day after its last day, in local time.
 ({DateTime from, DateTime until}) tripPhotoPeriod(Trip trip) {
-  throw UnimplementedError();
+  final start = trip.startDate;
+  final end = trip.endDate;
+  return (
+    from: DateTime(start.year, start.month, start.day),
+    until: DateTime(end.year, end.month, end.day + 1),
+  );
 }

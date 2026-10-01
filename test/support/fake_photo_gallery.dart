@@ -34,14 +34,21 @@ class FakePhotoGallery implements PhotoGallery {
     required int page,
     required int pageSize,
   }) async {
-    throw UnimplementedError();
+    final matching = [
+      for (final photo in stored)
+        if ((from == null || !photo.takenAt.isBefore(from)) &&
+            (until == null || photo.takenAt.isBefore(until)))
+          photo,
+    ]..sort((a, b) => b.takenAt.compareTo(a.takenAt));
+    return matching.skip(page * pageSize).take(pageSize).toList();
   }
 
   @override
   Future<Uint8List?> thumbnail(String id) async => null;
 
   @override
-  Future<String?> originalFile(String id) async => null;
+  Future<String?> originalFile(String id) async =>
+      stored.any((photo) => photo.id == id) ? '/gallery/$id.jpg' : null;
 
   @override
   Future<void> selectMorePhotos() async => selectMoreCount++;
