@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/photo_metadata.dart';
+import 'package:trailtale/domain/place.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
@@ -13,6 +14,7 @@ import '../support/fake_media_location_access.dart';
 import '../support/fake_photo_library.dart';
 import '../support/fake_photo_metadata_reader.dart';
 import '../support/fake_photo_picker.dart';
+import '../support/fake_place_directory.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/pump_app.dart';
 import '../support/test_services.dart';
@@ -40,6 +42,7 @@ void main() {
     FakePhotoPicker? photoPicker,
     FakePhotoMetadataReader? photoMetadataReader,
     FakeMediaLocationAccess? mediaLocationAccess,
+    FakePlaceDirectory? placeDirectory,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -52,6 +55,7 @@ void main() {
           photoPicker: photoPicker,
           photoMetadataReader: photoMetadataReader,
           mediaLocationAccess: mediaLocationAccess,
+          placeDirectory: placeDirectory,
         ),
       ),
     );
@@ -65,12 +69,14 @@ void main() {
     FakePhotoLibrary? photoLibrary,
     FakePhotoPicker? photoPicker,
     FakePhotoMetadataReader? photoMetadataReader,
+    FakePlaceDirectory? placeDirectory,
   }) async {
     final entries = await openTrip(
       tester,
       photoLibrary: photoLibrary,
       photoPicker: photoPicker,
       photoMetadataReader: photoMetadataReader,
+      placeDirectory: placeDirectory,
     );
     await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
     await tester.pumpAndSettle();
@@ -78,6 +84,13 @@ void main() {
   }
 
   Finder field(String label) => find.widgetWithText(TextFormField, label);
+
+  Future<void> showCoordinates(WidgetTester tester) async {
+    if (field('Latitude (optional)').evaluate().isNotEmpty) return;
+    await tester.ensureVisible(find.text('Coordinates'));
+    await tester.tap(find.text('Coordinates'));
+    await tester.pumpAndSettle();
+  }
 
   Future<void> save(WidgetTester tester) async {
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
@@ -125,6 +138,7 @@ void main() {
       final entries = await openNewEntryForm(tester);
 
       await tester.enterText(field('Note'), 'Tram 28');
+      await showCoordinates(tester);
       await tester.enterText(field('Latitude (optional)'), '38.7');
       await save(tester);
 
@@ -136,6 +150,7 @@ void main() {
       final entries = await openNewEntryForm(tester);
 
       await tester.enterText(field('Note'), 'Tram 28');
+      await showCoordinates(tester);
       await tester.enterText(field('Latitude (optional)'), '95');
       await tester.enterText(field('Longitude (optional)'), '0');
       await save(tester);
@@ -152,6 +167,7 @@ void main() {
 
       await tester.enterText(field('Note'), 'Tram 28');
       await tester.enterText(field('Place (optional)'), 'Alfama');
+      await showCoordinates(tester);
       await tester.enterText(field('Latitude (optional)'), '38.7117');
       await tester.enterText(field('Longitude (optional)'), '-9.1300');
       await save(tester);
@@ -379,6 +395,7 @@ void main() {
 
       expect(find.text('May 2, 2026'), findsOneWidget);
       expect(find.textContaining('9:15'), findsOneWidget);
+      await showCoordinates(tester);
       expect(fieldText(tester, 'Latitude (optional)'), startsWith('38.7128'));
       expect(fieldText(tester, 'Longitude (optional)'), startsWith('-9.136'));
       expect(find.text('Date and place taken from the photo'), findsOneWidget);
@@ -408,6 +425,7 @@ void main() {
 
       expect(find.text('May 1, 2026'), findsOneWidget);
       expect(find.textContaining('10:30'), findsOneWidget);
+      await showCoordinates(tester);
       expect(fieldText(tester, 'Latitude (optional)'), startsWith('38.7128'));
     });
 
@@ -417,6 +435,7 @@ void main() {
         photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
         photoMetadataReader: lisbonPhoto,
       );
+      await showCoordinates(tester);
       await tester.enterText(field('Latitude (optional)'), '41.1579');
       await tester.enterText(field('Longitude (optional)'), '-8.6291');
 
@@ -455,6 +474,7 @@ void main() {
       await addPhoto(tester);
 
       expect(find.text('May 1, 2026'), findsOneWidget);
+      await showCoordinates(tester);
       expect(fieldText(tester, 'Latitude (optional)'), isEmpty);
       expect(find.byType(SnackBar), findsNothing);
     });
@@ -526,6 +546,7 @@ void main() {
     ) async {
       await openNewEntryForm(tester);
 
+      await showCoordinates(tester);
       expect(
         top(tester, field('Latitude (optional)')),
         top(tester, field('Longitude (optional)')),
@@ -539,6 +560,102 @@ void main() {
         find.descendant(of: field('Note'), matching: find.byType(EditableText)),
       );
       expect(note.style.fontFamily, 'Fraunces');
+    });
+  });
+
+  group('EntryFormScreen place suggestions', () {
+    final lisbon = Place(
+      name: 'Lisbon',
+      country: 'Portugal',
+      countryCode: 'PT',
+      location: GeoPoint(latitude: 38.7251, longitude: -9.1498),
+      population: 517802,
+      alternateNames: const ['Lissabon'],
+    );
+    final lisburn = Place(
+      name: 'Lisburn',
+      country: 'United Kingdom',
+      countryCode: 'GB',
+      location: GeoPoint(latitude: 54.5162, longitude: -6.058),
+      population: 45370,
+    );
+    FakePlaceDirectory places() => FakePlaceDirectory([lisburn, lisbon]);
+
+    testWidgets('suggests places while typing', (tester) async {
+      await openNewEntryForm(tester, placeDirectory: places());
+
+      await tester.enterText(field('Place (optional)'), 'lis');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lisbon, Portugal'), findsOneWidget);
+      expect(find.text('Lisburn, United Kingdom'), findsOneWidget);
+    });
+
+    testWidgets('fills name and coordinates from a picked place', (
+      tester,
+    ) async {
+      final entries = await openNewEntryForm(
+        tester,
+        placeDirectory: places(),
+      );
+
+      await tester.enterText(field('Place (optional)'), 'Lissab');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lisbon, Portugal'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('38.7251, -9.1498'), findsOneWidget);
+      await save(tester);
+      final entry = entries.entries.single;
+      expect(entry.placeName, 'Lisbon');
+      expect(entry.location, GeoPoint(latitude: 38.7251, longitude: -9.1498));
+    });
+
+    testWidgets('keeps a free text place without coordinates', (
+      tester,
+    ) async {
+      final entries = await openNewEntryForm(
+        tester,
+        placeDirectory: places(),
+      );
+
+      await tester.enterText(field('Place (optional)'), 'Alfama');
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.placeName, 'Alfama');
+      expect(entries.entries.single.location, isNull);
+    });
+
+    testWidgets('hides the coordinates until expanded', (tester) async {
+      await openNewEntryForm(tester);
+
+      expect(field('Latitude (optional)'), findsNothing);
+      expect(find.text('Coordinates'), findsOneWidget);
+
+      await showCoordinates(tester);
+
+      expect(field('Latitude (optional)'), findsOneWidget);
+    });
+
+    testWidgets('shows invalid coordinates even when collapsed', (
+      tester,
+    ) async {
+      final entries = await openNewEntryForm(tester);
+      await showCoordinates(tester);
+      await tester.enterText(field('Latitude (optional)'), '95');
+      await tester.enterText(field('Longitude (optional)'), '0');
+      await tester.enterText(field('Note'), 'Tram 28');
+      await tester.tap(find.text('Coordinates'));
+      await tester.pumpAndSettle();
+
+      await save(tester);
+
+      expect(
+        find.text('Latitude −90 to 90, longitude −180 to 180'),
+        findsOneWidget,
+      );
+      expect(entries.entries, isEmpty);
     });
   });
 }
