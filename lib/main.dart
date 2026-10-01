@@ -14,12 +14,14 @@ import 'data/storage_locations.dart';
 import 'data/zip_backup_service.dart';
 import 'ui/app.dart';
 import 'ui/app_services.dart';
+import 'ui/licenses.dart';
 import 'ui/theme.dart';
 import 'ui/widgets/osm_trip_map.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   registerFontLicenses();
+  registerPlaceDataLicense();
   final documents = await getApplicationDocumentsDirectory();
   final temporary = await getTemporaryDirectory();
   runApp(

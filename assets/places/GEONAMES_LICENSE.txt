@@ -1,0 +1,8 @@
+Place names and coordinates: GeoNames (https://www.geonames.org), data set
+"cities15000" with alternate names.
+
+Licensed under the Creative Commons Attribution 4.0 International License
+(CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+
+The data was converted into a compact list for this app (selected columns and
+alternate names); it is provided "as is" without warranty.
