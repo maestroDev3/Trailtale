@@ -4,7 +4,7 @@ import '../domain/document_picker.dart';
 import '../domain/entry_repository.dart';
 import '../domain/file_sharer.dart';
 import '../domain/id_generator.dart';
-import '../domain/media_location_access.dart';
+import '../domain/photo_gallery.dart';
 import '../domain/photo_library.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
@@ -22,7 +22,7 @@ class AppServices {
     required this.photoLibrary,
     required this.photoPicker,
     required this.photoMetadataReader,
-    required this.mediaLocationAccess,
+    required this.photoGallery,
     required this.backupService,
     required this.fileSharer,
     required this.documentPicker,
@@ -37,7 +37,10 @@ class AppServices {
   final PhotoLibrary photoLibrary;
   final PhotoPicker photoPicker;
   final PhotoMetadataReader photoMetadataReader;
-  final MediaLocationAccess mediaLocationAccess;
+
+  /// The phone's gallery; keeps the GPS position of photos. Without access,
+  /// [photoPicker] (the system photo picker) is the fallback.
+  final PhotoGallery photoGallery;
   final BackupService backupService;
   final FileSharer fileSharer;
   final DocumentPicker documentPicker;

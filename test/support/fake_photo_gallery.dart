@@ -7,7 +7,11 @@ class FakePhotoGallery implements PhotoGallery {
   FakePhotoGallery({
     List<GalleryPhoto> photos = const [],
     this.access = GalleryAccess.full,
+    this.missingOriginals = const {},
   }) : stored = [...photos];
+
+  /// Ids whose original file is unavailable (e.g. only in the cloud).
+  final Set<String> missingOriginals;
 
   /// The photos in the gallery, in any order.
   final List<GalleryPhoto> stored;
@@ -48,7 +52,9 @@ class FakePhotoGallery implements PhotoGallery {
 
   @override
   Future<String?> originalFile(String id) async =>
-      stored.any((photo) => photo.id == id) ? '/gallery/$id.jpg' : null;
+      stored.any((photo) => photo.id == id) && !missingOriginals.contains(id)
+      ? '/gallery/$id.jpg'
+      : null;
 
   @override
   Future<void> selectMorePhotos() async => selectMoreCount++;

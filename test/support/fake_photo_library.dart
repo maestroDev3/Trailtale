@@ -6,6 +6,9 @@ import 'package:trailtale/domain/photo_library.dart';
 class FakePhotoLibrary implements PhotoLibrary {
   var _counter = 0;
 
+  /// Source paths passed to [importPhoto], in order.
+  final sources = <String>[];
+
   /// Relative paths returned by [importPhoto], in order.
   final imported = <String>[];
 
@@ -14,6 +17,7 @@ class FakePhotoLibrary implements PhotoLibrary {
 
   @override
   Future<String> importPhoto(String sourcePath) async {
+    sources.add(sourcePath);
     final path = 'photos/imported${++_counter}.jpg';
     imported.add(path);
     return path;

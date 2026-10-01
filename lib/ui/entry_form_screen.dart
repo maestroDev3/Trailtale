@@ -7,12 +7,14 @@ import 'package:intl/intl.dart';
 import '../domain/coordinates_input.dart';
 import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
+import '../domain/photo_gallery.dart';
 import '../domain/photo_metadata.dart';
 import '../domain/photo_suggestion.dart';
 import '../domain/place.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'gallery_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
@@ -55,9 +57,6 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
 
   /// Whether the user picked date or time by hand; photos then keep off.
   var _dateTimeSetByUser = false;
-
-  /// Whether media location access was already requested in this form.
-  var _mediaLocationRequested = false;
 
   /// Offset recorded by the photo whose time was applied; `null` means the
   /// device's offset at that time.
@@ -119,23 +118,22 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   }
 
   Future<void> _addPhotos() async {
+    final sources = await _pickPhotoFiles();
+    if (sources == null || sources.isEmpty || !mounted) return;
     final services = widget.services;
-    if (!_mediaLocationRequested) {
-      _mediaLocationRequested = true;
-      // Denied access only means photos come without GPS data.
-      await services.mediaLocationAccess.request();
-      if (!mounted) return;
-    }
-    final picked = await services.photoPicker.pickImages();
     final imported = <String>[];
-    for (final source in picked) {
-      imported.add(await services.photoLibrary.importPhoto(source));
+    final metadata = <PhotoMetadata>[];
+    for (final source in sources) {
+      final path = await services.photoLibrary.importPhoto(source);
+      imported.add(path);
+      metadata.add(
+        await services.photoMetadataReader.read(
+          services.photoLibrary.fileFor(path),
+        ),
+      );
     }
     _importedPhotos.addAll(imported);
-    for (final path in imported) {
-      final file = services.photoLibrary.fileFor(path);
-      _addedMetadata.add(await services.photoMetadataReader.read(file));
-    }
+    _addedMetadata.addAll(metadata);
     final suggestion = suggestFromPhotos(_addedMetadata);
     final nearestPlace = switch (suggestion.location) {
       final location? => (await _places).nearest(location),
@@ -143,12 +141,40 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     };
     if (!mounted) return;
     setState(() => _photos.addAll(imported));
-    _applySuggestion(suggestion, nearestPlace);
+    _applySuggestion(suggestion, nearestPlace, addedCount: imported.length);
+  }
+
+  /// Lets the user choose photos and returns the paths of their files:
+  /// originals from the gallery (with location) when access is granted,
+  /// otherwise from the system photo picker; `null` when cancelled.
+  Future<List<String>?> _pickPhotoFiles() async {
+    final services = widget.services;
+    final gallery = services.photoGallery;
+    final access = await gallery.requestAccess();
+    if (!mounted) return null;
+    if (access == GalleryAccess.denied) {
+      return services.photoPicker.pickImages();
+    }
+    final ids = await Navigator.of(context).push<List<String>>(
+      MaterialPageRoute(
+        builder: (context) => GalleryPickerScreen(
+          gallery: gallery,
+          trip: widget.trip,
+          access: access,
+        ),
+      ),
+    );
+    if (ids == null) return null;
+    return [for (final id in ids) ?await gallery.originalFile(id)];
   }
 
   /// Fills date, time and coordinates from photos where the user has not
   /// set them, and tells the user what was taken over.
-  void _applySuggestion(PhotoSuggestion suggestion, Place? nearestPlace) {
+  void _applySuggestion(
+    PhotoSuggestion suggestion,
+    Place? nearestPlace, {
+    required int addedCount,
+  }) {
     final takenAt = suggestion.takenAt;
     final applyTime =
         takenAt != null && widget.entry == null && !_dateTimeSetByUser;
@@ -157,7 +183,10 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         location != null &&
         _latitude.text.trim().isEmpty &&
         _longitude.text.trim().isEmpty;
-    if (!applyTime && !applyPlace) return;
+    final coordinatesEmpty =
+        _latitude.text.trim().isEmpty && _longitude.text.trim().isEmpty;
+    final missingLocation = location == null && coordinatesEmpty;
+    if (!applyTime && !applyPlace && !missingLocation) return;
     setState(() {
       if (applyTime) {
         _date = DateTime(takenAt.year, takenAt.month, takenAt.day);
@@ -175,8 +204,10 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     final l10n = AppLocalizations.of(context);
     final message = switch ((applyTime, applyPlace)) {
       (true, true) => l10n.takenFromPhotoDateAndPlace,
+      (true, false) when missingLocation => l10n.takenFromPhotoDateNoPlace,
       (true, false) => l10n.takenFromPhotoDate,
-      _ => l10n.takenFromPhotoPlace,
+      (false, true) => l10n.takenFromPhotoPlace,
+      (false, false) => l10n.photosWithoutLocation(addedCount),
     };
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
