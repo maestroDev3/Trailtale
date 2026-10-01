@@ -415,5 +415,63 @@
         "type": "String"
       }
     }
+  },
+  "galleryPickerTitle": "Choose photos",
+  "@galleryPickerTitle": {
+    "description": "Title of the screen that picks photos from the phone's gallery."
+  },
+  "galleryThisTrip": "This trip",
+  "@galleryThisTrip": {
+    "description": "Filter in the photo picker: only photos taken during the trip's days."
+  },
+  "galleryAllPhotos": "All photos",
+  "@galleryAllPhotos": {
+    "description": "Filter in the photo picker: all photos on the phone."
+  },
+  "galleryNoTripPhotos": "No photos from the days of this trip",
+  "@galleryNoTripPhotos": {
+    "description": "Shown in the photo picker when no photo was taken during the trip's days."
+  },
+  "galleryShowAllPhotos": "Show all photos",
+  "@galleryShowAllPhotos": {
+    "description": "Button in the photo picker that switches to all photos."
+  },
+  "galleryNoPhotos": "No photos on this phone",
+  "@galleryNoPhotos": {
+    "description": "Shown in the photo picker when the gallery is empty."
+  },
+  "galleryAddPhotos": "{count, plural, =0{Add photos} =1{Add 1 photo} other{Add {count} photos}}",
+  "@galleryAddPhotos": {
+    "description": "Button that adds the selected photos to the entry.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryPhotoLabel": "Photo from {date} {time}, {selected, select, true{selected} other{not selected}}",
+  "@galleryPhotoLabel": {
+    "description": "Screen reader label of a photo in the photo picker.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      },
+      "time": {
+        "type": "DateTime",
+        "format": "jm"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryLimitedAccess": "Trailtale can only see the photos you selected.",
+  "@galleryLimitedAccess": {
+    "description": "Hint in the photo picker when the user allowed access to selected photos only."
+  },
+  "gallerySelectMore": "Select more",
+  "@gallerySelectMore": {
+    "description": "Button that lets the user allow access to more photos."
   }
 }
