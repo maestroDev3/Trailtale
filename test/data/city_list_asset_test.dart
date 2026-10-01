@@ -41,7 +41,7 @@ void main() {
 
     for (final (name, code, latitude, longitude) in [
       ('Kotor', 'ME', 42.42, 18.77),
-      ('Hallstatt', 'AT', 47.56, 13.65),
+      ('Bled', 'SI', 46.37, 14.12),
       ('Positano', 'IT', 40.63, 14.48),
     ]) {
       test('contains the small town $name', () {
