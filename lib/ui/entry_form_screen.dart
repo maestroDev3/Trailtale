@@ -17,6 +17,7 @@ import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'gallery_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
+import 'widgets/position_feedback.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
 /// deleting it.
@@ -262,31 +263,16 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       }
     });
     final l10n = AppLocalizations.of(context);
-    final (message, action) = switch (result) {
-      PositionFound(:final accuracyMeters) => (
-        l10n.positionSet(accuracyMeters.round()),
-        null,
+    final snackBar = switch (result) {
+      PositionFound(:final accuracyMeters) => SnackBar(
+        content: Text(l10n.positionSet(accuracyMeters.round())),
       ),
-      PositionDenied(permanently: false) => (l10n.positionDenied, null),
-      PositionDenied(permanently: true) => (
-        l10n.positionBlocked,
-        SnackBarAction(
-          label: l10n.positionOpenSettings,
-          onPressed: positions.openAppSettings,
-        ),
-      ),
-      PositionServiceOff() => (
-        l10n.positionServiceOff,
-        SnackBarAction(
-          label: l10n.positionTurnOn,
-          onPressed: positions.openLocationSettings,
-        ),
-      ),
-      PositionUnavailable() => (l10n.positionUnavailable, null),
+      _ => positionProblemSnackBar(l10n, result, positions),
     };
+    if (snackBar == null) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), action: action));
+      ..showSnackBar(snackBar);
   }
 
   void _selectPlace(Place place) {

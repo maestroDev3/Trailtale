@@ -65,8 +65,10 @@ class _PlaceholderPickerMapState extends State<_PlaceholderPickerMap> {
     final longitude = _center.longitude.toStringAsFixed(4);
     return ColoredBox(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
+      // Below the middle, so overlays at the top (e.g. a search field) do not
+      // cover the button.
       child: Align(
-        alignment: Alignment.topLeft,
+        alignment: const Alignment(-1, 0.5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

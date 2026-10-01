@@ -2,6 +2,7 @@ import 'package:trailtale/domain/clock.dart';
 import 'package:trailtale/domain/id_generator.dart';
 import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/ui/app_services.dart';
+import 'package:trailtale/ui/widgets/picker_map.dart';
 
 import 'fake_backup.dart';
 import 'fake_entry_repository.dart';
@@ -33,6 +34,7 @@ AppServices testServices({
   FakeDocumentPicker? documentPicker,
   FakePlaceDirectory? placeDirectory,
   FakePositionService? positionService,
+  PickerMapBuilder? pickerMap,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
@@ -50,7 +52,7 @@ AppServices testServices({
     fileSharer: fileSharer ?? FakeFileSharer(),
     documentPicker: documentPicker ?? FakeDocumentPicker(),
     tripMap: PlaceholderTripMap.new,
-    pickerMap: placeholderPickerMap(),
+    pickerMap: pickerMap ?? placeholderPickerMap(),
     placeDirectory: placeDirectory ?? FakePlaceDirectory(),
     positionService: positionService ?? FakePositionService(),
   );

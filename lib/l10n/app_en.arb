@@ -527,5 +527,34 @@
   "positionUnavailable": "Your position could not be found",
   "@positionUnavailable": {
     "description": "Message when no position fix was found in time."
+  },
+  "pickPlaceTitle": "Pick a place",
+  "@pickPlaceTitle": {
+    "description": "Title of the screen where the user moves a map under a crosshair to pick a place."
+  },
+  "pickerNearPlace": "Near {place}",
+  "@pickerNearPlace": {
+    "description": "Nearest town to the crosshair on the place picker, e.g. 'Near Kotor, Montenegro'.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "pickerNoTownNearby": "No town nearby",
+  "@pickerNoTownNearby": {
+    "description": "Shown on the place picker when no town is within 30 km of the crosshair."
+  },
+  "pickerUseThisPlace": "Use this place",
+  "@pickerUseThisPlace": {
+    "description": "Button that takes the point under the crosshair for the entry."
+  },
+  "pickerSearchHint": "Search a town",
+  "@pickerSearchHint": {
+    "description": "Hint of the search field on the place picker."
+  },
+  "pickerMyPosition": "My position",
+  "@pickerMyPosition": {
+    "description": "Tooltip of the button that moves the place picker to the current position."
   }
 }
