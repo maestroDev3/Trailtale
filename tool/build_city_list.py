@@ -4,7 +4,11 @@
 Run by the GitHub workflow "Update city list" (geonames.org is not reachable
 from Claude's environment). Output, one city per line, most populous first:
 
-    name<TAB>country<TAB>country code<TAB>latitude<TAB>longitude<TAB>population<TAB>alternate names (|-separated)
+    name<TAB>country<TAB>country code<TAB>latitude<TAB>longitude<TAB>population<TAB>alternate names (|-separated)<TAB>region
+
+Source: cities1000 (places with more than 1,000 inhabitants or seats of
+administrative divisions), so small destinations like Kotor are included.
+The region is the first administrative level (admin1CodesASCII.txt).
 """
 import gzip
 import io
@@ -54,10 +58,17 @@ def main() -> None:
         fields = line.split("\t")
         countries[fields[0]] = fields[4]
 
-    archive = zipfile.ZipFile(io.BytesIO(fetch("cities15000.zip")))
+    regions = {}
+    for line in fetch("admin1CodesASCII.txt").decode("utf-8").splitlines():
+        fields = line.split("\t")
+        if len(fields) >= 2:
+            regions[fields[0]] = fields[1].strip()
+
+    archive = zipfile.ZipFile(io.BytesIO(fetch("cities1000.zip")))
     cities = [
         line.split("\t")
-        for line in archive.read("cities15000.txt").decode("utf-8").splitlines()
+        for line in archive.read("cities1000.txt").decode("utf-8").splitlines()
+        if line.strip()
     ]
     ids = {f[0] for f in cities}
 
@@ -98,6 +109,7 @@ def main() -> None:
                 f"{float(f[5]):.4f}",
                 str(population),
                 "|".join(kept),
+                regions.get(f"{f[8]}.{f[10]}", "").replace("\t", " "),
             ]),
         ))
     rows.sort(key=lambda row: (-row[0], row[1]))
@@ -107,7 +119,7 @@ def main() -> None:
     with open(os.path.join(OUT_DIR, "cities.tsv.gz"), "wb") as out:
         with gzip.GzipFile(fileobj=out, mode="wb", mtime=0, filename="") as gz:
             gz.write(text.encode("utf-8"))
-    print(f"{len(rows)} cities written")
+    print(f"{len(rows)} places written")
 
 
 if __name__ == "__main__":
