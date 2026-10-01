@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #13.
+- #13 Draw the trip route
 
 ## Up next
 
-- #13 Draw the trip route
+- Next stories need a decision or user action – see Open decisions
 
 ## Backlog by epic
 
