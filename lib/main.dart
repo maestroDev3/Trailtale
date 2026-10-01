@@ -50,9 +50,9 @@ Future<void> main() async {
                   interactive: interactive,
                 ),
         placeDirectory: AssetPlaceDirectory(
-          loadBytes: () async => (await rootBundle.load(
-            'assets/places/cities.tsv.gz',
-          )).buffer.asUint8List(),
+          loadBytes: () async =>
+              (await rootBundle.load('assets/places/cities.tsv.gz')).buffer
+                  .asUint8List(),
         ),
       ),
     ),

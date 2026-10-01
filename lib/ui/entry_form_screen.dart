@@ -40,8 +40,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late final TextEditingController _latitude;
   late final TextEditingController _longitude;
   final _placeFocus = FocusNode();
-  late final Future<PlaceIndex> _places = widget.services.placeDirectory
-      .load();
+  late final Future<PlaceIndex> _places = widget.services.placeDirectory.load();
   var _showCoordinates = false;
   late DateTime _date;
   late TimeOfDay _time;
@@ -360,7 +359,10 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                     ),
                   ),
               optionsViewBuilder: (context, onSelected, options) =>
-                  _PlaceOptions(options: options.toList(), onSelected: onSelected),
+                  _PlaceOptions(
+                    options: options.toList(),
+                    onSelected: onSelected,
+                  ),
             ),
             const SizedBox(height: 16),
             _CoordinatesHeader(
@@ -375,8 +377,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                 _ => null,
               },
               expanded: _showCoordinates,
-              onTap: () =>
-                  setState(() => _showCoordinates = !_showCoordinates),
+              onTap: () => setState(() => _showCoordinates = !_showCoordinates),
             ),
             Visibility(
               visible: _showCoordinates,
