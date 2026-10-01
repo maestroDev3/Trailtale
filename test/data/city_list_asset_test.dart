@@ -17,19 +17,42 @@ void main() {
   group('City list asset', () {
     test('exists, is declared and stays small', () {
       expect(file.existsSync(), isTrue);
-      expect(file.lengthSync(), lessThan(3 * 1024 * 1024));
+      expect(file.lengthSync(), lessThan(6 * 1024 * 1024));
       expect(
         File('pubspec.yaml').readAsStringSync(),
         contains('assets/places/cities.tsv.gz'),
       );
     });
 
-    test('has seven fields per city', () {
+    test('has eight fields per place', () {
       final all = rows();
 
-      expect(all.length, greaterThan(20000));
-      expect(all.every((row) => row.length == 7), isTrue);
+      expect(all.length, greaterThan(100000));
+      expect(all.every((row) => row.length == 8), isTrue);
     });
+
+    test('is sorted by population, most populous first', () {
+      final populations = [for (final row in rows()) int.parse(row[5])];
+
+      for (var i = 1; i < populations.length; i++) {
+        expect(populations[i], lessThanOrEqualTo(populations[i - 1]));
+      }
+    });
+
+    for (final (name, code, latitude, longitude) in [
+      ('Kotor', 'ME', 42.42, 18.77),
+      ('Bled', 'SI', 46.37, 14.12),
+      ('Positano', 'IT', 40.63, 14.48),
+    ]) {
+      test('contains the small town $name', () {
+        final place = rows().firstWhere(
+          (row) => row[0] == name && row[2] == code,
+        );
+
+        expect(double.parse(place[3]), closeTo(latitude, 0.05));
+        expect(double.parse(place[4]), closeTo(longitude, 0.05));
+      });
+    }
 
     test('contains Lisbon with its coordinates and German name', () {
       final lisbon = rows().firstWhere(
@@ -40,6 +63,7 @@ void main() {
       expect(double.parse(lisbon[3]), closeTo(38.72, 0.05));
       expect(double.parse(lisbon[4]), closeTo(-9.13, 0.05));
       expect(lisbon[6].split('|'), contains('Lissabon'));
+      expect(lisbon[7], 'Lisbon');
     });
 
     test('contains Porto', () {
