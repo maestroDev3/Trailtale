@@ -559,7 +559,8 @@ class _PlaceOptions extends StatelessWidget {
               for (final place in options)
                 ListTile(
                   leading: const Icon(Icons.location_city_outlined),
-                  title: Text(place.label),
+                  title: Text(place.name),
+                  subtitle: Text(place.detail),
                   onTap: () => onSelected(place),
                 ),
             ],
