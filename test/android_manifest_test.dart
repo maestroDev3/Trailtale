@@ -55,6 +55,37 @@ void main() {
       expect(permissions(), contains('android.permission.INTERNET'));
     });
 
+    test('declares precise and approximate location while in use', () {
+      expect(
+        permissions(),
+        containsAll([
+          'android.permission.ACCESS_FINE_LOCATION',
+          'android.permission.ACCESS_COARSE_LOCATION',
+        ]),
+      );
+    });
+
+    test('removes the foreground location service of geolocator', () {
+      expect(
+        manifest,
+        matches(
+          RegExp(
+            r'android:name="android.permission.FOREGROUND_SERVICE_LOCATION"'
+            r'\s+tools:node="remove"',
+          ),
+        ),
+      );
+      expect(
+        manifest,
+        matches(
+          RegExp(
+            r'android:name="com.baseflow.geolocator.GeolocatorLocationService"'
+            r'\s+tools:node="remove"',
+          ),
+        ),
+      );
+    });
+
     test('declares no background location', () {
       expect(
         permissions(),
