@@ -711,6 +711,7 @@ void main() {
       location: GeoPoint(latitude: 38.7251, longitude: -9.1498),
       population: 517802,
       alternateNames: const ['Lissabon'],
+      region: 'Lisboa',
     );
     final lisburn = Place(
       name: 'Lisburn',
@@ -721,14 +722,51 @@ void main() {
     );
     FakePlaceDirectory places() => FakePlaceDirectory([lisburn, lisbon]);
 
+    Finder suggestion(String name, String detail) => find.byWidgetPredicate(
+      (widget) =>
+          widget is ListTile &&
+          widget.title is Text &&
+          (widget.title as Text).data == name &&
+          widget.subtitle is Text &&
+          (widget.subtitle as Text).data == detail,
+    );
+
     testWidgets('suggests places while typing', (tester) async {
       await openNewEntryForm(tester, placeDirectory: places());
 
       await tester.enterText(field('Place (optional)'), 'lis');
       await tester.pumpAndSettle();
 
-      expect(find.text('Lisbon, Portugal'), findsOneWidget);
-      expect(find.text('Lisburn, United Kingdom'), findsOneWidget);
+      expect(suggestion('Lisbon', 'Lisboa, Portugal'), findsOneWidget);
+      expect(suggestion('Lisburn', 'United Kingdom'), findsOneWidget);
+    });
+
+    testWidgets('tells same-named places apart by region', (tester) async {
+      Place sanJose(String country, String code, String region, double lat) =>
+          Place(
+            name: 'San José',
+            country: country,
+            countryCode: code,
+            location: GeoPoint(latitude: lat, longitude: -100),
+            population: 1000,
+            region: region,
+          );
+      await openNewEntryForm(
+        tester,
+        placeDirectory: FakePlaceDirectory([
+          sanJose('Costa Rica', 'CR', 'San José', 9.93),
+          sanJose('United States', 'US', 'California', 37.34),
+        ]),
+      );
+
+      await tester.enterText(field('Place (optional)'), 'san jo');
+      await tester.pumpAndSettle();
+
+      expect(suggestion('San José', 'San José, Costa Rica'), findsOneWidget);
+      expect(
+        suggestion('San José', 'California, United States'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('fills name and coordinates from a picked place', (
@@ -738,7 +776,7 @@ void main() {
 
       await tester.enterText(field('Place (optional)'), 'Lissab');
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Lisbon, Portugal'));
+      await tester.tap(suggestion('Lisbon', 'Lisboa, Portugal'));
       await tester.pumpAndSettle();
 
       expect(find.text('38.7251, -9.1498'), findsOneWidget);
