@@ -11,16 +11,18 @@ class PickerMapController extends ChangeNotifier {
 
   /// Moves the map to [center] at [zoom].
   void moveTo(GeoPoint center, {double zoom = 15}) {
-    throw UnimplementedError();
+    _target = (center: center, zoom: zoom);
+    notifyListeners();
   }
 }
 
 /// Builds the map in which the user picks a place by moving it under a
 /// fixed crosshair. Screens only use this builder, so the map provider stays
 /// swappable and tests can use a placeholder.
-typedef PickerMapBuilder = Widget Function({
-  required PickerMapController controller,
-  required GeoPoint initialCenter,
-  required double initialZoom,
-  required ValueChanged<GeoPoint> onCenterChanged,
-});
+typedef PickerMapBuilder =
+    Widget Function({
+      required PickerMapController controller,
+      required GeoPoint initialCenter,
+      required double initialZoom,
+      required ValueChanged<GeoPoint> onCenterChanged,
+    });
