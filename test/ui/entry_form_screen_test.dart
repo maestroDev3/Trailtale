@@ -675,7 +675,10 @@ void main() {
     }
 
     String placeText(WidgetTester tester) =>
-        tester.widget<TextFormField>(field('Place (optional)')).controller?.text ??
+        tester
+            .widget<TextFormField>(field('Place (optional)'))
+            .controller
+            ?.text ??
         '';
 
     testWidgets('fills the nearest city into an empty place field', (
@@ -709,9 +712,7 @@ void main() {
       expect(placeText(tester), 'Belém');
     });
 
-    testWidgets('leaves the place empty without a city nearby', (
-      tester,
-    ) async {
+    testWidgets('leaves the place empty without a city nearby', (tester) async {
       await openNewEntryForm(
         tester,
         photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),

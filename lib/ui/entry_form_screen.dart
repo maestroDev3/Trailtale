@@ -136,14 +136,19 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       final file = services.photoLibrary.fileFor(path);
       _addedMetadata.add(await services.photoMetadataReader.read(file));
     }
+    final suggestion = suggestFromPhotos(_addedMetadata);
+    final nearestPlace = switch (suggestion.location) {
+      final location? => (await _places).nearest(location),
+      null => null,
+    };
     if (!mounted) return;
     setState(() => _photos.addAll(imported));
-    _applySuggestion(suggestFromPhotos(_addedMetadata));
+    _applySuggestion(suggestion, nearestPlace);
   }
 
   /// Fills date, time and coordinates from photos where the user has not
   /// set them, and tells the user what was taken over.
-  void _applySuggestion(PhotoSuggestion suggestion) {
+  void _applySuggestion(PhotoSuggestion suggestion, Place? nearestPlace) {
     final takenAt = suggestion.takenAt;
     final applyTime =
         takenAt != null && widget.entry == null && !_dateTimeSetByUser;
@@ -162,6 +167,9 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       if (applyPlace) {
         _latitude.text = location.latitude.toStringAsFixed(6);
         _longitude.text = location.longitude.toStringAsFixed(6);
+        if (nearestPlace != null && _place.text.trim().isEmpty) {
+          _place.text = nearestPlace.name;
+        }
       }
     });
     final l10n = AppLocalizations.of(context);
