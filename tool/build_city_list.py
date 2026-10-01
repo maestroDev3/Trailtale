@@ -17,6 +17,9 @@ BASE = "https://download.geonames.org/export/dump/"
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "assets", "places")
 MAX_ALTERNATES = 12
 
+# Exonyms in these languages are kept as alternate names (e.g. "Lissabon").
+LANGUAGES = {"en", "de", "fr", "es", "it", "pt", "nl"}
+
 
 def fetch(name: str) -> bytes:
     request = urllib.request.Request(
@@ -52,23 +55,38 @@ def main() -> None:
         countries[fields[0]] = fields[4]
 
     archive = zipfile.ZipFile(io.BytesIO(fetch("cities15000.zip")))
+    cities = [
+        line.split("\t")
+        for line in archive.read("cities15000.txt").decode("utf-8").splitlines()
+    ]
+    ids = {f[0] for f in cities}
+
+    # Language-tagged names; skip historic and colloquial ones and codes.
+    names_by_city = {}
+    alternates_zip = zipfile.ZipFile(io.BytesIO(fetch("alternateNamesV2.zip")))
+    with alternates_zip.open("alternateNamesV2.txt") as raw:
+        for raw_line in io.TextIOWrapper(raw, encoding="utf-8"):
+            f = raw_line.rstrip("\n").split("\t")
+            if len(f) < 8 or f[1] not in ids or f[2] not in LANGUAGES:
+                continue
+            if f[6] == "1" or f[7] == "1":
+                continue
+            names_by_city.setdefault(f[1], []).append(f[3])
+
     rows = []
-    for line in archive.read("cities15000.txt").decode("utf-8").splitlines():
-        f = line.split("\t")
-        name, ascii_name, alternates = f[1], f[2], f[3]
-        seen = {fold(name), fold(ascii_name)}
+    for f in cities:
+        name, ascii_name = f[1], f[2]
+        seen = {fold(name)}
         kept = []
-        for alternate in alternates.split(","):
+        for alternate in [ascii_name, *names_by_city.get(f[0], [])]:
             alternate = alternate.strip()
             key = fold(alternate)
-            if key in seen or not is_latin_name(alternate):
+            if key in seen or not is_latin_name(alternate) or alternate.isupper():
                 continue
             seen.add(key)
             kept.append(alternate)
             if len(kept) == MAX_ALTERNATES:
                 break
-        if fold(ascii_name) != fold(name):
-            kept.insert(0, ascii_name)
         population = int(f[14] or 0)
         rows.append((
             population,
