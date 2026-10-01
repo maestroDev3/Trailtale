@@ -650,4 +650,78 @@ void main() {
       expect(entries.entries, isEmpty);
     });
   });
+
+  group('EntryFormScreen place name from photos', () {
+    final lisbonCity = Place(
+      name: 'Lisbon',
+      country: 'Portugal',
+      countryCode: 'PT',
+      location: GeoPoint(latitude: 38.7251, longitude: -9.1498),
+      population: 517802,
+    );
+    FakePhotoMetadataReader photoAt(double latitude, double longitude) =>
+        FakePhotoMetadataReader({
+          'imported1.jpg': PhotoMetadata(
+            takenAt: DateTime(2026, 5, 2, 9, 15),
+            location: GeoPoint(latitude: latitude, longitude: longitude),
+          ),
+        });
+
+    Future<void> addPhoto(WidgetTester tester) async {
+      final button = find.widgetWithText(OutlinedButton, 'Add photos');
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    String placeText(WidgetTester tester) =>
+        tester.widget<TextFormField>(field('Place (optional)')).controller?.text ??
+        '';
+
+    testWidgets('fills the nearest city into an empty place field', (
+      tester,
+    ) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: photoAt(38.7128, -9.136),
+        placeDirectory: FakePlaceDirectory([lisbonCity]),
+      );
+
+      await addPhoto(tester);
+
+      expect(placeText(tester), 'Lisbon');
+      expect(find.text('Date and place taken from the photo'), findsOneWidget);
+    });
+
+    testWidgets('keeps a place typed by the user', (tester) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: photoAt(38.7128, -9.136),
+        placeDirectory: FakePlaceDirectory([lisbonCity]),
+      );
+      await tester.enterText(field('Place (optional)'), 'Belém');
+      await tester.pumpAndSettle();
+
+      await addPhoto(tester);
+
+      expect(placeText(tester), 'Belém');
+    });
+
+    testWidgets('leaves the place empty without a city nearby', (
+      tester,
+    ) async {
+      await openNewEntryForm(
+        tester,
+        photoPicker: FakePhotoPicker(['/gallery/IMG_1.jpg']),
+        photoMetadataReader: photoAt(38.5, -12),
+        placeDirectory: FakePlaceDirectory([lisbonCity]),
+      );
+
+      await addPhoto(tester);
+
+      expect(placeText(tester), isEmpty);
+    });
+  });
 }
