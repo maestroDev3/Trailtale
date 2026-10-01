@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Trailtale's own photo picker reads the original photos so their date
          and GPS position reach the entry; images only (#126). -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -8,6 +9,15 @@
         android:maxSdkVersion="32" />
     <!-- Keeps GPS data in picked photos so entries can take their place (#7). -->
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
+    <!-- "Use my position" for an entry, only while the app is in use (#22).
+         Android lets the user choose precise or approximate. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- No background tracking (user decision): drop geolocator's foreground
+         location service and its permission from the merged manifest. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+        tools:node="remove" />
     <!-- Loads OpenStreetMap tiles for the trip map (#12). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -39,6 +49,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <service
+            android:name="com.baseflow.geolocator.GeolocatorLocationService"
+            tools:node="remove" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
