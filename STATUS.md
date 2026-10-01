@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – next up is #21.
+- Nothing – next up is #22.
 
 ## Up next
 
-- #21 Pick places manually (cities and places) → #22 Use the current GPS position, then #13 Draw the trip route (user: coordinates must come automatically, not by typing)
+- #22 Use the current GPS position, then #13 Draw the trip route
 
 ## Backlog by epic
 
@@ -23,16 +23,16 @@ The GitHub issues are authoritative; this file is the summary.
 | #5 Photos | ~~#6~~ → ~~#7~~ → #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#8 Timeline~~ (done) | ~~#9~~ → ~~#10~~ |
 | #14 Data safety and sharing | ~~#15 Backup and export~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF → #111 Store the release signing key safely (user task, after vacation) |
-| #20 Location capture | #21 Pick places manually (cities and places) → #22 Use the current GPS position for an entry |
+| #20 Location capture | ~~#21 Pick places manually (cities and places)~~ → #22 Use the current GPS position for an entry |
 | #11 Map | ~~#12 Entries as markers on a map~~ → #13 Draw the trip route |
 
 ## Recently done
 
+- #21 Place suggestions from a bundled city list (34k cities, offline), coordinates and place names filled automatically
 - #12 Map with numbered markers (OpenStreetMap) on the trip page and in full screen
 - Release signing with a fixed key: APKs now update the installed app
 - #15 Backup: ZIP incl. photos via share sheet, restore, Android Auto Backup for trips/entries
 - #75 Welcome screen and photo-first entry form (epic #70 Look & feel done)
-- #74 Trip page: cover, route strip, timeline with day markers
 
 ## Open decisions (user only)
 
