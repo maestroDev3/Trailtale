@@ -3,14 +3,25 @@ import 'entry.dart';
 import 'trip.dart';
 import 'trip_summary.dart';
 
-/// The trip's cover: the first photo of the earliest entry that has photos,
+/// The trip's cover: the [chosen] photo while one of the [entries] still
+/// has it, otherwise the first photo of the earliest entry that has photos,
 /// or `null` if the trip has no photos yet.
-String? coverPhotoOf(List<Entry> entries) {
+String? coverPhotoOf(List<Entry> entries, {String? chosen}) {
+  if (chosen != null &&
+      entries.any((entry) => entry.photoPaths.contains(chosen))) {
+    return chosen;
+  }
   for (final entry in sortEntriesChronologically(entries)) {
     if (entry.photoPaths.isNotEmpty) return entry.photoPaths.first;
   }
   return null;
 }
+
+/// Every photo of the trip once, in time order (the candidates for the
+/// cover).
+List<String> tripPhotos(List<Entry> entries) => {
+  for (final entry in sortEntriesChronologically(entries)) ...entry.photoPaths,
+}.toList();
 
 /// Where a trip stands relative to today.
 sealed class TripProgress {
@@ -97,7 +108,10 @@ typedef TripOverview = ({
       (
         trip: trip,
         summary: summarizeTrip(trip, entriesByTrip[trip.id] ?? const []),
-        coverPhoto: coverPhotoOf(entriesByTrip[trip.id] ?? const []),
+        coverPhoto: coverPhotoOf(
+          entriesByTrip[trip.id] ?? const [],
+          chosen: trip.coverPhotoPath,
+        ),
         progress: tripProgress(trip, today: today),
       ),
   ];

@@ -9,7 +9,8 @@ import 'versioned_json_list.dart';
 /// documents directory.
 ///
 /// Format version 1: `{"version": 1, "trips": [{"id", "title", "startDate",
-/// "endDate"}]}` with dates as `yyyy-MM-dd`.
+/// "endDate", "coverPhoto"?}]}` with dates as `yyyy-MM-dd`; `coverPhoto`
+/// (the chosen cover's relative path) is optional and only written when set.
 class JsonFileTripRepository implements TripRepository {
   JsonFileTripRepository(File file)
     : _store = VersionedJsonList(
@@ -51,6 +52,7 @@ Map<String, Object?> _tripToJson(Trip trip) => {
   'title': trip.title,
   'startDate': _formatDate(trip.startDate),
   'endDate': _formatDate(trip.endDate),
+  'coverPhoto': ?trip.coverPhotoPath,
 };
 
 Trip _tripFromJson(Map<String, dynamic> json) => Trip(
@@ -58,6 +60,7 @@ Trip _tripFromJson(Map<String, dynamic> json) => Trip(
   title: json['title'] as String,
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: DateTime.parse(json['endDate'] as String),
+  coverPhotoPath: json['coverPhoto'] as String?,
 );
 
 String _formatDate(DateTime day) {

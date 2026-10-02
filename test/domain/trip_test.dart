@@ -102,6 +102,38 @@ void main() {
     });
   });
 
+  group('Trip cover photo', () {
+    final trip = Trip(
+      id: 'me',
+      title: 'Montenegro',
+      startDate: DateTime(2026, 9, 26),
+      endDate: DateTime(2026, 9, 30),
+    );
+
+    test('has no chosen cover by default', () {
+      expect(trip.coverPhotoPath, isNull);
+    });
+
+    test('can set and clear the cover with copyWith', () {
+      final withCover = trip.copyWith(coverPhotoPath: 'photos/kotor.jpg');
+
+      expect(withCover.coverPhotoPath, 'photos/kotor.jpg');
+      expect(
+        withCover.copyWith(title: 'Boka').coverPhotoPath,
+        'photos/kotor.jpg',
+      );
+      expect(withCover.copyWith(clearCoverPhoto: true).coverPhotoPath, isNull);
+    });
+
+    test('takes part in equality', () {
+      expect(trip.copyWith(coverPhotoPath: 'photos/a.jpg'), isNot(trip));
+      expect(
+        trip.copyWith(coverPhotoPath: 'photos/a.jpg'),
+        trip.copyWith(coverPhotoPath: 'photos/a.jpg'),
+      );
+    });
+  });
+
   group('sortTripsNewestFirst', () {
     test('orders by start date descending and ties by title', () {
       final spring = trip(

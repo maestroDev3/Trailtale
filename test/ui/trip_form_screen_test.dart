@@ -102,5 +102,23 @@ void main() {
 
       expect(repository.trips, [lisbon.copyWith(title: 'Porto')]);
     });
+
+    testWidgets('keeps the chosen cover when saving', (tester) async {
+      final withCover = lisbon.copyWith(coverPhotoPath: 'photos/tram.jpg');
+      final repository = FakeTripRepository([withCover]);
+      await pumpApp(
+        tester,
+        TripFormScreen(
+          services: testServices(trips: repository),
+          trip: withCover,
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), 'Porto');
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(repository.trips.single.coverPhotoPath, 'photos/tram.jpg');
+    });
   });
 }

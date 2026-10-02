@@ -24,6 +24,12 @@ The GitHub issues are authoritative; this file is the summary.
 | #157 Evening recap | 0 of 1 closed | #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#1 Foundation~~, ~~#5 Photos~~ | done | |
 
+**#154 The trip as a story**
+
+| Epic | State | Stories (in order) |
+|---|---|---|
+| #169 Trips look the way I want | 1 of 1 closed | ~~#170 Choose the trip's cover photo~~ |
+
 **#155 Own your data**
 
 | Epic | State | Stories (in order) |
@@ -38,18 +44,19 @@ The GitHub issues are authoritative; this file is the summary.
 
 **Dormant**
 
-- #154 The trip as a story – all epics done (~~#8 Timeline~~, ~~#11 Map~~, ~~#70 Look & feel~~)
+- none
 
 ## Recently done
 
+- #170 Choose the trip's cover photo ("Choose cover" on the trip page, "Automatic" to go back)
 - #13 Trip route on the map (sea-blue line, legs over 300 km dashed)
 - #124 "Pick on map": crosshair map picker with town search, my position and nearest town
 - #22 "Use my position" in the entry form (one GPS fix while in use, no background service)
 - #123 Place search with 171k places from 1,000 inhabitants (Kotor, Bled, Positano) and regions in suggestions
-- #126 Own gallery picker (trip photos first) keeps the photos' GPS position; hint when a photo has no location
 
 ## Open decisions (user only)
 
+- Newly created – please confirm or re-sort: epic #169 Trips look the way I want (initiative #154) for #170.
 - Planning structure introduced 2026-10-01 – please confirm or re-sort: initiatives #153 Effortless capture, #154 The trip as a story, #155 Own your data, #156 Ship it; new epics #157 Evening recap (#114 moved from #5, #5 closed again) and #158 Release readiness (#111 moved from #14, new story #159).
 - #114 Evening recap: allow notifications and reading the gallery? Reminder time?
 - #125 Google Maps links: may the app use the internet beyond map tiles to resolve them?

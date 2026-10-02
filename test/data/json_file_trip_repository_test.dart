@@ -54,6 +54,38 @@ void main() {
       });
     });
 
+    test('stores a chosen cover photo', () async {
+      final withCover = lisbon.copyWith(coverPhotoPath: 'photos/tram.jpg');
+      await JsonFileTripRepository(file).saveTrip(withCover);
+
+      final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final stored = (json['trips'] as List).single as Map<String, dynamic>;
+      final trips = await JsonFileTripRepository(file).watchTrips().first;
+
+      expect(stored['coverPhoto'], 'photos/tram.jpg');
+      expect(trips.single.coverPhotoPath, 'photos/tram.jpg');
+    });
+
+    test('reads trips without cover photo as automatic', () async {
+      file.writeAsStringSync(
+        jsonEncode({
+          'version': 1,
+          'trips': [
+            {
+              'id': 'lisbon',
+              'title': 'Lisbon',
+              'startDate': '2026-05-01',
+              'endDate': '2026-05-04',
+            },
+          ],
+        }),
+      );
+
+      final trips = await JsonFileTripRepository(file).watchTrips().first;
+
+      expect(trips.single.coverPhotoPath, isNull);
+    });
+
     test('reads the version 1 format', () async {
       file.writeAsStringSync(
         jsonEncode({
