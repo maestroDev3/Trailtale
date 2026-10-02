@@ -149,9 +149,7 @@ class _Heading extends StatelessWidget {
           dateRangeText(context, picture.startDate, picture.endDate),
           style:
               (compact ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)
-                  ?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
