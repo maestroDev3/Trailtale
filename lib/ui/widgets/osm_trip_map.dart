@@ -55,7 +55,7 @@ class OsmTripMap extends StatelessWidget {
                   LatLng(bounds.south, bounds.west),
                   LatLng(bounds.north, bounds.east),
                 ),
-                padding: const EdgeInsets.all(48),
+                padding: EdgeInsets.all(fitPadding),
               ),
         interactionOptions: InteractionOptions(
           flags: interactive
@@ -68,6 +68,7 @@ class OsmTripMap extends StatelessWidget {
           urlTemplate: osmTileUrl,
           userAgentPackageName: osmUserAgentPackageName,
           tileProvider: tileProvider,
+          retinaMode: sharp,
         ),
         if (legs.isNotEmpty)
           PolylineLayer(

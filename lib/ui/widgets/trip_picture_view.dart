@@ -76,12 +76,12 @@ class TripPictureView extends StatelessWidget {
           child: Material(
             color: theme.colorScheme.surface,
             child: Padding(
-              padding: EdgeInsets.all(story ? 24 : 20),
+              padding: EdgeInsets.all(story ? 24 : 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _Heading(picture: picture, maxTitleLines: story ? 2 : 1),
-                  SizedBox(height: story ? 16 : 12),
+                  _Heading(picture: picture, compact: !story),
+                  SizedBox(height: story ? 16 : 10),
                   // Photos first; the map below is a smaller strip in the
                   // post format.
                   if (photos != null)
@@ -91,12 +91,25 @@ class TripPictureView extends StatelessWidget {
                   if (route != null)
                     Expanded(flex: story ? 4 : 1, child: route),
                   if (photos == null && route == null) const Spacer(),
-                  SizedBox(height: story ? 14 : 10),
-                  _StopList(stops: picture.stops, maxStops: story ? 8 : 5),
-                  SizedBox(height: story ? 12 : 8),
-                  _Facts(picture: picture),
-                  SizedBox(height: story ? 14 : 10),
-                  const _Wordmark(),
+                  SizedBox(height: story ? 14 : 8),
+                  // The post format has little height: one line of stops and
+                  // the figures next to the wordmark.
+                  if (story) ...[
+                    _StopList(stops: picture.stops, maxStops: 8),
+                    const SizedBox(height: 12),
+                    _Facts(picture: picture),
+                    const SizedBox(height: 14),
+                    const _Wordmark(),
+                  ] else ...[
+                    _StopLine(stops: picture.stops),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(child: _Facts(picture: picture)),
+                        const _Wordmark(),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -108,10 +121,12 @@ class TripPictureView extends StatelessWidget {
 }
 
 class _Heading extends StatelessWidget {
-  const _Heading({required this.picture, required this.maxTitleLines});
+  const _Heading({required this.picture, required this.compact});
 
   final TripPicture picture;
-  final int maxTitleLines;
+
+  /// One title line in a smaller style, for the post format.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -121,9 +136,13 @@ class _Heading extends StatelessWidget {
       children: [
         Text(
           picture.title,
-          maxLines: maxTitleLines,
+          maxLines: compact ? 1 : 2,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.headlineMedium?.copyWith(
+          style:
+              (compact
+                      ? theme.textTheme.headlineSmall
+                      : theme.textTheme.headlineMedium)
+                  ?.copyWith(
             color: theme.colorScheme.onSurface,
             height: 1.1,
           ),
@@ -203,8 +222,14 @@ class _Photo extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: Image.file(
-        file,
+      child: Image(
+        // Photos have up to 50 megapixels; the picture needs at most 1080.
+        image: ResizeImage(
+          FileImage(file),
+          width: 1080,
+          height: 1080,
+          policy: ResizeImagePolicy.fit,
+        ),
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) =>
             ColoredBox(color: colorScheme.surfaceContainerHighest),
@@ -246,6 +271,8 @@ class _RouteCard extends StatelessWidget {
           points: points,
           onOpenEntry: (_) {},
           interactive: false,
+          fitPadding: 12,
+          sharp: true,
         ),
       ),
     );
@@ -302,6 +329,36 @@ class _StopList extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The stops on one line, e.g. “1 Kotor · 2 Perast · 3 Budva”.
+class _StopLine extends StatelessWidget {
+  const _StopLine({required this.stops});
+
+  final List<TripStop> stops;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final numberStyle = theme.textTheme.labelMedium?.copyWith(
+      color: theme.colorScheme.primary,
+      fontWeight: FontWeight.w700,
+    );
+    return Text.rich(
+      TextSpan(
+        children: [
+          for (final (index, stop) in stops.indexed) ...[
+            if (index > 0) const TextSpan(text: ' · '),
+            TextSpan(text: '${index + 1}', style: numberStyle),
+            TextSpan(text: ' ${stop.name}'),
+          ],
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.bodyMedium,
     );
   }
 }
