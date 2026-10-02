@@ -12,7 +12,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Up next
 
-- Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #16 Share a trip as one picture (Instagram)
+- Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #160 Trip slideshow as PDF
 
 ## Backlog by initiative → epic
 
