@@ -20,8 +20,7 @@ String? coverPhotoOf(List<Entry> entries, {String? chosen}) {
 /// Every photo of the trip once, in time order (the candidates for the
 /// cover).
 List<String> tripPhotos(List<Entry> entries) => {
-  for (final entry in sortEntriesChronologically(entries))
-    ...entry.photoPaths,
+  for (final entry in sortEntriesChronologically(entries)) ...entry.photoPaths,
 }.toList();
 
 /// Where a trip stands relative to today.
