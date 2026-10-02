@@ -7,10 +7,12 @@ import 'package:path_provider/path_provider.dart';
 import 'data/asset_place_directory.dart';
 import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
+import 'data/codec_photo_shrinker.dart';
 import 'data/directory_temporary_files.dart';
 import 'data/file_selector_document_picker.dart';
 import 'data/geolocator_position_service.dart';
 import 'data/image_picker_photo_picker.dart';
+import 'data/pdf_slideshow_writer.dart';
 import 'data/photo_manager_gallery.dart';
 import 'data/json_file_entry_repository.dart';
 import 'data/json_file_trip_repository.dart';
@@ -46,6 +48,14 @@ Future<void> main() async {
           temporary: temporary,
         ),
         fileSharer: SharePlusFileSharer(),
+        slideshowWriter: PdfSlideshowWriter(
+          shrinker: CodecPhotoShrinker(),
+          loadFonts: () async => (
+            display: await rootBundle.load('assets/fonts/Fraunces-SemiBold.ttf'),
+            text: await rootBundle.load('assets/fonts/Manrope-Regular.ttf'),
+            bold: await rootBundle.load('assets/fonts/Manrope-Bold.ttf'),
+          ),
+        ),
         temporaryFiles: DirectoryTemporaryFiles(
           Directory('${temporary.path}/shared'),
         ),
