@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip_map.dart';
 import 'package:trailtale/ui/widgets/osm_trip_map.dart';
@@ -139,6 +140,53 @@ void main() {
       await pumpMap(tester, mapPoints: [points.first]);
 
       expect(find.byType(PolylineLayer), findsNothing);
+    });
+
+    testWidgets('fits the camera to points that arrive after the first frame', (
+      tester,
+    ) async {
+      final mapPoints = ValueNotifier<List<MapPoint>>(const []);
+      addTearDown(mapPoints.dispose);
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: ValueListenableBuilder(
+            valueListenable: mapPoints,
+            builder: (context, value, _) => OsmTripMap(
+              points: value,
+              onOpenEntry: (_) {},
+              tileProvider: OfflineTileProvider(),
+            ),
+          ),
+        ),
+      );
+
+      mapPoints.value = points;
+      await tester.pumpAndSettle();
+
+      final camera = MapCamera.of(tester.element(find.byType(MarkerLayer)));
+      expect(camera.zoom, greaterThan(5));
+      for (final point in points) {
+        expect(
+          camera.visibleBounds.contains(
+            LatLng(point.location.latitude, point.location.longitude),
+          ),
+          isTrue,
+        );
+      }
+    });
+
+    testWidgets('fits the camera to points known from the start', (
+      tester,
+    ) async {
+      await pumpMap(tester);
+
+      final camera = MapCamera.of(tester.element(find.byType(MarkerLayer)));
+      expect(camera.zoom, greaterThan(5));
+      expect(
+        camera.visibleBounds.contains(const LatLng(41.1579, -8.6291)),
+        isTrue,
+      );
     });
   });
 }
