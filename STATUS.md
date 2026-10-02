@@ -8,10 +8,12 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #16 Share a trip as one picture (on branch `epic/share-trip-picture`, test via the "preview" APK)
+- #170 Choose the trip's cover photo (on `main`)
+- Paused: #16 Share a trip as one picture – 2 of 4 tasks on branch `epic/share-trip-picture`
 
 ## Up next
 
+- Continue #16 after #170
 - Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #160 Trip slideshow as PDF
 
 ## Backlog by initiative → epic
@@ -23,6 +25,12 @@ The GitHub issues are authoritative; this file is the summary.
 | #20 Location capture | 4 of 5 closed | ~~#21~~ → ~~#123~~ → ~~#22~~ → ~~#124~~ → #125 Create an entry from a place shared by another app |
 | #157 Evening recap | 0 of 1 closed | #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#1 Foundation~~, ~~#5 Photos~~ | done | |
+
+**#154 The trip as a story**
+
+| Epic | State | Stories (in order) |
+|---|---|---|
+| #169 Trips look the way I want | 0 of 1 closed | #170 Choose the trip's cover photo |
 
 **#155 Own your data**
 
@@ -38,7 +46,6 @@ The GitHub issues are authoritative; this file is the summary.
 
 **Dormant**
 
-- #154 The trip as a story – all epics done (~~#8 Timeline~~, ~~#11 Map~~, ~~#70 Look & feel~~)
 
 ## Recently done
 
@@ -50,6 +57,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Open decisions (user only)
 
+- Newly created – please confirm or re-sort: epic #169 Trips look the way I want (initiative #154) for #170.
 - Planning structure introduced 2026-10-01 – please confirm or re-sort: initiatives #153 Effortless capture, #154 The trip as a story, #155 Own your data, #156 Ship it; new epics #157 Evening recap (#114 moved from #5, #5 closed again) and #158 Release readiness (#111 moved from #14, new story #159).
 - #114 Evening recap: allow notifications and reading the gallery? Reminder time?
 - #125 Google Maps links: may the app use the internet beyond map tiles to resolve them?
