@@ -636,5 +636,40 @@
   "saveToGalleryFailed": "The picture could not be saved",
   "@saveToGalleryFailed": {
     "description": "Message when saving the trip picture to the gallery failed."
+  },
+  "choosePicturePhotos": "Choose photos",
+  "@choosePicturePhotos": {
+    "description": "Button on the share screen and title of the screen that chooses the photos of the trip picture."
+  },
+  "picturePhotosAutomatic": "Automatic",
+  "@picturePhotosAutomatic": {
+    "description": "Action that lets the app pick the photos of the trip picture again."
+  },
+  "useChosenPhotos": "{count, plural, =0{Choose a photo} =1{Use 1 photo} other{Use {count} photos}}",
+  "@useChosenPhotos": {
+    "description": "Button that takes the selected photos for the trip picture.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "picturePhotoLimit": "Up to {count} photos",
+  "@picturePhotoLimit": {
+    "description": "Message when the traveler tries to select more photos than the trip picture can show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "picturePhotosChosen": "{count, plural, =1{1 photo chosen} other{{count} photos chosen}}",
+  "@picturePhotosChosen": {
+    "description": "Subtitle on the share screen when photos were chosen by hand.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

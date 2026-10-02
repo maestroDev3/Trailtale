@@ -23,18 +23,33 @@ void main() {
     startDate: DateTime(2026, 9, 26),
     endDate: DateTime(2026, 9, 30),
   );
-  Entry stop(String id, int day, String place, double lat, double lng) => Entry(
+  Entry stop(
+    String id,
+    int day,
+    String place,
+    double lat,
+    double lng, {
+    List<String> photos = const [],
+  }) => Entry(
     id: id,
     tripId: 'me',
     time: DateTime.utc(2026, 9, day, 9),
     utcOffset: Duration.zero,
     placeName: place,
     location: GeoPoint(latitude: lat, longitude: lng),
+    photoPaths: photos,
   );
   final entries = [
     stop('a', 26, 'Munich', 48.1374, 11.5755),
-    stop('b', 27, 'Kotor', 42.4247, 18.7712),
-    stop('c', 28, 'Budva', 42.2864, 18.84),
+    stop(
+      'b',
+      27,
+      'Kotor',
+      42.4247,
+      18.7712,
+      photos: ['photos/k1.jpg', 'photos/k2.jpg'],
+    ),
+    stop('c', 28, 'Budva', 42.2864, 18.84, photos: ['photos/b1.jpg']),
   ];
 
   /// Width and height from a PNG header.
@@ -74,9 +89,14 @@ void main() {
   Future<void> tapAndRender(WidgetTester tester, String label) async {
     await tester.tap(find.text(label));
     await tester.pump();
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 500)),
-    );
+    // Loading photos and rendering need real time; each step continues in
+    // the next frame, so alternate between real waiting and pumping.
+    for (var step = 0; step < 6; step++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 150)),
+      );
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
   }
 
@@ -113,6 +133,30 @@ void main() {
         ['Kotor'],
       );
       expect(find.text('Munich'), findsNothing);
+    });
+
+    testWidgets('uses the photos chosen for the picture', (tester) async {
+      await openScreen(tester);
+      expect(preview(tester).picture.photoPaths, [
+        'photos/k1.jpg',
+        'photos/b1.jpg',
+        'photos/k2.jpg',
+      ]);
+
+      await tester.tap(find.text('Choose photos'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Automatic'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose photos'));
+      await tester.pumpAndSettle();
+      for (final path in ['photos/k1.jpg', 'photos/k2.jpg']) {
+        await tester.tap(find.byKey(Key('picture-photo-$path')));
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Use 1 photo'));
+      await tester.pumpAndSettle();
+
+      expect(preview(tester).picture.photoPaths, ['photos/b1.jpg']);
     });
 
     testWidgets('shares a full-size PNG named after the trip', (tester) async {
