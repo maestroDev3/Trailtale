@@ -8,6 +8,8 @@ class FakeTemporaryFiles implements TemporaryFiles {
   final written = <String, List<int>>{};
 
   @override
-  Future<File> write(String name, List<int> bytes) =>
-      throw UnimplementedError();
+  Future<File> write(String name, List<int> bytes) async {
+    written[name] = bytes;
+    return File('/temporary/$name');
+  }
 }
