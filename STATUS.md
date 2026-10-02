@@ -8,11 +8,10 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Paused: #16 Share a trip as one picture – 2 of 4 tasks on branch `epic/share-trip-picture`, continues next
+- #16 Share a trip as one picture (on branch `epic/share-trip-picture`, test via the "preview" APK)
 
 ## Up next
 
-- Continue #16
 - Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #160 Trip slideshow as PDF
 
 ## Backlog by initiative → epic
