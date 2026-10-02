@@ -155,7 +155,10 @@ changes one of them, so the project always matches `main`.
   asks for it or for risky changes (permissions, storage migrations). It is merged
   into `main` only after green CI and a test by the user (APK on the phone).
   Task PRs then target the epic branch; every push to `epic/*` publishes the
-  pre-release **“preview”** APK (same key, updates in place).
+  pre-release **“preview”** APK (same key, updates in place). Android only
+  installs a higher version code (= CI run number): if “latest” was built
+  after the preview, push to the epic branch again (e.g. merge `main`) so the
+  preview is newer. Pure `*.md` commits don't run CI.
 - No direct push to `main` except for repo infrastructure (CI, this file,
   `STATUS.md`).
 - Delete the branch after merging.
