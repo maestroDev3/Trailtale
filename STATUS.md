@@ -28,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 1 of 3 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as one picture (Instagram) |
+| #14 Data safety and sharing | 1 of 6 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as one picture (Instagram) → #160 Trip slideshow as PDF → #161 Instagram carousel, one picture per day → #162 Animated route video (later) |
 
 **#156 Ship it**
 
