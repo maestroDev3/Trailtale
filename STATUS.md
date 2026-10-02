@@ -8,11 +8,12 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #16 Share a trip as one picture – incl. real map (#180) and choosing photos (#181), all on `epic/share-trip-picture`; **waiting for the user's test of the "preview" APK**, then merge to `main`
+- #16 Share a trip as one picture – all tasks done incl. review fixes (#185, #186); **waiting for the user's test of the "preview" APK**
+- #160 Trip slideshow as PDF – on the same branch `epic/share-trip-picture` (builds on #16)
 
 ## Up next
 
-- Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #160 Trip slideshow as PDF
+- Candidates: #161 Instagram carousel, #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
 
 ## Backlog by initiative → epic
 
