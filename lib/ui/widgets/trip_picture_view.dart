@@ -164,7 +164,11 @@ class _PhotoGrid extends StatelessWidget {
       1 => _photo(0),
       2 => Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [Expanded(child: _photo(0)), gap, Expanded(child: _photo(1))],
+        children: [
+          Expanded(child: _photo(0)),
+          gap,
+          Expanded(child: _photo(1)),
+        ],
       ),
       3 => Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -247,7 +251,10 @@ class _RouteCard extends StatelessWidget {
                   Positioned(
                     left: position.x - _pinSize / 2,
                     top: position.y - _pinSize / 2,
-                    child: _Pin(key: Key('trip-picture-pin-${index + 1}'), number: index + 1),
+                    child: _Pin(
+                      key: Key('trip-picture-pin-${index + 1}'),
+                      number: index + 1,
+                    ),
                   ),
             ],
           );
