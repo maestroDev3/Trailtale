@@ -560,5 +560,13 @@
   "pickOnMap": "Pick on map",
   "@pickOnMap": {
     "description": "Button in the entry form that opens a map to pick the entry's place."
+  },
+  "chooseCover": "Choose cover",
+  "@chooseCover": {
+    "description": "Tooltip of the trip page button and title of the screen for choosing the trip's cover photo."
+  },
+  "automaticCover": "Automatic",
+  "@automaticCover": {
+    "description": "Action that goes back to the automatic cover (the trip's first photo)."
   }
 }

@@ -13,6 +13,7 @@ import '../domain/trip_overview.dart';
 import '../domain/trip_summary.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'cover_picker_screen.dart';
 import 'entry_form_screen.dart';
 import 'formatting.dart';
 import 'trip_form_screen.dart';
@@ -45,6 +46,22 @@ class TripDetailScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TripFormScreen(services: services, trip: current),
+      ),
+    );
+  }
+
+  void _openCoverPicker(
+    BuildContext context,
+    Trip current,
+    List<Entry> entries,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CoverPickerScreen(
+          services: services,
+          trip: current,
+          entries: entries,
+        ),
       ),
     );
   }
@@ -119,6 +136,19 @@ class TripDetailScreen extends StatelessWidget {
                     ),
                   ),
                   actions: [
+                    if (tripPhotos(entriesSnapshot.data ?? const [])
+                        .isNotEmpty) ...[
+                      _RoundButton(
+                        tooltip: l10n.chooseCover,
+                        icon: Icons.photo_library_outlined,
+                        onPressed: () => _openCoverPicker(
+                          context,
+                          current,
+                          entriesSnapshot.data ?? const [],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     _RoundButton(
                       tooltip: l10n.editTrip,
                       icon: Icons.edit_outlined,
@@ -136,6 +166,7 @@ class TripDetailScreen extends StatelessWidget {
                     background: TripCover(
                       file: switch (coverPhotoOf(
                         entriesSnapshot.data ?? const [],
+                        chosen: current.coverPhotoPath,
                       )) {
                         final path? => services.photoLibrary.fileFor(path),
                         null => null,

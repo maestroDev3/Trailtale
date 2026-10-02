@@ -43,8 +43,9 @@ void main() {
   Future<(FakeTripRepository, FakeEntryRepository)> openLisbon(
     WidgetTester tester, {
     List<Entry> entries = const [],
+    Trip? trip,
   }) async {
-    final trips = FakeTripRepository([lisbon]);
+    final trips = FakeTripRepository([trip ?? lisbon]);
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
       tester,
@@ -375,6 +376,60 @@ void main() {
 
       final cover = tester.widget<TripCover>(find.byType(TripCover));
       expect(cover.file?.path, endsWith('photos/cover.jpg'));
+    });
+
+    testWidgets('shows the chosen cover', (tester) async {
+      await openLisbon(
+        tester,
+        trip: lisbon.copyWith(coverPhotoPath: 'photos/tram.jpg'),
+        entries: [
+          at('a', 8, 'Belém', photos: ['photos/first.jpg', 'photos/tram.jpg']),
+        ],
+      );
+
+      final cover = tester.widget<TripCover>(find.byType(TripCover));
+      expect(cover.file?.path, endsWith('photos/tram.jpg'));
+    });
+
+    testWidgets('shows the first photo when the chosen cover is gone', (
+      tester,
+    ) async {
+      await openLisbon(
+        tester,
+        trip: lisbon.copyWith(coverPhotoPath: 'photos/removed.jpg'),
+        entries: [
+          at('a', 8, 'Belém', photos: ['photos/first.jpg']),
+        ],
+      );
+
+      final cover = tester.widget<TripCover>(find.byType(TripCover));
+      expect(cover.file?.path, endsWith('photos/first.jpg'));
+    });
+
+    testWidgets('chooses a new cover with the Choose cover button', (
+      tester,
+    ) async {
+      final (trips, _) = await openLisbon(
+        tester,
+        entries: [
+          at('a', 8, 'Belém', photos: ['photos/first.jpg', 'photos/tram.jpg']),
+        ],
+      );
+
+      await tester.tap(find.byTooltip('Choose cover'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('cover-option-photos/tram.jpg')));
+      await tester.pumpAndSettle();
+
+      expect(trips.trips.single.coverPhotoPath, 'photos/tram.jpg');
+      final cover = tester.widget<TripCover>(find.byType(TripCover));
+      expect(cover.file?.path, endsWith('photos/tram.jpg'));
+    });
+
+    testWidgets('offers no Choose cover button without photos', (tester) async {
+      await openLisbon(tester, entries: [at('a', 8, 'Belém')]);
+
+      expect(find.byTooltip('Choose cover'), findsNothing);
     });
 
     testWidgets('shows the cover placeholder without photos', (tester) async {
