@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'entry.dart';
 import 'geo_point.dart';
 import 'trip.dart';
@@ -124,51 +122,4 @@ List<String> _pickPhotos(List<Entry> chronological) {
     }
   }
   return picked;
-}
-
-/// Positions the [locations] in a box of [width] × [height] with north up:
-/// equirectangular projection (longitudes scaled by the cosine of the mean
-/// latitude), same scale on both axes, centered, at least [margin] from the
-/// edges. Locations that are `null` get no position.
-List<({double x, double y})?> layoutRoute(
-  List<GeoPoint?> locations, {
-  required double width,
-  required double height,
-  required double margin,
-}) {
-  final known = locations.whereType<GeoPoint>().toList();
-  if (known.isEmpty) return [for (final _ in locations) null];
-  final meanLatitude =
-      known.map((point) => point.latitude).reduce((a, b) => a + b) /
-      known.length;
-  final xScale = cos(meanLatitude * pi / 180);
-  double projectX(GeoPoint point) => point.longitude * xScale;
-  double projectY(GeoPoint point) => -point.latitude;
-  final xs = known.map(projectX);
-  final ys = known.map(projectY);
-  final minX = xs.reduce(min);
-  final maxX = xs.reduce(max);
-  final minY = ys.reduce(min);
-  final maxY = ys.reduce(max);
-  final spanX = maxX - minX;
-  final spanY = maxY - minY;
-  final innerWidth = width - 2 * margin;
-  final innerHeight = height - 2 * margin;
-  final scale = [
-    if (spanX > 0) innerWidth / spanX,
-    if (spanY > 0) innerHeight / spanY,
-  ].fold<double>(double.infinity, min);
-  final usedScale = scale.isFinite ? scale : 0.0;
-  final offsetX = (width - spanX * usedScale) / 2;
-  final offsetY = (height - spanY * usedScale) / 2;
-  return [
-    for (final point in locations)
-      if (point == null)
-        null
-      else
-        (
-          x: offsetX + (projectX(point) - minX) * usedScale,
-          y: offsetY + (projectY(point) - minY) * usedScale,
-        ),
-  ];
 }
