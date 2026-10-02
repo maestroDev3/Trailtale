@@ -15,6 +15,8 @@ class OsmTripMap extends StatelessWidget {
     required this.points,
     required this.onOpenEntry,
     this.interactive = true,
+    this.fitPadding = 48,
+    this.sharp = false,
     this.tileProvider,
   });
 
@@ -23,6 +25,12 @@ class OsmTripMap extends StatelessWidget {
 
   /// Whether the map can be panned and zoomed (markers work either way).
   final bool interactive;
+
+  /// Space around the points when the camera fits them.
+  final double fitPadding;
+
+  /// Whether to load high-resolution tiles, e.g. for an exported picture.
+  final bool sharp;
 
   /// Tile source; only replaced in tests.
   final TileProvider? tileProvider;

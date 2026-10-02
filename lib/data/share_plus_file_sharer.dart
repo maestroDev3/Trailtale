@@ -13,3 +13,6 @@ class SharePlusFileSharer implements FileSharer {
     );
   }
 }
+
+/// The MIME type share targets (e.g. Instagram) need to accept a file.
+String? mimeTypeFor(String path) => null;

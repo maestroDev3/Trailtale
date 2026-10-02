@@ -82,6 +82,8 @@ void main() {
         trip: trip,
       ),
     );
+    // Map tiles and photos get time to load before sharing is possible.
+    await tester.pump(const Duration(seconds: 2));
     return (files: files, sharer: sharer, gallery: gallery);
   }
 
@@ -168,6 +170,52 @@ void main() {
       expect(bytes, isNotNull);
       expect(pngSize(bytes!), (1080, 1920));
       expect(sharer.shared.single.path, endsWith('Montenegro.png'));
+    });
+
+    testWidgets('shares a 1080 × 1350 PNG in the post format', (tester) async {
+      final (:files, sharer: _, gallery: _) = await openScreen(tester);
+      await tester.tap(find.text('Post'));
+      await tester.pump(const Duration(seconds: 2));
+
+      await tapAndRender(tester, 'Share');
+
+      expect(pngSize(files.written['Montenegro.png'] ?? const []), (
+        1080,
+        1350,
+      ));
+    });
+
+    testWidgets('waits for the map and photos before sharing', (tester) async {
+      final files = FakeTemporaryFiles();
+      await pumpApp(
+        tester,
+        SharePictureScreen(
+          services: testServices(
+            trips: FakeTripRepository([trip]),
+            entries: FakeEntryRepository(entries),
+            temporaryFiles: files,
+          ),
+          trip: trip,
+        ),
+      );
+      Widget button(String label) => tester.widget<ButtonStyleButton>(
+        find.ancestor(
+          of: find.text(label),
+          matching: find.bySubtype<ButtonStyleButton>(),
+        ),
+      );
+
+      expect((button('Share') as ButtonStyleButton).onPressed, isNull);
+      await tester.pump(const Duration(milliseconds: 1600));
+      expect((button('Share') as ButtonStyleButton).onPressed, isNotNull);
+
+      await tester.tap(find.text('Post'));
+      await tester.pump();
+      expect(
+        (button('Save to gallery') as ButtonStyleButton).onPressed,
+        isNull,
+      );
+      await tester.pump(const Duration(milliseconds: 1600));
     });
 
     testWidgets('saves the picture to the gallery', (tester) async {

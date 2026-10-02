@@ -188,5 +188,35 @@ void main() {
         isTrue,
       );
     });
+
+    testWidgets('loads sharp tiles with a small padding for still pictures', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: OsmTripMap(
+            points: points,
+            onOpenEntry: (_) {},
+            interactive: false,
+            fitPadding: 12,
+            sharp: true,
+            tileProvider: OfflineTileProvider(),
+          ),
+        ),
+      );
+
+      final layer = tester.widget<TileLayer>(find.byType(TileLayer));
+      final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+      expect(layer.resolvedRetinaMode, isTrue);
+      expect(
+        map.options.initialCameraFit,
+        isA<FitBounds>().having(
+          (fit) => fit.padding,
+          'padding',
+          const EdgeInsets.all(12),
+        ),
+      );
+    });
   });
 }
