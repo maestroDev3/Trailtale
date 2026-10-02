@@ -675,5 +675,45 @@
   "pictureRenderFailed": "The picture could not be created",
   "@pictureRenderFailed": {
     "description": "Message when the trip picture could not be rendered for sharing or saving."
+  },
+  "shareTrip": "Share trip",
+  "@shareTrip": {
+    "description": "Tooltip of the trip page button that offers sharing the trip as a picture or a slideshow."
+  },
+  "shareOptionPicture": "Picture",
+  "@shareOptionPicture": {
+    "description": "Option in the share sheet of a trip: one picture for Instagram or a chat."
+  },
+  "shareOptionPictureDescription": "One picture for Instagram or a chat",
+  "@shareOptionPictureDescription": {
+    "description": "Description of the picture option in the share sheet."
+  },
+  "shareOptionSlideshow": "Slideshow (PDF)",
+  "@shareOptionSlideshow": {
+    "description": "Option in the share sheet of a trip and title of the slideshow screen."
+  },
+  "shareOptionSlideshowDescription": "Slides to show on a TV, laptop or phone",
+  "@shareOptionSlideshowDescription": {
+    "description": "Description of the slideshow option in the share sheet."
+  },
+  "slideshowDescription": "A title slide, one slide per place with its photo and notes, and the whole route at the end.",
+  "@slideshowDescription": {
+    "description": "Explanation on the slideshow screen."
+  },
+  "createPdf": "Create PDF",
+  "@createPdf": {
+    "description": "Button that creates the slideshow PDF and opens the share sheet."
+  },
+  "creatingPdf": "Creating PDF…",
+  "@creatingPdf": {
+    "description": "Button label while the slideshow PDF is created."
+  },
+  "slideshowRouteTitle": "The route",
+  "@slideshowRouteTitle": {
+    "description": "Title of the last slide that lists all stops."
+  },
+  "slideshowFailed": "The slideshow could not be created",
+  "@slideshowFailed": {
+    "description": "Message when the slideshow PDF could not be created."
   }
 }

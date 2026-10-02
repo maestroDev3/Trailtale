@@ -369,15 +369,8 @@ class _Facts extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final text = picture.distanceMeters > 0
-        ? l10n.pictureFacts(
-            picture.dayCount,
-            picture.placeCount,
-            formatKilometers(picture.distanceMeters, l10n.localeName),
-          )
-        : l10n.pictureFactsNoDistance(picture.dayCount, picture.placeCount);
     return Text(
-      text,
+      pictureFactsText(l10n, picture),
       style: theme.textTheme.titleSmall?.copyWith(
         color: theme.colorScheme.secondary,
       ),
