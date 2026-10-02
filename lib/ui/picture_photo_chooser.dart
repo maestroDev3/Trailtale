@@ -43,9 +43,8 @@ class _PicturePhotoChooserState extends State<PicturePhotoChooser> {
         ..showSnackBar(
           SnackBar(
             content: Text(
-              AppLocalizations.of(
-                context,
-              ).picturePhotoLimit(TripPicture.maxPhotos),
+              AppLocalizations.of(context)
+                  .picturePhotoLimit(TripPicture.maxPhotos),
             ),
           ),
         );
