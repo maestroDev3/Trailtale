@@ -58,7 +58,7 @@ jobs:
   # (saves ~6 min per TDD cycle).
   build-apk:
     needs: test
-    if: github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[apk]')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/epic/') || contains(github.event.head_commit.message, '[apk]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +83,6 @@ jobs:
           else
             echo "::warning::ANDROID_KEYSTORE_BASE64 is not set – the APK is signed with a temporary debug key and cannot update an installed app."
           fi
-      # Temporary diagnosis: shows only checksums, lengths and results, never values.
       - name: Build APK
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -115,3 +114,15 @@ jobs:
           gh release create latest trailtale.apk --target "$GITHUB_SHA" \
             --title "Trailtale (latest)" \
             --notes "Built automatically from ${GITHUB_SHA::7}. To install, download trailtale.apk on your phone and open it."
+      # On an epic branch: publish the APK as pre-release “preview” for testing
+      # on the phone before the epic is merged (same key, so it updates in place).
+      - name: Release preview
+        if: startsWith(github.ref, 'refs/heads/epic/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk trailtale-preview.apk
+          gh release delete preview --yes --cleanup-tag || true
+          gh release create preview trailtale-preview.apk --target "$GITHUB_SHA" --prerelease \
+            --title "Trailtale preview (${GITHUB_REF_NAME})" \
+            --notes "Test build from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7} – not yet on main. To install, download trailtale-preview.apk on your phone and open it."
