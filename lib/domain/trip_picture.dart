@@ -45,7 +45,9 @@ class TripPicture {
 /// [leaveOutEnds] the first and last stop and their entries are left out,
 /// e.g. to keep one's home private. [chosenPhotos] replace the automatic
 /// photo pick (in their order, only photos of the trip, at most
-/// [TripPicture.maxPhotos]).
+/// [TripPicture.maxPhotos]; the automatic pick when none of them is left).
+/// The distance counts the legs between the stops in visiting order, so a
+/// way back to an earlier place is not counted.
 TripPicture buildTripPicture(
   Trip trip,
   List<Entry> entries, {
@@ -68,8 +70,13 @@ TripPicture buildTripPicture(
   var keys = names.keys.toList();
   final leftOut = <String>{};
   if (leaveOutEnds && keys.isNotEmpty) {
-    leftOut.addAll({keys.first, keys.last});
-    keys = keys.length <= 2 ? [] : keys.sublist(1, keys.length - 1);
+    // The trip ends where the last named entry is – on a round trip that is
+    // the first place again, so only home is left out.
+    final lastNamed = chronological.lastWhere(
+      (entry) => entry.placeName != null,
+    );
+    leftOut.addAll({keys.first, key(lastNamed.placeName ?? '')});
+    keys = [for (final placeKey in keys) if (!leftOut.contains(placeKey)) placeKey];
   }
   final stops = [
     for (final placeKey in keys)
@@ -93,9 +100,10 @@ TripPicture buildTripPicture(
     dayCount: trip.dayCount,
     stops: stops,
     distanceMeters: distance,
-    photoPaths: chosenPhotos.isEmpty
-        ? _pickPhotos(shown)
-        : _keepChosen(chosenPhotos, chronological),
+    photoPaths: switch (_keepChosen(chosenPhotos, shown)) {
+      [] => _pickPhotos(shown),
+      final chosen => chosen,
+    },
   );
 }
 
