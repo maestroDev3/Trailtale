@@ -560,5 +560,41 @@
   "pickOnMap": "Pick on map",
   "@pickOnMap": {
     "description": "Button in the entry form that opens a map to pick the entry's place."
+  },
+  "pictureFacts": "{days, plural, =1{1 day} other{{days} days}} · {places, plural, =1{1 place} other{{places} places}} · {distance} km",
+  "@pictureFacts": {
+    "description": "Key figures on the shareable trip picture.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "places": {
+        "type": "int"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "pictureFactsNoDistance": "{days, plural, =1{1 day} other{{days} days}} · {places, plural, =1{1 place} other{{places} places}}",
+  "@pictureFactsNoDistance": {
+    "description": "Key figures on the shareable trip picture when there is no route.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "places": {
+        "type": "int"
+      }
+    }
+  },
+  "pictureMoreStops": "+{count} more",
+  "@pictureMoreStops": {
+    "description": "Shown on the trip picture after the listed stops when there are more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
