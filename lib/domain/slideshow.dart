@@ -1,4 +1,5 @@
 import 'entry.dart';
+import 'trip_overview.dart';
 import 'trip.dart';
 import 'trip_picture.dart';
 
@@ -35,9 +36,62 @@ class Slideshow {
   final List<StopSlide> stops;
 }
 
-/// Builds the slideshow of [trip].
+/// Most notes a stop slide shows.
+const maxNotesPerSlide = 3;
+
+/// Builds the slideshow of [trip]: one slide per stop of the trip picture
+/// (same stops, same rule for [leaveOutEnds]); entries belong to a stop by
+/// place name (case and surrounding spaces ignored).
 Slideshow buildSlideshow(
   Trip trip,
   List<Entry> entries, {
   required bool leaveOutEnds,
-}) => throw UnimplementedError();
+}) {
+  String key(String name) => name.trim().toLowerCase();
+  final overview = buildTripPicture(trip, entries, leaveOutEnds: leaveOutEnds);
+  final chronological = sortEntriesChronologically(entries);
+  final byStop = <String, List<Entry>>{};
+  for (final entry in chronological) {
+    if (entry.placeName case final name?) {
+      byStop.putIfAbsent(key(name), () => []).add(entry);
+    }
+  }
+  final shownKeys = {for (final stop in overview.stops) key(stop.name)};
+  final shownEntries = [
+    for (final entry in chronological)
+      if (entry.placeName case final name?
+          when !shownKeys.contains(key(name)))
+        ...const <Entry>[]
+      else
+        entry,
+  ];
+  final stops = [
+    for (final (index, stop) in overview.stops.indexed)
+      _stopSlide(index + 1, stop.name, byStop[key(stop.name)] ?? const []),
+  ];
+  return Slideshow(
+    overview: overview,
+    coverPhotoPath: coverPhotoOf(shownEntries, chosen: trip.coverPhotoPath),
+    stops: stops,
+  );
+}
+
+StopSlide _stopSlide(int number, String name, List<Entry> entries) {
+  final first = entries.first.localDateTime;
+  return StopSlide(
+    number: number,
+    name: name,
+    firstVisit: DateTime(
+      first.year,
+      first.month,
+      first.day,
+      first.hour,
+      first.minute,
+    ),
+    photoPath: [for (final entry in entries) ...entry.photoPaths].firstOrNull,
+    notes: [
+      for (final entry in entries)
+        if (entry.note.trim().isNotEmpty) entry.note.trim(),
+    ].take(maxNotesPerSlide).toList(),
+  );
+}
