@@ -9,7 +9,7 @@ The GitHub issues are authoritative; this file is the summary.
 ## In progress
 
 - #16 Share a trip as one picture – all tasks done incl. review fixes (#185, #186); **waiting for the user's test of the "preview" APK**
-- #160 Trip slideshow as PDF – on the same branch `epic/share-trip-picture` (builds on #16)
+- #160 Trip slideshow as PDF – all tasks done on the same branch; **waiting for the user's test of the "preview" APK** (build 371)
 
 ## Up next
 
