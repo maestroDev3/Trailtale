@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -119,6 +121,40 @@ void main() {
       final pdf = await writePdf(FakePhotoShrinker());
 
       expect(RegExp(r'/Subtype\s*/Image').allMatches(pdf), hasLength(2));
+    });
+
+    test('writes the PDF with the bundled fonts, incl. accents', () async {
+      ByteData font(String name) =>
+          ByteData.sublistView(File('assets/fonts/$name').readAsBytesSync());
+      final bytes = await PdfSlideshowWriter(
+        shrinker: FakePhotoShrinker(),
+        compress: false,
+        loadFonts: () async => (
+          display: font('Fraunces-SemiBold.ttf'),
+          text: font('Manrope-Regular.ttf'),
+          bold: font('Manrope-Bold.ttf'),
+        ),
+      ).write(
+        const SlideshowDocument(
+          title: 'Čanj – Petrovac',
+          dateText: 'Sep 26 – Oct 6, 2026',
+          factsText: '12 days · 4 places · 49 km',
+          stops: [
+            SlideText(
+              number: 1,
+              name: 'Čanj',
+              dateText: 'Oct 1, 2026',
+              notes: ['Plaža'],
+            ),
+          ],
+          closingTitle: 'The route',
+          wordmark: 'Trailtale',
+        ),
+      );
+      final pdf = latin1.decode(bytes);
+
+      expect(RegExp(r'/Type\s*/Page(?![s])').allMatches(pdf), hasLength(3));
+      expect(pdf, contains('/FontFile2'));
     });
   });
 }
