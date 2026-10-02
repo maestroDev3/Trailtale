@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #16 Share a trip as one picture – on `epic/share-trip-picture`; after the user's test: real map in the picture (#180), choose its photos (#181)
+- #16 Share a trip as one picture – incl. real map (#180) and choosing photos (#181), all on `epic/share-trip-picture`; **waiting for the user's test of the "preview" APK**, then merge to `main`
 
 ## Up next
 
