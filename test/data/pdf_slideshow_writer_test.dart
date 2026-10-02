@@ -96,7 +96,10 @@ void main() {
         'The route',
         'Trailtale',
       ]) {
-        expect(pdf, contains('($text)'), reason: text);
+        // The PDF writes every word on its own.
+        for (final word in text.split(' ')) {
+          expect(pdf, contains('($word)'), reason: text);
+        }
       }
     });
 

@@ -39,7 +39,7 @@ class CodecPhotoShrinker implements PhotoShrinker {
       codec.dispose();
       if (pixels == null) return null;
       final bytes = pixels.buffer;
-      return Isolate.run(
+      return await Isolate.run(
         () => img.encodeJpg(
           img.Image.fromBytes(
             width: width,
