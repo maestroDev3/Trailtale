@@ -15,6 +15,7 @@ import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'cover_picker_screen.dart';
 import 'entry_form_screen.dart';
+import 'share_picture_screen.dart';
 import 'formatting.dart';
 import 'trip_form_screen.dart';
 import 'trip_map_screen.dart';
@@ -46,6 +47,14 @@ class TripDetailScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TripFormScreen(services: services, trip: current),
+      ),
+    );
+  }
+
+  void _openSharePicture(BuildContext context, Trip current) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SharePictureScreen(services: services, trip: current),
       ),
     );
   }
@@ -136,6 +145,12 @@ class TripDetailScreen extends StatelessWidget {
                     ),
                   ),
                   actions: [
+                    _RoundButton(
+                      tooltip: l10n.sharePicture,
+                      icon: Icons.share_outlined,
+                      onPressed: () => _openSharePicture(context, current),
+                    ),
+                    const SizedBox(width: 8),
                     if (tripPhotos(entriesSnapshot.data ?? const [])
                         .isNotEmpty) ...[
                       _RoundButton(
