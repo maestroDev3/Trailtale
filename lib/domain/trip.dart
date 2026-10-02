@@ -12,6 +12,7 @@ class Trip {
     required String title,
     required DateTime startDate,
     required DateTime endDate,
+    String? coverPhotoPath,
   }) {
     final trimmedTitle = title.trim();
     if (trimmedTitle.isEmpty) {
@@ -22,7 +23,14 @@ class Trip {
     if (end.isBefore(start)) {
       throw ArgumentError.value(endDate, 'endDate', 'must not be before start');
     }
-    return Trip._(id: id, title: trimmedTitle, startDate: start, endDate: end);
+    final cover = coverPhotoPath?.trim();
+    return Trip._(
+      id: id,
+      title: trimmedTitle,
+      startDate: start,
+      endDate: end,
+      coverPhotoPath: cover == null || cover.isEmpty ? null : cover,
+    );
   }
 
   const Trip._({
@@ -30,6 +38,7 @@ class Trip {
     required this.title,
     required this.startDate,
     required this.endDate,
+    required this.coverPhotoPath,
   });
 
   final String id;
@@ -37,17 +46,30 @@ class Trip {
   final DateTime startDate;
   final DateTime endDate;
 
+  /// Photo the traveler chose as cover (relative path), `null` for the
+  /// automatic cover.
+  final String? coverPhotoPath;
+
   /// Number of calendar days the trip covers, counting both ends.
   int get dayCount => endDate.difference(startDate).inDays + 1;
 
   /// Returns a new trip with the given fields replaced, validated like a new
   /// trip.
-  Trip copyWith({String? title, DateTime? startDate, DateTime? endDate}) {
+  Trip copyWith({
+    String? title,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? coverPhotoPath,
+    bool clearCoverPhoto = false,
+  }) {
     return Trip(
       id: id,
       title: title ?? this.title,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      coverPhotoPath: clearCoverPhoto
+          ? null
+          : coverPhotoPath ?? this.coverPhotoPath,
     );
   }
 
@@ -57,10 +79,12 @@ class Trip {
       other.id == id &&
       other.title == title &&
       other.startDate == startDate &&
-      other.endDate == endDate;
+      other.endDate == endDate &&
+      other.coverPhotoPath == coverPhotoPath;
 
   @override
-  int get hashCode => Object.hash(id, title, startDate, endDate);
+  int get hashCode =>
+      Object.hash(id, title, startDate, endDate, coverPhotoPath);
 
   @override
   String toString() => 'Trip($id, $title, $startDate – $endDate)';
