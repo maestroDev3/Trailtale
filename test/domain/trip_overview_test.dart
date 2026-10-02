@@ -28,6 +28,45 @@ void main() {
 
       expect(cover, 'photos/first.jpg');
     });
+
+    test('is the chosen photo while an entry has it', () {
+      final cover = coverPhotoOf([
+        entry('early', 1, photos: ['photos/first.jpg']),
+        entry('late', 3, photos: ['photos/a.jpg', 'photos/kotor.jpg']),
+      ], chosen: 'photos/kotor.jpg');
+
+      expect(cover, 'photos/kotor.jpg');
+    });
+
+    test('falls back to the first photo when the chosen one is gone', () {
+      final cover = coverPhotoOf([
+        entry('early', 1, photos: ['photos/first.jpg']),
+      ], chosen: 'photos/removed.jpg');
+
+      expect(cover, 'photos/first.jpg');
+    });
+  });
+
+  group('buildTripOverviews', () {
+    test('uses the cover chosen for the trip', () {
+      final trip = Trip(
+        id: 'portugal',
+        title: 'Portugal',
+        startDate: DateTime(2026, 5, 1),
+        endDate: DateTime(2026, 5, 4),
+        coverPhotoPath: 'photos/b.jpg',
+      );
+
+      final overviews = buildTripOverviews(
+        [trip],
+        [
+          entry('one', 1, photos: ['photos/a.jpg', 'photos/b.jpg']),
+        ],
+        today: DateTime(2026, 9, 1),
+      );
+
+      expect(overviews.others.single.coverPhoto, 'photos/b.jpg');
+    });
   });
 
   group('tripProgress', () {

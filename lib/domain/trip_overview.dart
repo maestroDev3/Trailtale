@@ -5,7 +5,7 @@ import 'trip_summary.dart';
 
 /// The trip's cover: the first photo of the earliest entry that has photos,
 /// or `null` if the trip has no photos yet.
-String? coverPhotoOf(List<Entry> entries) {
+String? coverPhotoOf(List<Entry> entries, {String? chosen}) {
   for (final entry in sortEntriesChronologically(entries)) {
     if (entry.photoPaths.isNotEmpty) return entry.photoPaths.first;
   }

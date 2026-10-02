@@ -12,6 +12,7 @@ class Trip {
     required String title,
     required DateTime startDate,
     required DateTime endDate,
+    String? coverPhotoPath,
   }) {
     final trimmedTitle = title.trim();
     if (trimmedTitle.isEmpty) {
@@ -37,12 +38,22 @@ class Trip {
   final DateTime startDate;
   final DateTime endDate;
 
+  /// Photo the traveler chose as cover (relative path), `null` for the
+  /// automatic cover.
+  String? get coverPhotoPath => null;
+
   /// Number of calendar days the trip covers, counting both ends.
   int get dayCount => endDate.difference(startDate).inDays + 1;
 
   /// Returns a new trip with the given fields replaced, validated like a new
   /// trip.
-  Trip copyWith({String? title, DateTime? startDate, DateTime? endDate}) {
+  Trip copyWith({
+    String? title,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? coverPhotoPath,
+    bool clearCoverPhoto = false,
+  }) {
     return Trip(
       id: id,
       title: title ?? this.title,
