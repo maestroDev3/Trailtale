@@ -76,7 +76,10 @@ TripPicture buildTripPicture(
       (entry) => entry.placeName != null,
     );
     leftOut.addAll({keys.first, key(lastNamed.placeName ?? '')});
-    keys = [for (final placeKey in keys) if (!leftOut.contains(placeKey)) placeKey];
+    keys = [
+      for (final placeKey in keys)
+        if (!leftOut.contains(placeKey)) placeKey,
+    ];
   }
   final stops = [
     for (final placeKey in keys)
