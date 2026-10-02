@@ -57,14 +57,11 @@ Slideshow buildSlideshow(
     }
   }
   final shownKeys = {for (final stop in overview.stops) key(stop.name)};
-  final shownEntries = [
-    for (final entry in chronological)
-      if (entry.placeName case final name?
-          when !shownKeys.contains(key(name)))
-        ...const <Entry>[]
-      else
-        entry,
-  ];
+  bool isShown(Entry entry) => switch (entry.placeName) {
+    final name? => shownKeys.contains(key(name)),
+    null => true,
+  };
+  final shownEntries = chronological.where(isShown).toList();
   final stops = [
     for (final (index, stop) in overview.stops.indexed)
       _stopSlide(index + 1, stop.name, byStop[key(stop.name)] ?? const []),
