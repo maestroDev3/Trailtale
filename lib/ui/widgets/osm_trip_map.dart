@@ -33,6 +33,15 @@ class OsmTripMap extends StatelessWidget {
     final legs = routeLegs(points);
     final routeColor = Theme.of(context).colorScheme.secondary;
     return FlutterMap(
+      // flutter_map applies `initialCameraFit` only once, when the map gets
+      // its size. Entries usually arrive a frame later, so a new area means
+      // a new map that fits it.
+      key: ValueKey((
+        bounds?.south,
+        bounds?.west,
+        bounds?.north,
+        bounds?.east,
+      )),
       options: MapOptions(
         initialCenter: const LatLng(0, 0),
         initialZoom: 2,
