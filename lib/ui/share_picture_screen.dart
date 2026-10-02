@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -29,15 +30,60 @@ class SharePictureScreen extends StatefulWidget {
 }
 
 class _SharePictureScreenState extends State<SharePictureScreen> {
+  /// Time the preview gets to load its map tiles and photos after a change,
+  /// before it can be shared.
+  static const settleTime = Duration(milliseconds: 1500);
+
   final _pictureKey = GlobalKey();
   var _format = TripPictureFormat.story;
   var _leaveOutEnds = false;
   var _busy = false;
-  TripPicture? _picture;
-  List<Entry> _entries = const [];
+  var _settling = true;
+  Timer? _settleTimer;
+  late final StreamSubscription<List<Entry>> _entriesSubscription;
+  var _entries = const <Entry>[];
 
   /// Photos chosen by hand; empty means the automatic pick.
   var _chosenPhotos = const <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _entriesSubscription = widget.services.entryRepository
+        .watchEntries(widget.trip.id)
+        .listen((entries) => _change(() => _entries = entries));
+    _restartSettling();
+  }
+
+  @override
+  void dispose() {
+    _settleTimer?.cancel();
+    unawaited(_entriesSubscription.cancel());
+    super.dispose();
+  }
+
+  void _restartSettling() {
+    _settleTimer?.cancel();
+    _settling = true;
+    _settleTimer = Timer(settleTime, () {
+      if (mounted) setState(() => _settling = false);
+    });
+  }
+
+  /// Applies a change to the picture and gives it time to load again.
+  void _change(VoidCallback change) {
+    setState(() {
+      change();
+      _restartSettling();
+    });
+  }
+
+  TripPicture get _picture => buildTripPicture(
+    widget.trip,
+    _entries,
+    leaveOutEnds: _leaveOutEnds,
+    chosenPhotos: _chosenPhotos,
+  );
 
   Future<void> _choosePhotos() async {
     final chosen = await Navigator.of(context).push<List<String>>(
@@ -45,12 +91,12 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
         builder: (_) => PicturePhotoChooser(
           services: widget.services,
           entries: _entries,
-          selected: _picture?.photoPaths ?? const [],
+          selected: _picture.photoPaths,
         ),
       ),
     );
     if (chosen == null || !mounted) return;
-    setState(() => _chosenPhotos = chosen);
+    _change(() => _chosenPhotos = chosen);
   }
 
   /// Renders the visible preview at [TripPictureFormat.pixelRatio] as PNG
@@ -72,7 +118,18 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     setState(() => _busy = true);
     try {
       final png = await _render();
-      if (png != null && mounted) await use(png);
+      if (!mounted) return;
+      if (png == null) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context).pictureRenderFailed),
+            ),
+          );
+        return;
+      }
+      await use(png);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -107,6 +164,8 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final services = widget.services;
+    final picture = _picture;
+    final canExport = !_busy && !_settling;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sharePicture)),
       body: Column(
@@ -127,13 +186,13 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
               ],
               selected: {_format},
               onSelectionChanged: (selection) =>
-                  setState(() => _format = selection.first),
+                  _change(() => _format = selection.first),
             ),
           ),
           SwitchListTile(
             title: Text(l10n.pictureLeaveOutEnds),
             value: _leaveOutEnds,
-            onChanged: (value) => setState(() => _leaveOutEnds = value),
+            onChanged: (value) => _change(() => _leaveOutEnds = value),
           ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
@@ -141,22 +200,13 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
             subtitle: Text(
               _chosenPhotos.isEmpty
                   ? l10n.picturePhotosAutomatic
-                  : l10n.picturePhotosChosen(_chosenPhotos.length),
+                  : l10n.picturePhotosChosen(picture.photoPaths.length),
             ),
             onTap: _choosePhotos,
           ),
           Expanded(
-            child: StreamBuilder<List<Entry>>(
-              stream: services.entryRepository.watchEntries(widget.trip.id),
-              builder: (context, snapshot) {
-                _entries = snapshot.data ?? const [];
-                final picture = buildTripPicture(
-                  widget.trip,
-                  _entries,
-                  leaveOutEnds: _leaveOutEnds,
-                  chosenPhotos: _chosenPhotos,
-                );
-                _picture = picture;
+            child: Builder(
+              builder: (context) {
                 return Padding(
                   padding: const EdgeInsets.all(16),
                   child: Center(
@@ -197,7 +247,7 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: _busy ? null : _save,
+                  onPressed: canExport ? _save : null,
                   icon: const Icon(Icons.download_outlined),
                   label: Text(l10n.saveToGallery),
                 ),
@@ -205,7 +255,7 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: _busy ? null : _share,
+                  onPressed: canExport ? _share : null,
                   icon: const Icon(Icons.share_outlined),
                   label: Text(l10n.shareAction),
                 ),

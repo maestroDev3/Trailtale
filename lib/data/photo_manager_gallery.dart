@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:photo_manager/photo_manager.dart';
 
+import '../domain/file_names.dart';
 import '../domain/photo_gallery.dart';
 
 /// Reads the device's photos through Android's media store (package
@@ -90,7 +91,7 @@ class PhotoManagerGallery implements PhotoGallery {
     try {
       await PhotoManager.editor.saveImage(
         bytes,
-        filename: '$title.png',
+        filename: safeFileName('$title.png'),
         title: title,
       );
       return true;

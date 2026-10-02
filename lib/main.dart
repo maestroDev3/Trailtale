@@ -51,12 +51,19 @@ Future<void> main() async {
         ),
         documentPicker: FileSelectorDocumentPicker(),
         tripMap:
-            ({required points, required onOpenEntry, interactive = true}) =>
-                OsmTripMap(
-                  points: points,
-                  onOpenEntry: onOpenEntry,
-                  interactive: interactive,
-                ),
+            ({
+              required points,
+              required onOpenEntry,
+              interactive = true,
+              fitPadding = 48,
+              sharp = false,
+            }) => OsmTripMap(
+              points: points,
+              onOpenEntry: onOpenEntry,
+              interactive: interactive,
+              fitPadding: fitPadding,
+              sharp: sharp,
+            ),
         pickerMap:
             ({
               required controller,

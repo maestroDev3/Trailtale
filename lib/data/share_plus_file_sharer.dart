@@ -9,7 +9,14 @@ class SharePlusFileSharer implements FileSharer {
   @override
   Future<void> shareFile(File file, {required String subject}) async {
     await SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path)], subject: subject),
+      ShareParams(
+        files: [XFile(file.path, mimeType: mimeTypeFor(file.path))],
+        subject: subject,
+      ),
     );
   }
 }
+
+/// The MIME type share targets (e.g. Instagram) need to accept a file.
+String? mimeTypeFor(String path) =>
+    path.toLowerCase().endsWith('.png') ? 'image/png' : null;

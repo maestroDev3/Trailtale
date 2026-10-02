@@ -671,5 +671,9 @@
         "type": "int"
       }
     }
+  },
+  "pictureRenderFailed": "The picture could not be created",
+  "@pictureRenderFailed": {
+    "description": "Message when the trip picture could not be rendered for sharing or saving."
   }
 }
