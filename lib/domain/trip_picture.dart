@@ -1,6 +1,8 @@
+import 'dart:math';
+
+import 'entry.dart';
 import 'geo_point.dart';
 import 'trip.dart';
-import 'entry.dart';
 
 /// A place of the trip, in visiting order.
 class TripStop {
@@ -31,23 +33,140 @@ class TripPicture {
   final List<TripStop> stops;
   final double distanceMeters;
 
+  /// Most photos a picture shows.
+  static const maxPhotos = 4;
+
   /// Relative photo paths, at most [maxPhotos].
   final List<String> photoPaths;
 
   int get placeCount => stops.length;
 }
 
-/// Builds the content of a trip picture.
+/// Builds the content of a trip picture: stops are the place names in
+/// visiting order (case and surrounding spaces ignored); with
+/// [leaveOutEnds] the first and last stop and their entries are left out,
+/// e.g. to keep one's home private.
 TripPicture buildTripPicture(
   Trip trip,
   List<Entry> entries, {
   required bool leaveOutEnds,
-}) => throw UnimplementedError();
+}) {
+  String key(String name) => name.trim().toLowerCase();
+  final chronological = sortEntriesChronologically(entries);
+  final names = <String, String>{};
+  final locations = <String, GeoPoint>{};
+  for (final entry in chronological) {
+    if (entry.placeName case final name?) {
+      final placeKey = key(name);
+      names.putIfAbsent(placeKey, () => name);
+      if (entry.location case final location?) {
+        locations.putIfAbsent(placeKey, () => location);
+      }
+    }
+  }
+  var keys = names.keys.toList();
+  final leftOut = <String>{};
+  if (leaveOutEnds && keys.isNotEmpty) {
+    leftOut.addAll({keys.first, keys.last});
+    keys = keys.length <= 2 ? [] : keys.sublist(1, keys.length - 1);
+  }
+  final stops = [
+    for (final placeKey in keys)
+      TripStop(name: names[placeKey] ?? '', location: locations[placeKey]),
+  ];
+  final located = [for (final stop in stops) ?stop.location];
+  var distance = 0.0;
+  for (var i = 1; i < located.length; i++) {
+    distance += located[i - 1].distanceTo(located[i]);
+  }
+  final shown = [
+    for (final entry in chronological)
+      if (entry.placeName == null ||
+          !leftOut.contains(key(entry.placeName ?? '')))
+        entry,
+  ];
+  return TripPicture(
+    title: trip.title,
+    startDate: trip.startDate,
+    endDate: trip.endDate,
+    dayCount: trip.dayCount,
+    stops: stops,
+    distanceMeters: distance,
+    photoPaths: _pickPhotos(shown),
+  );
+}
 
-/// Positions the [locations] in a box of [width] × [height].
+/// The first photo of different days (spread evenly over the trip), then
+/// further photos in time order, at most [TripPicture.maxPhotos].
+List<String> _pickPhotos(List<Entry> chronological) {
+  const limit = TripPicture.maxPhotos;
+  final byDay = <DateTime, List<String>>{};
+  for (final entry in chronological) {
+    if (entry.photoPaths.isEmpty) continue;
+    byDay.putIfAbsent(entry.localDay, () => []).addAll(entry.photoPaths);
+  }
+  final days = byDay.values.toList();
+  final firstOfDays = [for (final photos in days) photos.first];
+  final picked = <String>[];
+  if (firstOfDays.length > limit) {
+    for (var i = 0; i < limit; i++) {
+      picked.add(firstOfDays[(i * (firstOfDays.length - 1) / (limit - 1)).round()]);
+    }
+    return picked;
+  }
+  picked.addAll(firstOfDays);
+  for (final photos in days) {
+    for (final photo in photos.skip(1)) {
+      if (picked.length == limit) return picked;
+      picked.add(photo);
+    }
+  }
+  return picked;
+}
+
+/// Positions the [locations] in a box of [width] × [height] with north up:
+/// equirectangular projection (longitudes scaled by the cosine of the mean
+/// latitude), same scale on both axes, centered, at least [margin] from the
+/// edges. Locations that are `null` get no position.
 List<({double x, double y})?> layoutRoute(
   List<GeoPoint?> locations, {
   required double width,
   required double height,
   required double margin,
-}) => throw UnimplementedError();
+}) {
+  final known = locations.whereType<GeoPoint>().toList();
+  if (known.isEmpty) return [for (final _ in locations) null];
+  final meanLatitude =
+      known.map((point) => point.latitude).reduce((a, b) => a + b) /
+      known.length;
+  final xScale = cos(meanLatitude * pi / 180);
+  double projectX(GeoPoint point) => point.longitude * xScale;
+  double projectY(GeoPoint point) => -point.latitude;
+  final xs = known.map(projectX);
+  final ys = known.map(projectY);
+  final minX = xs.reduce(min);
+  final maxX = xs.reduce(max);
+  final minY = ys.reduce(min);
+  final maxY = ys.reduce(max);
+  final spanX = maxX - minX;
+  final spanY = maxY - minY;
+  final innerWidth = width - 2 * margin;
+  final innerHeight = height - 2 * margin;
+  final scale = [
+    if (spanX > 0) innerWidth / spanX,
+    if (spanY > 0) innerHeight / spanY,
+  ].fold<double>(double.infinity, min);
+  final usedScale = scale.isFinite ? scale : 0.0;
+  final offsetX = (width - spanX * usedScale) / 2;
+  final offsetY = (height - spanY * usedScale) / 2;
+  return [
+    for (final point in locations)
+      if (point == null)
+        null
+      else
+        (
+          x: offsetX + (projectX(point) - minX) * usedScale,
+          y: offsetY + (projectY(point) - minY) * usedScale,
+        ),
+  ];
+}
