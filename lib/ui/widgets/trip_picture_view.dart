@@ -76,12 +76,12 @@ class TripPictureView extends StatelessWidget {
           child: Material(
             color: theme.colorScheme.surface,
             child: Padding(
-              padding: EdgeInsets.all(story ? 24 : 18),
+              padding: EdgeInsets.all(story ? 24 : 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _Heading(picture: picture, compact: !story),
-                  SizedBox(height: story ? 16 : 10),
+                  SizedBox(height: story ? 16 : 8),
                   // Photos first; the map below is a smaller strip in the
                   // post format.
                   if (photos != null)
@@ -91,18 +91,18 @@ class TripPictureView extends StatelessWidget {
                   if (route != null)
                     Expanded(flex: story ? 4 : 1, child: route),
                   if (photos == null && route == null) const Spacer(),
-                  SizedBox(height: story ? 14 : 8),
+                  SizedBox(height: story ? 14 : 6),
                   // The post format has little height: one line of stops and
                   // the figures next to the wordmark.
                   if (story) ...[
-                    _StopList(stops: picture.stops, maxStops: 8),
+                    _StopList(stops: picture.stops, maxStops: 6),
                     const SizedBox(height: 12),
                     _Facts(picture: picture),
                     const SizedBox(height: 14),
                     const _Wordmark(),
                   ] else ...[
                     _StopLine(stops: picture.stops),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         Expanded(child: _Facts(picture: picture)),
@@ -142,15 +142,14 @@ class _Heading extends StatelessWidget {
               (compact
                       ? theme.textTheme.headlineSmall
                       : theme.textTheme.headlineMedium)
-                  ?.copyWith(
-            color: theme.colorScheme.onSurface,
-            height: 1.1,
-          ),
+                  ?.copyWith(color: theme.colorScheme.onSurface, height: 1.1),
         ),
         const SizedBox(height: 4),
         Text(
           dateRangeText(context, picture.startDate, picture.endDate),
-          style: theme.textTheme.bodyMedium?.copyWith(
+          style:
+              (compact ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)
+                  ?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),

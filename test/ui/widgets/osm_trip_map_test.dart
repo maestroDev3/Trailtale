@@ -208,7 +208,7 @@ void main() {
 
       final layer = tester.widget<TileLayer>(find.byType(TileLayer));
       final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
-      expect(layer.resolvedRetinaMode, isTrue);
+      expect(layer.resolvedRetinaMode, isNot(RetinaMode.disabled));
       expect(
         map.options.initialCameraFit,
         isA<FitBounds>().having(
