@@ -89,9 +89,14 @@ void main() {
   Future<void> tapAndRender(WidgetTester tester, String label) async {
     await tester.tap(find.text(label));
     await tester.pump();
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 500)),
-    );
+    // Loading photos and rendering need real time; each step continues in
+    // the next frame, so alternate between real waiting and pumping.
+    for (var step = 0; step < 6; step++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 150)),
+      );
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
   }
 
