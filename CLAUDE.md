@@ -154,6 +154,8 @@ changes one of them, so the project always matches `main`.
 - Optional: an epic may be collected on a branch `epic/<name>` – only when the user
   asks for it or for risky changes (permissions, storage migrations). It is merged
   into `main` only after green CI and a test by the user (APK on the phone).
+  Task PRs then target the epic branch; every push to `epic/*` publishes the
+  pre-release **“preview”** APK (same key, updates in place).
 - No direct push to `main` except for repo infrastructure (CI, this file,
   `STATUS.md`).
 - Delete the branch after merging.

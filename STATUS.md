@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – waiting for the user to choose the next story.
+- #16 Share a trip as one picture (on branch `epic/share-trip-picture`, test via the "preview" APK)
 
 ## Up next
 
