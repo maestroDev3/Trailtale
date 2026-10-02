@@ -175,5 +175,56 @@ void main() {
 
       expect(picture.photoPaths, ['photos/a.jpg']);
     });
+
+    test('leaves out only home on a round trip', () {
+      final picture = buildTripPicture(trip, [
+        entry(26, 8, place: 'Munich', location: home),
+        entry(27, 9, place: 'Kotor', location: kotor),
+        entry(28, 9, place: 'Budva', location: budva),
+        entry(30, 20, place: 'Munich', location: home),
+      ], leaveOutEnds: true);
+
+      expect([for (final stop in picture.stops) stop.name], ['Kotor', 'Budva']);
+    });
+
+    test('leaves out the place of the last named entry', () {
+      final picture = buildTripPicture(trip, [
+        entry(26, 8, place: 'Munich', location: home),
+        entry(27, 9, place: 'Kotor', location: kotor),
+        entry(28, 9, place: 'Budva', location: budva),
+        entry(29, 9, place: 'Kotor', location: kotor),
+      ], leaveOutEnds: true);
+
+      expect([for (final stop in picture.stops) stop.name], ['Budva']);
+    });
+
+    test('drops chosen photos of left-out stops', () {
+      final picture = buildTripPicture(
+        trip,
+        [
+          entry(26, 8, place: 'Munich', photos: ['photos/home.jpg']),
+          entry(27, 9, place: 'Kotor', photos: ['photos/kotor.jpg']),
+          entry(28, 9, place: 'Budva', photos: ['photos/budva.jpg']),
+          entry(30, 9, place: 'Munich'),
+        ],
+        leaveOutEnds: true,
+        chosenPhotos: const ['photos/home.jpg', 'photos/budva.jpg'],
+      );
+
+      expect(picture.photoPaths, ['photos/budva.jpg']);
+    });
+
+    test('picks automatically when no chosen photo is left', () {
+      final picture = buildTripPicture(
+        trip,
+        [
+          entry(26, 9, photos: ['photos/a.jpg']),
+        ],
+        leaveOutEnds: false,
+        chosenPhotos: const ['photos/removed.jpg'],
+      );
+
+      expect(picture.photoPaths, ['photos/a.jpg']);
+    });
   });
 }
