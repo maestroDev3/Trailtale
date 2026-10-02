@@ -8,12 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #170 Choose the trip's cover photo (on `main`)
-- Paused: #16 Share a trip as one picture – 2 of 4 tasks on branch `epic/share-trip-picture`
+- Paused: #16 Share a trip as one picture – 2 of 4 tasks on branch `epic/share-trip-picture`, continues next
 
 ## Up next
 
-- Continue #16 after #170
+- Continue #16
 - Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #160 Trip slideshow as PDF
 
 ## Backlog by initiative → epic
@@ -30,7 +29,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #169 Trips look the way I want | 0 of 1 closed | #170 Choose the trip's cover photo |
+| #169 Trips look the way I want | 1 of 1 closed | ~~#170 Choose the trip's cover photo~~ |
 
 **#155 Own your data**
 
@@ -46,14 +45,15 @@ The GitHub issues are authoritative; this file is the summary.
 
 **Dormant**
 
+- none
 
 ## Recently done
 
+- #170 Choose the trip's cover photo ("Choose cover" on the trip page, "Automatic" to go back)
 - #13 Trip route on the map (sea-blue line, legs over 300 km dashed)
 - #124 "Pick on map": crosshair map picker with town search, my position and nearest town
 - #22 "Use my position" in the entry form (one GPS fix while in use, no background service)
 - #123 Place search with 171k places from 1,000 inhabitants (Kotor, Bled, Positano) and regions in suggestions
-- #126 Own gallery picker (trip photos first) keeps the photos' GPS position; hint when a photo has no location
 
 ## Open decisions (user only)
 
