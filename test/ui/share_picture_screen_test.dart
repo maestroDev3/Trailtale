@@ -23,18 +23,33 @@ void main() {
     startDate: DateTime(2026, 9, 26),
     endDate: DateTime(2026, 9, 30),
   );
-  Entry stop(String id, int day, String place, double lat, double lng) => Entry(
+  Entry stop(
+    String id,
+    int day,
+    String place,
+    double lat,
+    double lng, {
+    List<String> photos = const [],
+  }) => Entry(
     id: id,
     tripId: 'me',
     time: DateTime.utc(2026, 9, day, 9),
     utcOffset: Duration.zero,
     placeName: place,
     location: GeoPoint(latitude: lat, longitude: lng),
+    photoPaths: photos,
   );
   final entries = [
     stop('a', 26, 'Munich', 48.1374, 11.5755),
-    stop('b', 27, 'Kotor', 42.4247, 18.7712),
-    stop('c', 28, 'Budva', 42.2864, 18.84),
+    stop(
+      'b',
+      27,
+      'Kotor',
+      42.4247,
+      18.7712,
+      photos: ['photos/k1.jpg', 'photos/k2.jpg'],
+    ),
+    stop('c', 28, 'Budva', 42.2864, 18.84, photos: ['photos/b1.jpg']),
   ];
 
   /// Width and height from a PNG header.
