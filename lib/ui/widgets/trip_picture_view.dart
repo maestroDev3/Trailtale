@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../domain/trip_map.dart';
 import '../../domain/trip_picture.dart';
 import '../../l10n/app_localizations.dart';
 import '../formatting.dart';
@@ -29,7 +30,7 @@ enum TripPictureFormat {
 }
 
 /// The shareable picture of a trip in the field journal look: title, dates,
-/// photos, a stylized route with numbered pins, the stops and key figures.
+/// photos, the route on a map with numbered pins, the stops and key figures.
 ///
 /// Always light (paper) and independent of the system font size, so the
 /// shared image looks the same everywhere.
@@ -58,8 +59,14 @@ class TripPictureView extends StatelessWidget {
     final hasRoute = picture.stops.any((stop) => stop.location != null);
     final photos = picture.photoPaths.isEmpty
         ? null
-        : _PhotoGrid(paths: picture.photoPaths, photoFile: photoFile);
-    final route = hasRoute ? _RouteCard(stops: picture.stops) : null;
+        : _PhotoGrid(
+            key: const Key('trip-picture-photos'),
+            paths: picture.photoPaths,
+            photoFile: photoFile,
+          );
+    final route = hasRoute
+        ? _RouteCard(stops: picture.stops, routeMap: routeMap)
+        : null;
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
       child: Theme(
@@ -75,23 +82,14 @@ class TripPictureView extends StatelessWidget {
                 children: [
                   _Heading(picture: picture, maxTitleLines: story ? 2 : 1),
                   SizedBox(height: story ? 16 : 12),
-                  if (story) ...[
-                    if (photos != null) Expanded(flex: 5, child: photos),
-                    if (photos != null && route != null)
-                      const SizedBox(height: 12),
-                    if (route != null) Expanded(flex: 4, child: route),
-                  ] else if (photos != null || route != null)
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (route != null) Expanded(child: route),
-                          if (route != null && photos != null)
-                            const SizedBox(width: 10),
-                          if (photos != null) Expanded(child: photos),
-                        ],
-                      ),
-                    ),
+                  // Photos first; the map below is a smaller strip in the
+                  // post format.
+                  if (photos != null)
+                    Expanded(flex: story ? 5 : 2, child: photos),
+                  if (photos != null && route != null)
+                    SizedBox(height: story ? 12 : 8),
+                  if (route != null)
+                    Expanded(flex: story ? 4 : 1, child: route),
                   if (photos == null && route == null) const Spacer(),
                   SizedBox(height: story ? 14 : 10),
                   _StopList(stops: picture.stops, maxStops: story ? 8 : 5),
@@ -143,7 +141,7 @@ class _Heading extends StatelessWidget {
 }
 
 class _PhotoGrid extends StatelessWidget {
-  const _PhotoGrid({required this.paths, required this.photoFile});
+  const _PhotoGrid({super.key, required this.paths, required this.photoFile});
 
   final List<String> paths;
   final File Function(String path) photoFile;
@@ -216,110 +214,38 @@ class _Photo extends StatelessWidget {
 }
 
 class _RouteCard extends StatelessWidget {
-  const _RouteCard({required this.stops});
+  const _RouteCard({required this.stops, required this.routeMap});
 
   final List<TripStop> stops;
-
-  static const _pinSize = 22.0;
+  final TripMapBuilder routeMap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    // Pins are numbered like the stop list; stops without location have
+    // no pin but keep their number.
+    final points = [
+      for (final (index, stop) in stops.indexed)
+        if (stop.location case final location?)
+          MapPoint(
+            number: index + 1,
+            entryId: '',
+            location: location,
+            label: stop.name,
+          ),
+    ];
     return DecoratedBox(
       key: const Key('trip-picture-route'),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final positions = layoutRoute(
-            [for (final stop in stops) stop.location],
-            width: constraints.maxWidth,
-            height: constraints.maxHeight,
-            margin: _pinSize,
-          );
-          final trail = [
-            for (final position in positions)
-              if (position != null) Offset(position.x, position.y),
-          ];
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _TrailPainter(trail, color: colorScheme.secondary),
-                ),
-              ),
-              for (final (index, position) in positions.indexed)
-                if (position != null)
-                  Positioned(
-                    left: position.x - _pinSize / 2,
-                    top: position.y - _pinSize / 2,
-                    child: _Pin(
-                      key: Key('trip-picture-pin-${index + 1}'),
-                      number: index + 1,
-                    ),
-                  ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// Dotted trail through the pins, like the Trailtale mark.
-class _TrailPainter extends CustomPainter {
-  _TrailPainter(this.points, {required this.color});
-
-  final List<Offset> points;
-  final Color color;
-
-  static const _spacing = 7.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..isAntiAlias = true;
-    for (var i = 1; i < points.length; i++) {
-      final start = points[i - 1];
-      final delta = points[i] - start;
-      final steps = (delta.distance / _spacing).floor();
-      for (var step = 1; step < steps; step++) {
-        canvas.drawCircle(start + delta * (step / steps), 1.6, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_TrailPainter oldDelegate) =>
-      oldDelegate.points != points || oldDelegate.color != color;
-}
-
-class _Pin extends StatelessWidget {
-  const _Pin({super.key, required this.number});
-
-  final int number;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: _RouteCard._pinSize,
-      height: _RouteCard._pinSize,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-        shape: BoxShape.circle,
-        border: Border.all(color: theme.colorScheme.onPrimary, width: 2),
-      ),
-      child: Text(
-        number.toString(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onPrimary,
-          fontWeight: FontWeight.w700,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: routeMap(
+          points: points,
+          onOpenEntry: (_) {},
+          interactive: false,
         ),
       ),
     );
