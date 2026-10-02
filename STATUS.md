@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #16 Share a trip as one picture – all tasks done on `epic/share-trip-picture`; **waiting for the user's test of the "preview" APK**, then merge to `main`
+- #16 Share a trip as one picture – on `epic/share-trip-picture`; after the user's test: real map in the picture (#180), choose its photos (#181)
 
 ## Up next
 
@@ -24,12 +24,6 @@ The GitHub issues are authoritative; this file is the summary.
 | #157 Evening recap | 0 of 1 closed | #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#1 Foundation~~, ~~#5 Photos~~ | done | |
 
-**#154 The trip as a story**
-
-| Epic | State | Stories (in order) |
-|---|---|---|
-| #169 Trips look the way I want | 1 of 1 closed | ~~#170 Choose the trip's cover photo~~ |
-
 **#155 Own your data**
 
 | Epic | State | Stories (in order) |
@@ -44,19 +38,19 @@ The GitHub issues are authoritative; this file is the summary.
 
 **Dormant**
 
-- none
+- #154 The trip as a story – all epics done (latest: ~~#169~~ cover photo, ~~#177~~ map opens on the trip)
 
 ## Recently done
 
+- #178 Bug fixed: the trip map opens zoomed to the trip's places
 - #170 Choose the trip's cover photo ("Choose cover" on the trip page, "Automatic" to go back)
 - #13 Trip route on the map (sea-blue line, legs over 300 km dashed)
 - #124 "Pick on map": crosshair map picker with town search, my position and nearest town
 - #22 "Use my position" in the entry form (one GPS fix while in use, no background service)
-- #123 Place search with 171k places from 1,000 inhabitants (Kotor, Bled, Positano) and regions in suggestions
 
 ## Open decisions (user only)
 
-- Newly created – please confirm or re-sort: epic #169 Trips look the way I want (initiative #154) for #170.
+- Newly created – please confirm or re-sort: epics #169 Trips look the way I want (#170, done) and #177 The map opens on my trip (#178), both in initiative #154.
 - Planning structure introduced 2026-10-01 – please confirm or re-sort: initiatives #153 Effortless capture, #154 The trip as a story, #155 Own your data, #156 Ship it; new epics #157 Evening recap (#114 moved from #5, #5 closed again) and #158 Release readiness (#111 moved from #14, new story #159).
 - #114 Evening recap: allow notifications and reading the gallery? Reminder time?
 - #125 Google Maps links: may the app use the internet beyond map tiles to resolve them?
