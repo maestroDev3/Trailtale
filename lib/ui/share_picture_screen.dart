@@ -53,20 +53,9 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     setState(() => _chosenPhotos = chosen);
   }
 
-  /// Renders the picture at [TripPictureFormat.pixelRatio] as PNG bytes,
-  /// after its photos are loaded.
+  /// Renders the visible preview at [TripPictureFormat.pixelRatio] as PNG
+  /// bytes; its photos and map tiles were loaded while it was shown.
   Future<Uint8List?> _render() async {
-    final picture = _picture;
-    if (picture != null) {
-      for (final path in picture.photoPaths) {
-        await precacheImage(
-          FileImage(widget.services.photoLibrary.fileFor(path)),
-          context,
-          onError: (error, stackTrace) {},
-        );
-        if (!mounted) return null;
-      }
-    }
     if (_pictureKey.currentContext?.findRenderObject()
         case final RenderRepaintBoundary boundary) {
       final image = await boundary.toImage(
