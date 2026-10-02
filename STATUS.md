@@ -4,7 +4,7 @@ Current project state for planning and Claude projects. Maintained by Claude
 after every status change (see CLAUDE.md, “Keeping the status”).
 The GitHub issues are authoritative; this file is the summary.
 
-**Last updated:** 2026-10-01
+**Last updated:** 2026-10-02
 
 ## In progress
 
@@ -12,7 +12,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Up next
 
-- Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #16 Share a trip as image or PDF
+- Candidates without blockers: #125 Create an entry from a shared place (`geo:` links; Google Maps links need a decision), #16 Share a trip as one picture (Instagram)
 
 ## Backlog by initiative → epic
 
@@ -28,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 1 of 3 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as image or PDF |
+| #14 Data safety and sharing | 1 of 3 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as one picture (Instagram) |
 
 **#156 Ship it**
 
