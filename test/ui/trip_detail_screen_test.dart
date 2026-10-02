@@ -450,6 +450,17 @@ void main() {
       expect(find.byType(SlideshowScreen), findsOneWidget);
     });
 
+    testWidgets('opens the slideshow screen', (tester) async {
+      await openLisbon(tester);
+
+      await tester.tap(find.byTooltip('Share trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Slideshow (PDF)'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SlideshowScreen), findsOneWidget);
+    });
+
     testWidgets('offers no Choose cover button without photos', (tester) async {
       await openLisbon(tester, entries: [at('a', 8, 'Belém')]);
 

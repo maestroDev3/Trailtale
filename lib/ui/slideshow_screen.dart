@@ -5,7 +5,11 @@ import 'app_services.dart';
 
 /// Creates the trip slideshow as a PDF and shares it.
 class SlideshowScreen extends StatelessWidget {
-  const SlideshowScreen({super.key, required this.services, required this.trip});
+  const SlideshowScreen({
+    super.key,
+    required this.services,
+    required this.trip,
+  });
 
   final AppServices services;
   final Trip trip;

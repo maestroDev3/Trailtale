@@ -51,7 +51,9 @@ Future<void> main() async {
         slideshowWriter: PdfSlideshowWriter(
           shrinker: CodecPhotoShrinker(),
           loadFonts: () async => (
-            display: await rootBundle.load('assets/fonts/Fraunces-SemiBold.ttf'),
+            display: await rootBundle.load(
+              'assets/fonts/Fraunces-SemiBold.ttf',
+            ),
             text: await rootBundle.load('assets/fonts/Manrope-Regular.ttf'),
             bold: await rootBundle.load('assets/fonts/Manrope-Bold.ttf'),
           ),

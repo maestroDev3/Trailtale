@@ -106,11 +106,10 @@ void main() {
       expect(document.factsText, startsWith('5 days · 3 places · '));
       expect(document.closingTitle, 'The route');
       expect(document.wordmark, 'Trailtale');
-      expect([for (final slide in document.stops) slide.name], [
-        'Munich',
-        'Kotor',
-        'Budva',
-      ]);
+      expect(
+        [for (final slide in document.stops) slide.name],
+        ['Munich', 'Kotor', 'Budva'],
+      );
       final kotor = document.stops[1];
       expect(kotor.number, 2);
       expect(kotor.dateText, 'Sep 27, 2026');
@@ -127,9 +126,10 @@ void main() {
       await tester.tap(find.text('Create PDF'));
       await tester.pumpAndSettle();
 
-      expect([for (final slide in writer.written.single.stops) slide.name], [
-        'Kotor',
-      ]);
+      expect(
+        [for (final slide in writer.written.single.stops) slide.name],
+        ['Kotor'],
+      );
     });
 
     testWidgets('shows progress while the PDF is created', (tester) async {
@@ -150,9 +150,7 @@ void main() {
       expect(find.text('Create PDF'), findsOneWidget);
     });
 
-    testWidgets('says when the slideshow could not be created', (
-      tester,
-    ) async {
+    testWidgets('says when the slideshow could not be created', (tester) async {
       final (writer: _, files: _, :sharer) = await openScreen(
         tester,
         writer: FakeSlideshowWriter()..fails = true,
