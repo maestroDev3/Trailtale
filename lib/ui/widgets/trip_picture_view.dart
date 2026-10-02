@@ -8,6 +8,7 @@ import '../formatting.dart';
 import '../theme.dart';
 import 'trailtale_logo.dart';
 import 'trip_dates.dart';
+import 'trip_map_view.dart';
 
 /// Formats of the shareable trip picture.
 enum TripPictureFormat {
@@ -38,6 +39,7 @@ class TripPictureView extends StatelessWidget {
     required this.picture,
     required this.format,
     required this.photoFile,
+    required this.routeMap,
   });
 
   final TripPicture picture;
@@ -45,6 +47,9 @@ class TripPictureView extends StatelessWidget {
 
   /// Resolves a relative photo path to its file.
   final File Function(String path) photoFile;
+
+  /// Builds the map with the route (OpenStreetMap in the app).
+  final TripMapBuilder routeMap;
 
   @override
   Widget build(BuildContext context) {

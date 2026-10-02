@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/geo_point.dart';
+import 'package:trailtale/domain/trip_map.dart';
 import 'package:trailtale/domain/trip_picture.dart';
 import 'package:trailtale/ui/widgets/trip_picture_view.dart';
 
+import '../../support/placeholder_trip_map.dart';
 import '../../support/pump_app.dart';
 
 void main() {
@@ -40,6 +42,7 @@ void main() {
         picture: content ?? picture,
         format: format,
         photoFile: (path) => File('/nonexistent/$path'),
+        routeMap: PlaceholderTripMap.new,
       ),
     ),
   );
@@ -76,14 +79,26 @@ void main() {
         expect(find.text('5 days · 3 places · 16 km'), findsOneWidget);
       });
 
+      testWidgets('shows the photos above the map in ${format.name}', (
+        tester,
+      ) async {
+        await pumpPicture(tester, format: format);
+
+        final photos = tester.getRect(
+          find.byKey(const Key('trip-picture-photos')),
+        );
+        final map = tester.getRect(find.byKey(const Key('trip-picture-route')));
+        expect(photos.bottom, lessThanOrEqualTo(map.top));
+      });
+
       testWidgets('shows pins, stop names and photos in ${format.name}', (
         tester,
       ) async {
         await pumpPicture(tester, format: format);
 
-        expect(find.byKey(const Key('trip-picture-pin-1')), findsOneWidget);
-        expect(find.byKey(const Key('trip-picture-pin-2')), findsNothing);
-        expect(find.byKey(const Key('trip-picture-pin-3')), findsOneWidget);
+        expect(find.text('Marker 1: Kotor'), findsOneWidget);
+        expect(find.textContaining('Marker 2'), findsNothing);
+        expect(find.text('Marker 3: Budva'), findsOneWidget);
         for (final name in ['Kotor', 'Perast', 'Budva']) {
           expect(find.text(name), findsOneWidget);
         }
@@ -91,6 +106,44 @@ void main() {
         expect(find.byKey(const Key('trip-picture-photo-3')), findsNothing);
       });
     }
+
+    testWidgets('passes the located stops to a still map', (tester) async {
+      List<MapPoint>? passed;
+      bool? passedInteractive;
+      await pumpApp(
+        tester,
+        Center(
+          child: TripPictureView(
+            picture: picture,
+            format: TripPictureFormat.story,
+            photoFile: (path) => File('/nonexistent/$path'),
+            routeMap:
+                ({required points, required onOpenEntry, interactive = true}) {
+                  passed = points;
+                  passedInteractive = interactive;
+                  return const SizedBox.expand();
+                },
+          ),
+        ),
+      );
+
+      expect([for (final point in passed ?? []) point.number], [1, 3]);
+      expect(passed?.first.location, picture.stops.first.location);
+      expect(passedInteractive, isFalse);
+    });
+
+    testWidgets('shows a smaller, full-width map strip in the post format', (
+      tester,
+    ) async {
+      await pumpPicture(tester, format: TripPictureFormat.post);
+
+      final photos = tester.getRect(
+        find.byKey(const Key('trip-picture-photos')),
+      );
+      final map = tester.getRect(find.byKey(const Key('trip-picture-route')));
+      expect(map.height, lessThan(photos.height / 2));
+      expect(map.width, closeTo(photos.width, 0.5));
+    });
 
     testWidgets('shows no route without located stops', (tester) async {
       await pumpPicture(

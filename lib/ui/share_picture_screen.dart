@@ -158,6 +158,7 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
                             picture: picture,
                             format: _format,
                             photoFile: services.photoLibrary.fileFor,
+                            routeMap: services.tripMap,
                           ),
                         ),
                       ),

@@ -90,6 +90,7 @@ void main() {
       expect(find.text('Share picture'), findsOneWidget);
       expect(preview(tester).format, TripPictureFormat.story);
       expect(find.text('Kotor'), findsOneWidget);
+      expect(find.text('Marker 2: Kotor'), findsOneWidget);
     });
 
     testWidgets('switches to the post format', (tester) async {
