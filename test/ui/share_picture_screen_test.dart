@@ -115,6 +115,30 @@ void main() {
       expect(find.text('Munich'), findsNothing);
     });
 
+    testWidgets('uses the photos chosen for the picture', (tester) async {
+      await openScreen(tester);
+      expect(preview(tester).picture.photoPaths, [
+        'photos/k1.jpg',
+        'photos/b1.jpg',
+        'photos/k2.jpg',
+      ]);
+
+      await tester.tap(find.text('Choose photos'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Automatic'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose photos'));
+      await tester.pumpAndSettle();
+      for (final path in ['photos/k1.jpg', 'photos/k2.jpg']) {
+        await tester.tap(find.byKey(Key('picture-photo-$path')));
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Use 1 photo'));
+      await tester.pumpAndSettle();
+
+      expect(preview(tester).picture.photoPaths, ['photos/b1.jpg']);
+    });
+
     testWidgets('shares a full-size PNG named after the trip', (tester) async {
       final (:files, :sharer, gallery: _) = await openScreen(tester);
 

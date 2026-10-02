@@ -48,6 +48,7 @@ TripPicture buildTripPicture(
   Trip trip,
   List<Entry> entries, {
   required bool leaveOutEnds,
+  List<String> chosenPhotos = const [],
 }) {
   String key(String name) => name.trim().toLowerCase();
   final chronological = sortEntriesChronologically(entries);

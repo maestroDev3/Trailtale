@@ -131,5 +131,49 @@ void main() {
       expect(picture.photoPaths.first, 'photos/26.jpg');
       expect(picture.photoPaths.last, 'photos/30.jpg');
     });
+
+    test('uses the chosen photos in their order', () {
+      final picture = buildTripPicture(
+        trip,
+        [
+          entry(26, 9, photos: ['photos/a.jpg', 'photos/b.jpg']),
+          entry(
+            27,
+            9,
+            photos: ['photos/c.jpg', 'photos/d.jpg', 'photos/e.jpg'],
+          ),
+        ],
+        leaveOutEnds: false,
+        chosenPhotos: const [
+          'photos/e.jpg',
+          'photos/missing.jpg',
+          'photos/a.jpg',
+          'photos/e.jpg',
+          'photos/b.jpg',
+          'photos/c.jpg',
+          'photos/d.jpg',
+        ],
+      );
+
+      expect(picture.photoPaths, [
+        'photos/e.jpg',
+        'photos/a.jpg',
+        'photos/b.jpg',
+        'photos/c.jpg',
+      ]);
+    });
+
+    test('picks automatically without chosen photos', () {
+      final picture = buildTripPicture(
+        trip,
+        [
+          entry(26, 9, photos: ['photos/a.jpg']),
+        ],
+        leaveOutEnds: false,
+        chosenPhotos: const [],
+      );
+
+      expect(picture.photoPaths, ['photos/a.jpg']);
+    });
   });
 }
