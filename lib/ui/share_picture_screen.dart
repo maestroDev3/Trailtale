@@ -90,9 +90,7 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(
-            saved ? l10n.savedToGallery : l10n.saveToGalleryFailed,
-          ),
+          content: Text(saved ? l10n.savedToGallery : l10n.saveToGalleryFailed),
         ),
       );
   });
@@ -147,9 +145,8 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.shadow.withValues(alpha: 0.18),
+                              color: Theme.of(context).colorScheme.shadow
+                                  .withValues(alpha: 0.18),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
