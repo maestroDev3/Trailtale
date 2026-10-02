@@ -8,7 +8,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #16 Share a trip as one picture (on branch `epic/share-trip-picture`, test via the "preview" APK)
+- #16 Share a trip as one picture – all tasks done on `epic/share-trip-picture`; **waiting for the user's test of the "preview" APK**, then merge to `main`
 
 ## Up next
 
