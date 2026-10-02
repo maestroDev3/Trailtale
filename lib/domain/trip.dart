@@ -23,7 +23,14 @@ class Trip {
     if (end.isBefore(start)) {
       throw ArgumentError.value(endDate, 'endDate', 'must not be before start');
     }
-    return Trip._(id: id, title: trimmedTitle, startDate: start, endDate: end);
+    final cover = coverPhotoPath?.trim();
+    return Trip._(
+      id: id,
+      title: trimmedTitle,
+      startDate: start,
+      endDate: end,
+      coverPhotoPath: cover == null || cover.isEmpty ? null : cover,
+    );
   }
 
   const Trip._({
@@ -31,6 +38,7 @@ class Trip {
     required this.title,
     required this.startDate,
     required this.endDate,
+    required this.coverPhotoPath,
   });
 
   final String id;
@@ -40,7 +48,7 @@ class Trip {
 
   /// Photo the traveler chose as cover (relative path), `null` for the
   /// automatic cover.
-  String? get coverPhotoPath => null;
+  final String? coverPhotoPath;
 
   /// Number of calendar days the trip covers, counting both ends.
   int get dayCount => endDate.difference(startDate).inDays + 1;
@@ -59,6 +67,9 @@ class Trip {
       title: title ?? this.title,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      coverPhotoPath: clearCoverPhoto
+          ? null
+          : coverPhotoPath ?? this.coverPhotoPath,
     );
   }
 
@@ -68,10 +79,12 @@ class Trip {
       other.id == id &&
       other.title == title &&
       other.startDate == startDate &&
-      other.endDate == endDate;
+      other.endDate == endDate &&
+      other.coverPhotoPath == coverPhotoPath;
 
   @override
-  int get hashCode => Object.hash(id, title, startDate, endDate);
+  int get hashCode =>
+      Object.hash(id, title, startDate, endDate, coverPhotoPath);
 
   @override
   String toString() => 'Trip($id, $title, $startDate – $endDate)';
