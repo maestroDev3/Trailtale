@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/photo_gallery.dart';
 
@@ -54,6 +56,19 @@ void main() {
       expect(gallery.accessRequests, 1);
       expect(await gallery.originalFile('a'), '/gallery/a.jpg');
       expect(await gallery.originalFile('missing'), isNull);
+    });
+
+    test('records saved images with their title', () async {
+      final gallery = FakePhotoGallery();
+
+      final saved = await gallery.saveImage(
+        Uint8List.fromList([1, 2]),
+        title: 'Montenegro',
+      );
+
+      expect(saved, isTrue);
+      expect(gallery.savedImages.single.title, 'Montenegro');
+      expect(gallery.savedImages.single.bytes, [1, 2]);
     });
   });
 }

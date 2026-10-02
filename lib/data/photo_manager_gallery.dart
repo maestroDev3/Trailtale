@@ -83,4 +83,19 @@ class PhotoManagerGallery implements PhotoGallery {
   @override
   Future<void> selectMorePhotos() =>
       PhotoManager.presentLimited(type: RequestType.image);
+
+  @override
+  Future<bool> saveImage(Uint8List bytes, {required String title}) async {
+    // Saving the app's own picture needs no permission on Android 10+.
+    try {
+      await PhotoManager.editor.saveImage(
+        bytes,
+        filename: '$title.png',
+        title: title,
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
 }
