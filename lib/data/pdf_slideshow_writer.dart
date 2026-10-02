@@ -226,9 +226,7 @@ class _StopSlide extends pw.StatelessWidget {
     return pw.Padding(
       padding: const pw.EdgeInsets.all(40),
       child: pw.Align(
-        alignment: onPhoto
-            ? pw.Alignment.bottomLeft
-            : pw.Alignment.centerLeft,
+        alignment: onPhoto ? pw.Alignment.bottomLeft : pw.Alignment.centerLeft,
         child: card,
       ),
     );
