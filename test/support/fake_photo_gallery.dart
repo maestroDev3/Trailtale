@@ -58,4 +58,8 @@ class FakePhotoGallery implements PhotoGallery {
 
   @override
   Future<void> selectMorePhotos() async => selectMoreCount++;
+
+  @override
+  Future<bool> saveImage(Uint8List bytes, {required String title}) =>
+      throw UnimplementedError();
 }

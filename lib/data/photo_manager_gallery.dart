@@ -83,4 +83,8 @@ class PhotoManagerGallery implements PhotoGallery {
   @override
   Future<void> selectMorePhotos() =>
       PhotoManager.presentLimited(type: RequestType.image);
+
+  @override
+  Future<bool> saveImage(Uint8List bytes, {required String title}) =>
+      throw UnimplementedError();
 }
