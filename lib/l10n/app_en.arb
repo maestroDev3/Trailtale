@@ -604,5 +604,37 @@
   "automaticCover": "Automatic",
   "@automaticCover": {
     "description": "Action that goes back to the automatic cover (the trip's first photo)."
+  },
+  "sharePicture": "Share picture",
+  "@sharePicture": {
+    "description": "Tooltip of the trip page button and title of the screen that creates a shareable picture of the trip."
+  },
+  "pictureStoryFormat": "Story",
+  "@pictureStoryFormat": {
+    "description": "Picture format for Instagram stories (portrait 9:16)."
+  },
+  "picturePostFormat": "Post",
+  "@picturePostFormat": {
+    "description": "Picture format for Instagram posts (4:5)."
+  },
+  "pictureLeaveOutEnds": "Leave out first and last stop",
+  "@pictureLeaveOutEnds": {
+    "description": "Switch that hides the first and last stop of the trip in the picture, e.g. to keep one's home private."
+  },
+  "shareAction": "Share",
+  "@shareAction": {
+    "description": "Button that opens the share sheet with the trip picture."
+  },
+  "saveToGallery": "Save to gallery",
+  "@saveToGallery": {
+    "description": "Button that saves the trip picture to the phone's gallery."
+  },
+  "savedToGallery": "Saved to your gallery",
+  "@savedToGallery": {
+    "description": "Message after the trip picture was saved to the gallery."
+  },
+  "saveToGalleryFailed": "The picture could not be saved",
+  "@saveToGalleryFailed": {
+    "description": "Message when saving the trip picture to the gallery failed."
   }
 }
