@@ -110,7 +110,9 @@ List<String> _pickPhotos(List<Entry> chronological) {
   final picked = <String>[];
   if (firstOfDays.length > limit) {
     for (var i = 0; i < limit; i++) {
-      picked.add(firstOfDays[(i * (firstOfDays.length - 1) / (limit - 1)).round()]);
+      picked.add(
+        firstOfDays[(i * (firstOfDays.length - 1) / (limit - 1)).round()],
+      );
     }
     return picked;
   }
