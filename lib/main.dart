@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -5,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'data/asset_place_directory.dart';
 import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
+import 'data/directory_temporary_files.dart';
 import 'data/file_selector_document_picker.dart';
 import 'data/geolocator_position_service.dart';
 import 'data/image_picker_photo_picker.dart';
@@ -43,6 +46,9 @@ Future<void> main() async {
           temporary: temporary,
         ),
         fileSharer: SharePlusFileSharer(),
+        temporaryFiles: DirectoryTemporaryFiles(
+          Directory('${temporary.path}/shared'),
+        ),
         documentPicker: FileSelectorDocumentPicker(),
         tripMap:
             ({required points, required onOpenEntry, interactive = true}) =>
