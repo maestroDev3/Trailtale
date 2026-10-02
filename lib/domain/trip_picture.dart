@@ -43,7 +43,9 @@ class TripPicture {
 /// Builds the content of a trip picture: stops are the place names in
 /// visiting order (case and surrounding spaces ignored); with
 /// [leaveOutEnds] the first and last stop and their entries are left out,
-/// e.g. to keep one's home private.
+/// e.g. to keep one's home private. [chosenPhotos] replace the automatic
+/// photo pick (in their order, only photos of the trip, at most
+/// [TripPicture.maxPhotos]).
 TripPicture buildTripPicture(
   Trip trip,
   List<Entry> entries, {
@@ -91,8 +93,18 @@ TripPicture buildTripPicture(
     dayCount: trip.dayCount,
     stops: stops,
     distanceMeters: distance,
-    photoPaths: _pickPhotos(shown),
+    photoPaths: chosenPhotos.isEmpty
+        ? _pickPhotos(shown)
+        : _keepChosen(chosenPhotos, chronological),
   );
+}
+
+List<String> _keepChosen(List<String> chosen, List<Entry> entries) {
+  final available = {for (final entry in entries) ...entry.photoPaths};
+  return {
+    for (final path in chosen)
+      if (available.contains(path)) path,
+  }.take(TripPicture.maxPhotos).toList();
 }
 
 /// The first photo of different days (spread evenly over the trip), then

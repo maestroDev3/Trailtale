@@ -9,6 +9,7 @@ import '../domain/trip.dart';
 import '../domain/trip_picture.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'picture_photo_chooser.dart';
 import 'widgets/trip_picture_view.dart';
 
 /// Shows the shareable picture of [trip] in Story or Post format and shares
@@ -33,6 +34,24 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
   var _leaveOutEnds = false;
   var _busy = false;
   TripPicture? _picture;
+  List<Entry> _entries = const [];
+
+  /// Photos chosen by hand; empty means the automatic pick.
+  var _chosenPhotos = const <String>[];
+
+  Future<void> _choosePhotos() async {
+    final chosen = await Navigator.of(context).push<List<String>>(
+      MaterialPageRoute(
+        builder: (_) => PicturePhotoChooser(
+          services: widget.services,
+          entries: _entries,
+          selected: _picture?.photoPaths ?? const [],
+        ),
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    setState(() => _chosenPhotos = chosen);
+  }
 
   /// Renders the picture at [TripPictureFormat.pixelRatio] as PNG bytes,
   /// after its photos are loaded.
@@ -127,14 +146,26 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
             value: _leaveOutEnds,
             onChanged: (value) => setState(() => _leaveOutEnds = value),
           ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: Text(l10n.choosePicturePhotos),
+            subtitle: Text(
+              _chosenPhotos.isEmpty
+                  ? l10n.picturePhotosAutomatic
+                  : l10n.picturePhotosChosen(_chosenPhotos.length),
+            ),
+            onTap: _choosePhotos,
+          ),
           Expanded(
             child: StreamBuilder<List<Entry>>(
               stream: services.entryRepository.watchEntries(widget.trip.id),
               builder: (context, snapshot) {
+                _entries = snapshot.data ?? const [];
                 final picture = buildTripPicture(
                   widget.trip,
-                  snapshot.data ?? const [],
+                  _entries,
                   leaveOutEnds: _leaveOutEnds,
+                  chosenPhotos: _chosenPhotos,
                 );
                 _picture = picture;
                 return Padding(
