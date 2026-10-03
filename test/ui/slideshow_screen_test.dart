@@ -52,6 +52,13 @@ void main() {
       note: 'Old town walls',
     ),
     stop('p', 27, 'Perast', 42.4864, 18.6989, photos: ['photos/p1.jpg']),
+    Entry(
+      id: 'r',
+      tripId: 'me',
+      time: DateTime.utc(2026, 9, 27, 21, 15),
+      utcOffset: Duration.zero,
+      note: 'Rainy evening',
+    ),
     stop('c', 28, 'Budva', 42.2864, 18.84),
   ];
 
@@ -131,6 +138,19 @@ void main() {
         [endsWith('photos/k2.jpg'), endsWith('photos/p1.jpg')],
       );
       expect(document.coverPhotoPath, endsWith('photos/k1.jpg'));
+    });
+
+    testWidgets('writes the notes of a day with time and place', (
+      tester,
+    ) async {
+      final (:writer, files: _, sharer: _) = await openScreen(tester);
+
+      await createPdf(tester);
+
+      final notes = writer.written.single.days[1].notes;
+      expect(notes, hasLength(2));
+      expect(notes[0], matches(RegExp(r'^9:00\sAM · Kotor – Old town walls$')));
+      expect(notes[1], matches(RegExp(r'^9:15\sPM – Rainy evening$')));
     });
 
     testWidgets('lists the days with their photos', (tester) async {
