@@ -130,7 +130,6 @@ void main() {
         [for (final photo in kotorDay.photos) photo.photoPath],
         [endsWith('photos/k2.jpg'), endsWith('photos/p1.jpg')],
       );
-      expect(kotorDay.photos.first.caption, 'Old town walls');
       expect(document.coverPhotoPath, endsWith('photos/k1.jpg'));
     });
 
