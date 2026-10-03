@@ -696,7 +696,7 @@
   "@shareOptionSlideshowDescription": {
     "description": "Description of the slideshow option in the share sheet."
   },
-  "slideshowDescription": "A title slide, then per day a slide with its title photo followed by every photo on its own, and the whole route at the end.",
+  "slideshowDescription": "A title slide, then per day a slide with its notes and title photo followed by every photo on its own, and the whole route at the end.",
   "@slideshowDescription": {
     "description": "Explanation on the slideshow screen."
   },
@@ -741,5 +741,32 @@
   "slideshowPhotosHint": "Tap a photo to leave it out of the slideshow.",
   "@slideshowPhotosHint": {
     "description": "Hint above the photos of the days on the slideshow screen."
+  },
+  "slideshowNoteWithPlace": "{time} · {place} – {note}",
+  "@slideshowNoteWithPlace": {
+    "description": "A note on a day slide of the slideshow, e.g. '9:30 AM · Kotor – Arrival'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "slideshowNote": "{time} – {note}",
+  "@slideshowNote": {
+    "description": "A note without place on a day slide of the slideshow, e.g. '9:30 AM – Car rental'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      }
+    }
   }
 }
