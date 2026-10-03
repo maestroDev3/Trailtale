@@ -16,6 +16,8 @@ import 'app_services.dart';
 import 'cover_picker_screen.dart';
 import 'entry_form_screen.dart';
 import 'formatting.dart';
+import 'share_picture_screen.dart';
+import 'slideshow_screen.dart';
 import 'trip_form_screen.dart';
 import 'trip_map_screen.dart';
 import 'widgets/photo_thumbnail.dart';
@@ -46,6 +48,52 @@ class TripDetailScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TripFormScreen(services: services, trip: current),
+      ),
+    );
+  }
+
+  Future<void> _openShareOptions(BuildContext context, Trip current) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: Text(l10n.shareOptionPicture),
+              subtitle: Text(l10n.shareOptionPictureDescription),
+              onTap: () => Navigator.of(context).pop('picture'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.slideshow_outlined),
+              title: Text(l10n.shareOptionSlideshow),
+              subtitle: Text(l10n.shareOptionSlideshowDescription),
+              onTap: () => Navigator.of(context).pop('slideshow'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    switch (choice) {
+      case 'picture':
+        _openSharePicture(context, current);
+      case 'slideshow':
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => SlideshowScreen(services: services, trip: current),
+          ),
+        );
+    }
+  }
+
+  void _openSharePicture(BuildContext context, Trip current) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SharePictureScreen(services: services, trip: current),
       ),
     );
   }
@@ -136,6 +184,12 @@ class TripDetailScreen extends StatelessWidget {
                     ),
                   ),
                   actions: [
+                    _RoundButton(
+                      tooltip: l10n.shareTrip,
+                      icon: Icons.share_outlined,
+                      onPressed: () => _openShareOptions(context, current),
+                    ),
+                    const SizedBox(width: 8),
                     if (tripPhotos(entriesSnapshot.data ?? const [])
                         .isNotEmpty) ...[
                       _RoundButton(

@@ -561,6 +561,42 @@
   "@pickOnMap": {
     "description": "Button in the entry form that opens a map to pick the entry's place."
   },
+  "pictureFacts": "{days, plural, =1{1 day} other{{days} days}} · {places, plural, =1{1 place} other{{places} places}} · {distance} km",
+  "@pictureFacts": {
+    "description": "Key figures on the shareable trip picture.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "places": {
+        "type": "int"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "pictureFactsNoDistance": "{days, plural, =1{1 day} other{{days} days}} · {places, plural, =1{1 place} other{{places} places}}",
+  "@pictureFactsNoDistance": {
+    "description": "Key figures on the shareable trip picture when there is no route.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "places": {
+        "type": "int"
+      }
+    }
+  },
+  "pictureMoreStops": "+{count} more",
+  "@pictureMoreStops": {
+    "description": "Shown on the trip picture after the listed stops when there are more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "chooseCover": "Choose cover",
   "@chooseCover": {
     "description": "Tooltip of the trip page button and title of the screen for choosing the trip's cover photo."
@@ -568,5 +604,116 @@
   "automaticCover": "Automatic",
   "@automaticCover": {
     "description": "Action that goes back to the automatic cover (the trip's first photo)."
+  },
+  "sharePicture": "Share picture",
+  "@sharePicture": {
+    "description": "Tooltip of the trip page button and title of the screen that creates a shareable picture of the trip."
+  },
+  "pictureStoryFormat": "Story",
+  "@pictureStoryFormat": {
+    "description": "Picture format for Instagram stories (portrait 9:16)."
+  },
+  "picturePostFormat": "Post",
+  "@picturePostFormat": {
+    "description": "Picture format for Instagram posts (4:5)."
+  },
+  "pictureLeaveOutEnds": "Leave out first and last stop",
+  "@pictureLeaveOutEnds": {
+    "description": "Switch that hides the first and last stop of the trip in the picture, e.g. to keep one's home private."
+  },
+  "shareAction": "Share",
+  "@shareAction": {
+    "description": "Button that opens the share sheet with the trip picture."
+  },
+  "saveToGallery": "Save to gallery",
+  "@saveToGallery": {
+    "description": "Button that saves the trip picture to the phone's gallery."
+  },
+  "savedToGallery": "Saved to your gallery",
+  "@savedToGallery": {
+    "description": "Message after the trip picture was saved to the gallery."
+  },
+  "saveToGalleryFailed": "The picture could not be saved",
+  "@saveToGalleryFailed": {
+    "description": "Message when saving the trip picture to the gallery failed."
+  },
+  "choosePicturePhotos": "Choose photos",
+  "@choosePicturePhotos": {
+    "description": "Button on the share screen and title of the screen that chooses the photos of the trip picture."
+  },
+  "picturePhotosAutomatic": "Automatic",
+  "@picturePhotosAutomatic": {
+    "description": "Action that lets the app pick the photos of the trip picture again."
+  },
+  "useChosenPhotos": "{count, plural, =0{Choose a photo} =1{Use 1 photo} other{Use {count} photos}}",
+  "@useChosenPhotos": {
+    "description": "Button that takes the selected photos for the trip picture.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "picturePhotoLimit": "Up to {count} photos",
+  "@picturePhotoLimit": {
+    "description": "Message when the traveler tries to select more photos than the trip picture can show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "picturePhotosChosen": "{count, plural, =1{1 photo chosen} other{{count} photos chosen}}",
+  "@picturePhotosChosen": {
+    "description": "Subtitle on the share screen when photos were chosen by hand.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pictureRenderFailed": "The picture could not be created",
+  "@pictureRenderFailed": {
+    "description": "Message when the trip picture could not be rendered for sharing or saving."
+  },
+  "shareTrip": "Share trip",
+  "@shareTrip": {
+    "description": "Tooltip of the trip page button that offers sharing the trip as a picture or a slideshow."
+  },
+  "shareOptionPicture": "Picture",
+  "@shareOptionPicture": {
+    "description": "Option in the share sheet of a trip: one picture for Instagram or a chat."
+  },
+  "shareOptionPictureDescription": "One picture for Instagram or a chat",
+  "@shareOptionPictureDescription": {
+    "description": "Description of the picture option in the share sheet."
+  },
+  "shareOptionSlideshow": "Slideshow (PDF)",
+  "@shareOptionSlideshow": {
+    "description": "Option in the share sheet of a trip and title of the slideshow screen."
+  },
+  "shareOptionSlideshowDescription": "Slides to show on a TV, laptop or phone",
+  "@shareOptionSlideshowDescription": {
+    "description": "Description of the slideshow option in the share sheet."
+  },
+  "slideshowDescription": "A title slide, one slide per place with its photo and notes, and the whole route at the end.",
+  "@slideshowDescription": {
+    "description": "Explanation on the slideshow screen."
+  },
+  "createPdf": "Create PDF",
+  "@createPdf": {
+    "description": "Button that creates the slideshow PDF and opens the share sheet."
+  },
+  "creatingPdf": "Creating PDF…",
+  "@creatingPdf": {
+    "description": "Button label while the slideshow PDF is created."
+  },
+  "slideshowRouteTitle": "The route",
+  "@slideshowRouteTitle": {
+    "description": "Title of the last slide that lists all stops."
+  },
+  "slideshowFailed": "The slideshow could not be created",
+  "@slideshowFailed": {
+    "description": "Message when the slideshow PDF could not be created."
   }
 }

@@ -10,6 +10,8 @@ import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
 import '../domain/place.dart';
 import '../domain/position_service.dart';
+import '../domain/slideshow_document.dart';
+import '../domain/temporary_files.dart';
 import '../domain/trip_repository.dart';
 import 'widgets/picker_map.dart';
 import 'widgets/trip_map_view.dart';
@@ -27,6 +29,8 @@ class AppServices {
     required this.photoGallery,
     required this.backupService,
     required this.fileSharer,
+    required this.temporaryFiles,
+    required this.slideshowWriter,
     required this.documentPicker,
     required this.tripMap,
     required this.pickerMap,
@@ -47,6 +51,12 @@ class AppServices {
   final PhotoGallery photoGallery;
   final BackupService backupService;
   final FileSharer fileSharer;
+
+  /// Short-lived files, e.g. pictures for the share sheet.
+  final TemporaryFiles temporaryFiles;
+
+  /// Writes a trip slideshow (PDF in the app).
+  final SlideshowWriter slideshowWriter;
   final DocumentPicker documentPicker;
 
   /// Builds the trip map (OpenStreetMap in the app, a placeholder in tests).

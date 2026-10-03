@@ -5,6 +5,8 @@ import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
 import 'package:trailtale/ui/home_screen.dart';
+import 'package:trailtale/ui/share_picture_screen.dart';
+import 'package:trailtale/ui/slideshow_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
 import 'package:trailtale/ui/trip_map_screen.dart';
 import 'package:trailtale/ui/widgets/photo_thumbnail.dart';
@@ -424,6 +426,39 @@ void main() {
       expect(trips.trips.single.coverPhotoPath, 'photos/tram.jpg');
       final cover = tester.widget<TripCover>(find.byType(TripCover));
       expect(cover.file?.path, endsWith('photos/tram.jpg'));
+    });
+
+    testWidgets('opens the share picture screen', (tester) async {
+      await openLisbon(tester);
+
+      await tester.tap(find.byTooltip('Share trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Picture'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SharePictureScreen), findsOneWidget);
+    });
+
+    testWidgets('opens the slideshow screen', (tester) async {
+      await openLisbon(tester);
+
+      await tester.tap(find.byTooltip('Share trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Slideshow (PDF)'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SlideshowScreen), findsOneWidget);
+    });
+
+    testWidgets('opens the slideshow screen', (tester) async {
+      await openLisbon(tester);
+
+      await tester.tap(find.byTooltip('Share trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Slideshow (PDF)'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SlideshowScreen), findsOneWidget);
     });
 
     testWidgets('offers no Choose cover button without photos', (tester) async {

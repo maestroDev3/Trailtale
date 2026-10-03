@@ -4,12 +4,11 @@ Current project state for planning and Claude projects. Maintained by Claude
 after every status change (see CLAUDE.md, “Keeping the status”).
 The GitHub issues are authoritative; this file is the summary.
 
-**Last updated:** 2026-10-02
+**Last updated:** 2026-10-03
 
 ## In progress
 
-- #16 Share a trip as one picture – all tasks done incl. review fixes (#185, #186); **waiting for the user's test of the "preview" APK**
-- #160 Trip slideshow as PDF – all tasks done on the same branch; **waiting for the user's test of the "preview" APK** (build 371)
+- #160 Trip slideshow as PDF – first version on `main`; now: slides per day with a chosen title photo and every photo on its own slide (user feedback 2026-10-03)
 
 ## Up next
 
@@ -29,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 1 of 6 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → #16 Share a trip as one picture (Instagram) → #160 Trip slideshow as PDF → #161 Instagram carousel, one picture per day → #162 Animated route video (later) |
+| #14 Data safety and sharing | 2 of 6 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → #160 Trip slideshow as PDF → #161 Instagram carousel, one picture per day → #162 Animated route video (later) |
 
 **#156 Ship it**
 
@@ -43,11 +42,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #16 Share a trip as one picture for Instagram (story/post, real map, own photo choice) – tested by the user
 - #178 Bug fixed: the trip map opens zoomed to the trip's places
 - #170 Choose the trip's cover photo ("Choose cover" on the trip page, "Automatic" to go back)
 - #13 Trip route on the map (sea-blue line, legs over 300 km dashed)
 - #124 "Pick on map": crosshair map picker with town search, my position and nearest town
-- #22 "Use my position" in the entry form (one GPS fix while in use, no background service)
 
 ## Open decisions (user only)
 

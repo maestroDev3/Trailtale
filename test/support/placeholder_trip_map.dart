@@ -9,11 +9,15 @@ class PlaceholderTripMap extends StatelessWidget {
     required this.points,
     required this.onOpenEntry,
     this.interactive = true,
+    this.fitPadding = 48,
+    this.sharp = false,
   });
 
   final List<MapPoint> points;
   final ValueChanged<String> onOpenEntry;
   final bool interactive;
+  final double fitPadding;
+  final bool sharp;
 
   @override
   Widget build(BuildContext context) {

@@ -8,4 +8,6 @@ typedef TripMapBuilder = Widget Function({
   required List<MapPoint> points,
   required ValueChanged<String> onOpenEntry,
   bool interactive,
+  double fitPadding,
+  bool sharp,
 });

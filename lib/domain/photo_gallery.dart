@@ -48,6 +48,9 @@ abstract interface class PhotoGallery {
 
   /// Lets the user change which photos are visible with limited access.
   Future<void> selectMorePhotos();
+
+  /// Saves a PNG picture to the gallery; returns whether it worked.
+  Future<bool> saveImage(Uint8List bytes, {required String title});
 }
 
 /// The time span whose photos belong to [trip]: from the start of its first

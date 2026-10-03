@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:photo_manager/photo_manager.dart';
 
+import '../domain/file_names.dart';
 import '../domain/photo_gallery.dart';
 
 /// Reads the device's photos through Android's media store (package
@@ -83,4 +84,19 @@ class PhotoManagerGallery implements PhotoGallery {
   @override
   Future<void> selectMorePhotos() =>
       PhotoManager.presentLimited(type: RequestType.image);
+
+  @override
+  Future<bool> saveImage(Uint8List bytes, {required String title}) async {
+    // Saving the app's own picture needs no permission on Android 10+.
+    try {
+      await PhotoManager.editor.saveImage(
+        bytes,
+        filename: safeFileName('$title.png'),
+        title: title,
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
 }

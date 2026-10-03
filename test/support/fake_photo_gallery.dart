@@ -22,6 +22,12 @@ class FakePhotoGallery implements PhotoGallery {
   /// How often access was requested.
   var accessRequests = 0;
 
+  /// Pictures passed to [saveImage], in order.
+  final savedImages = <({Uint8List bytes, String title})>[];
+
+  /// What [saveImage] answers.
+  var saveSucceeds = true;
+
   /// How often [selectMorePhotos] was called.
   var selectMoreCount = 0;
 
@@ -58,4 +64,10 @@ class FakePhotoGallery implements PhotoGallery {
 
   @override
   Future<void> selectMorePhotos() async => selectMoreCount++;
+
+  @override
+  Future<bool> saveImage(Uint8List bytes, {required String title}) async {
+    savedImages.add((bytes: bytes, title: title));
+    return saveSucceeds;
+  }
 }
