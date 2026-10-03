@@ -194,9 +194,10 @@ void main() {
         [for (final slide in writer.written.single.stops) slide.name],
         ['Kotor', 'Perast'],
       );
-      expect([for (final day in writer.written.single.days) day.heading], [
-        'Day 2 · Kotor · Perast',
-      ]);
+      expect(
+        [for (final day in writer.written.single.days) day.heading],
+        ['Day 2 · Kotor · Perast'],
+      );
     });
 
     testWidgets('shows progress while the PDF is created', (tester) async {
