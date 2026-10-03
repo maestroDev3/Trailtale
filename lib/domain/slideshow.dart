@@ -22,13 +22,52 @@ class StopSlide {
   final List<String> notes;
 }
 
+/// A photo on its own slide.
+class PhotoSlide {
+  const PhotoSlide({required this.path, this.caption, this.place});
+
+  final String path;
+
+  /// The note of the photo's entry, if any.
+  final String? caption;
+  final String? place;
+}
+
+/// One slide per trip day, followed by its photos.
+class DaySlide {
+  const DaySlide({
+    required this.day,
+    required this.dayNumber,
+    required this.places,
+    required this.titlePhotoPath,
+    required this.notes,
+    required this.photos,
+  });
+
+  /// The local calendar day (see `dayOf`).
+  final DateTime day;
+
+  /// 1 for the trip's first day; `null` outside the trip dates.
+  final int? dayNumber;
+  final List<String> places;
+  final String? titlePhotoPath;
+
+  /// Notes of the day's entries without photos.
+  final List<String> notes;
+  final List<PhotoSlide> photos;
+}
+
 /// The content of a trip slideshow: title slide, stop slides, closing slide.
 class Slideshow {
   const Slideshow({
     required this.overview,
     required this.coverPhotoPath,
     required this.stops,
+    this.days = const [],
   });
+
+  /// The days of the trip with their photos.
+  final List<DaySlide> days;
 
   /// Title, dates and figures (as on the trip picture).
   final TripPicture overview;
@@ -46,6 +85,7 @@ Slideshow buildSlideshow(
   Trip trip,
   List<Entry> entries, {
   required bool leaveOutEnds,
+  Set<String> excludedPhotos = const {},
 }) {
   String key(String name) => name.trim().toLowerCase();
   final overview = buildTripPicture(trip, entries, leaveOutEnds: leaveOutEnds);
