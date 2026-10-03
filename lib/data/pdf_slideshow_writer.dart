@@ -8,7 +8,6 @@ import '../domain/slideshow_document.dart';
 /// The field journal colors, as in the app's theme.
 abstract final class _Colors {
   static const paper = PdfColor.fromInt(0xFFF6F1E7);
-  static const card = PdfColor.fromInt(0xFFFFFDF8);
   static const ink = PdfColor.fromInt(0xFF1F3B34);
   static const clay = PdfColor.fromInt(0xFFB84A22);
   static const sea = PdfColor.fromInt(0xFF2F6F7E);
@@ -77,8 +76,8 @@ class PdfSlideshowWriter implements SlideshowWriter {
       ];
       // The first slide shows the title photo next to the notes; further
       // notes continue on paper.
-      for (final (index, notes) in (chunks.isEmpty ? [<String>[]] : chunks)
-          .indexed) {
+      for (final (index, notes)
+          in (chunks.isEmpty ? [<String>[]] : chunks).indexed) {
         pdf.addPage(
           pw.Page(
             pageFormat: _format,
