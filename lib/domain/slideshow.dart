@@ -110,6 +110,67 @@ Slideshow buildSlideshow(
     overview: overview,
     coverPhotoPath: coverPhotoOf(shownEntries, chosen: trip.coverPhotoPath),
     stops: stops,
+    days: _daySlides(trip, shownEntries, excludedPhotos),
+  );
+}
+
+/// One [DaySlide] per local day of [entries] (in time order).
+List<DaySlide> _daySlides(
+  Trip trip,
+  List<Entry> entries,
+  Set<String> excludedPhotos,
+) {
+  final byDay = <DateTime, List<Entry>>{};
+  for (final entry in entries) {
+    byDay.putIfAbsent(entry.localDay, () => []).add(entry);
+  }
+  return [
+    for (final MapEntry(key: day, value: dayEntries) in byDay.entries)
+      _daySlide(trip, day, dayEntries, excludedPhotos),
+  ];
+}
+
+DaySlide _daySlide(
+  Trip trip,
+  DateTime day,
+  List<Entry> entries,
+  Set<String> excludedPhotos,
+) {
+  final places = <String, String>{};
+  for (final entry in entries) {
+    if (entry.placeName case final name?) {
+      places.putIfAbsent(name.trim().toLowerCase(), () => name);
+    }
+  }
+  final photos = [
+    for (final entry in entries)
+      for (final path in entry.photoPaths)
+        if (!excludedPhotos.contains(path))
+          PhotoSlide(
+            path: path,
+            caption: entry.note.trim().isEmpty ? null : entry.note.trim(),
+            place: entry.placeName,
+          ),
+  ];
+  final chosen = trip.dayCoverPhotos[day];
+  final title =
+      photos.where((photo) => photo.path == chosen).firstOrNull ??
+      photos.firstOrNull;
+  final number = day.difference(trip.startDate).inDays + 1;
+  return DaySlide(
+    day: day,
+    dayNumber: number >= 1 && number <= trip.dayCount ? number : null,
+    places: places.values.toList(),
+    titlePhotoPath: title?.path,
+    notes: [
+      for (final entry in entries)
+        if (entry.photoPaths.isEmpty && entry.note.trim().isNotEmpty)
+          entry.note.trim(),
+    ].take(maxNotesPerSlide).toList(),
+    photos: [
+      for (final photo in photos)
+        if (!identical(photo, title)) photo,
+    ],
   );
 }
 
