@@ -117,6 +117,21 @@ void main() {
       ]);
     });
 
+    test('covers no photo with an opaque shading', () async {
+      final pdf = await writePdf(FakePhotoShrinker());
+
+      expect(pdf, isNot(contains('/ShadingType')));
+    });
+
+    test('puts the title on a translucent band', () async {
+      final pdf = await writePdf(FakePhotoShrinker());
+
+      final alphas = RegExp(r'/ca\s+([0-9.]+)')
+          .allMatches(pdf)
+          .map((match) => double.parse(match.group(1) ?? '1'));
+      expect(alphas.any((alpha) => alpha < 1), isTrue);
+    });
+
     test('embeds the photos it could read', () async {
       final pdf = await writePdf(FakePhotoShrinker());
 

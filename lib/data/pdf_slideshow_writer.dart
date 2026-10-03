@@ -14,8 +14,7 @@ abstract final class _Colors {
   static const sea = PdfColor.fromInt(0xFF2F6F7E);
   static const muted = PdfColor.fromInt(0xFF56645F);
   static const white = PdfColor.fromInt(0xFFFFFFFF);
-  static const shade = PdfColor.fromInt(0xB3141C19);
-  static const clear = PdfColor.fromInt(0x00141C19);
+  static const shade = PdfColor.fromInt(0xFF141C19);
 }
 
 /// The fonts of the slideshow; without them the PDF uses Helvetica.
@@ -96,18 +95,10 @@ class PdfSlideshowWriter implements SlideshowWriter {
       children: [
         if (photo == null)
           pw.Container(color: _Colors.paper)
-        else ...[
+        else
+          // No gradient: PDF shadings have no alpha and would cover the
+          // photo completely (#195).
           pw.Image(photo, fit: pw.BoxFit.cover),
-          pw.Container(
-            decoration: const pw.BoxDecoration(
-              gradient: pw.LinearGradient(
-                begin: pw.Alignment.topCenter,
-                end: pw.Alignment.bottomCenter,
-                colors: [_Colors.clear, _Colors.clear, _Colors.shade],
-              ),
-            ),
-          ),
-        ],
         content(photo != null),
       ],
     ),
@@ -124,7 +115,7 @@ class _TitleSlide extends pw.StatelessWidget {
   @override
   pw.Widget build(pw.Context context) {
     final color = onPhoto ? _Colors.white : _Colors.ink;
-    return pw.Padding(
+    final text = pw.Padding(
       padding: const pw.EdgeInsets.all(56),
       child: pw.Column(
         mainAxisAlignment: pw.MainAxisAlignment.end,
@@ -151,6 +142,23 @@ class _TitleSlide extends pw.StatelessWidget {
           ),
         ],
       ),
+    );
+    if (!onPhoto) return text;
+    // A translucent band keeps the title readable on any photo.
+    return pw.Stack(
+      fit: pw.StackFit.expand,
+      children: [
+        pw.Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: pw.Opacity(
+            opacity: 0.55,
+            child: pw.Container(height: 230, color: _Colors.shade),
+          ),
+        ),
+        text,
+      ],
     );
   }
 }
