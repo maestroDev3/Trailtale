@@ -50,6 +50,13 @@ class Trip {
   /// automatic cover.
   final String? coverPhotoPath;
 
+  /// Title photos chosen for single days of the trip (calendar day →
+  /// relative photo path), e.g. for the slideshow.
+  Map<DateTime, String> get dayCoverPhotos => throw UnimplementedError();
+
+  /// Returns the trip with [path] as title photo of [day]; `null` removes it.
+  Trip withDayCover(DateTime day, String? path) => throw UnimplementedError();
+
   /// Number of calendar days the trip covers, counting both ends.
   int get dayCount => endDate.difference(startDate).inDays + 1;
 

@@ -120,5 +120,23 @@ void main() {
 
       expect(repository.trips.single.coverPhotoPath, 'photos/tram.jpg');
     });
+
+    testWidgets('keeps the title photos of days when saving', (tester) async {
+      final withCover = lisbon.withDayCover(DateTime(2026, 5, 2), 'p/a.jpg');
+      final repository = FakeTripRepository([withCover]);
+      await pumpApp(
+        tester,
+        TripFormScreen(
+          services: testServices(trips: repository),
+          trip: withCover,
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), 'Porto');
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(repository.trips.single.dayCoverPhotos, withCover.dayCoverPhotos);
+    });
   });
 }

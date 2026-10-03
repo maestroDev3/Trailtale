@@ -66,6 +66,23 @@ void main() {
       expect(trips.single.coverPhotoPath, 'photos/tram.jpg');
     });
 
+    test('stores the title photos of days', () async {
+      final withCovers = lisbon
+          .withDayCover(DateTime(2026, 5, 2), 'photos/tram.jpg')
+          .withDayCover(DateTime(2026, 5, 3), 'photos/sintra.jpg');
+      await JsonFileTripRepository(file).saveTrip(withCovers);
+
+      final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final stored = (json['trips'] as List).single as Map<String, dynamic>;
+      final trips = await JsonFileTripRepository(file).watchTrips().first;
+
+      expect(stored['dayCovers'], {
+        '2026-05-02': 'photos/tram.jpg',
+        '2026-05-03': 'photos/sintra.jpg',
+      });
+      expect(trips.single, withCovers);
+    });
+
     test('reads trips without cover photo as automatic', () async {
       file.writeAsStringSync(
         jsonEncode({
@@ -84,6 +101,7 @@ void main() {
       final trips = await JsonFileTripRepository(file).watchTrips().first;
 
       expect(trips.single.coverPhotoPath, isNull);
+      expect(trips.single.dayCoverPhotos, isEmpty);
     });
 
     test('reads the version 1 format', () async {
