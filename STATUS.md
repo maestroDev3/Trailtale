@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- Nothing – waiting for the user to choose the next story.
+- #206 Notes tell the day's story in the slideshow
 
 ## Up next
 
-- Candidates: #206 Notes tell the day's story in the slideshow, #161 Instagram carousel, #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
+- Candidates: #161 Instagram carousel, #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
 
 ## Backlog by initiative → epic
 
