@@ -8,7 +8,6 @@ import '../domain/slideshow_document.dart';
 /// The field journal colors, as in the app's theme.
 abstract final class _Colors {
   static const paper = PdfColor.fromInt(0xFFF6F1E7);
-  static const card = PdfColor.fromInt(0xFFFFFDF8);
   static const ink = PdfColor.fromInt(0xFF1F3B34);
   static const clay = PdfColor.fromInt(0xFFB84A22);
   static const sea = PdfColor.fromInt(0xFF2F6F7E);
@@ -21,8 +20,9 @@ abstract final class _Colors {
 typedef SlideshowFonts = ({ByteData display, ByteData text, ByteData bold});
 
 /// Lays out a [SlideshowDocument] as a 16:9 PDF (package `pdf`): a title
-/// slide over the cover photo, per day a day slide over its title photo
-/// followed by one slide per photo, and a closing slide with all stops.
+/// slide over the cover photo, per day a day slide (notes next to its title
+/// photo, more notes on continuation slides) followed by one slide per
+/// photo, and a closing slide with all stops.
 class PdfSlideshowWriter implements SlideshowWriter {
   PdfSlideshowWriter({
     required this.shrinker,
@@ -42,6 +42,9 @@ class PdfSlideshowWriter implements SlideshowWriter {
   static const photoMaxSide = 1600;
 
   static const _format = PdfPageFormat(960, 540);
+
+  /// Most notes on one day slide; more continue on the next slide.
+  static const notesPerSlide = 6;
 
   @override
   Future<List<int>> write(SlideshowDocument document) async {
@@ -66,16 +69,32 @@ class PdfSlideshowWriter implements SlideshowWriter {
       ),
     );
     for (final day in document.days) {
-      pdf.addPage(
-        _page(
-          await _photo(day.photoPath),
-          (photo) => _DaySlide(day, heading: heading, onPhoto: photo),
-        ),
-      );
+      final photo = await _photo(day.photoPath);
+      final chunks = [
+        for (var start = 0; start < day.notes.length; start += notesPerSlide)
+          day.notes.skip(start).take(notesPerSlide).toList(),
+      ];
+      // The first slide shows the title photo next to the notes; further
+      // notes continue on paper.
+      for (final (index, notes)
+          in (chunks.isEmpty ? [<String>[]] : chunks).indexed) {
+        pdf.addPage(
+          pw.Page(
+            pageFormat: _format,
+            margin: pw.EdgeInsets.zero,
+            build: (context) => _DaySlide(
+              day,
+              notes: notes,
+              heading: heading,
+              photo: index == 0 ? photo : null,
+            ),
+          ),
+        );
+      }
       for (final slide in day.photos) {
         // A photo that cannot be read gets no slide.
         if (await _photo(slide.photoPath) case final photo?) {
-          pdf.addPage(_photoPage(photo, slide.caption));
+          pdf.addPage(_photoPage(photo));
         }
       }
     }
@@ -89,9 +108,8 @@ class PdfSlideshowWriter implements SlideshowWriter {
     return jpeg == null ? null : pw.MemoryImage(Uint8List.fromList(jpeg));
   }
 
-  /// The whole photo on the ink color, with its caption on a translucent
-  /// band.
-  pw.Page _photoPage(pw.ImageProvider photo, String? caption) => pw.Page(
+  /// The whole photo on the ink color, without text.
+  pw.Page _photoPage(pw.ImageProvider photo) => pw.Page(
     pageFormat: _format,
     margin: pw.EdgeInsets.zero,
     build: (context) => pw.Stack(
@@ -99,36 +117,6 @@ class PdfSlideshowWriter implements SlideshowWriter {
       children: [
         pw.Container(color: _Colors.ink),
         pw.Center(child: pw.Image(photo, fit: pw.BoxFit.contain)),
-        if (caption != null)
-          pw.Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: pw.Stack(
-              children: [
-                pw.Positioned.fill(
-                  child: pw.Opacity(
-                    opacity: 0.6,
-                    child: pw.Container(color: _Colors.shade),
-                  ),
-                ),
-                pw.Padding(
-                  padding: const pw.EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 18,
-                  ),
-                  child: pw.Text(
-                    caption,
-                    maxLines: 2,
-                    style: const pw.TextStyle(
-                      fontSize: 18,
-                      color: _Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     ),
   );
@@ -213,58 +201,62 @@ class _TitleSlide extends pw.StatelessWidget {
   }
 }
 
+/// The day's story: a paper panel with heading, date and notes, the title
+/// photo uncovered to its right (the panel spans the slide without photo).
 class _DaySlide extends pw.StatelessWidget {
-  _DaySlide(this.day, {required this.heading, required this.onPhoto});
+  _DaySlide(
+    this.day, {
+    required this.notes,
+    required this.heading,
+    required this.photo,
+  });
 
   final DaySlideText day;
+  final List<String> notes;
   final pw.TextStyle heading;
-  final bool onPhoto;
+  final pw.ImageProvider? photo;
 
   @override
   pw.Widget build(pw.Context context) {
-    final card = pw.Container(
-      width: onPhoto ? 460 : 780,
-      padding: const pw.EdgeInsets.all(28),
-      decoration: pw.BoxDecoration(
-        color: onPhoto ? _Colors.card : null,
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(18)),
-      ),
+    final photo = this.photo;
+    final panel = pw.Container(
+      width: photo == null ? null : 400,
+      color: _Colors.paper,
+      padding: const pw.EdgeInsets.fromLTRB(44, 48, 36, 40),
       child: pw.Column(
-        mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Container(width: 40, height: 4, color: _Colors.clay),
-          pw.SizedBox(height: 12),
+          pw.SizedBox(height: 14),
           pw.Text(
             day.heading,
             maxLines: 2,
-            style: heading.copyWith(
-              fontSize: onPhoto ? 36 : 52,
-              color: _Colors.ink,
-            ),
+            style: heading.copyWith(fontSize: 32, color: _Colors.ink),
           ),
-          pw.SizedBox(height: 8),
+          pw.SizedBox(height: 6),
           pw.Text(
             day.dateText,
-            style: const pw.TextStyle(fontSize: 16, color: _Colors.muted),
+            style: const pw.TextStyle(fontSize: 15, color: _Colors.muted),
           ),
-          for (final note in day.notes) ...[
-            pw.SizedBox(height: 10),
+          pw.SizedBox(height: 18),
+          for (final note in notes) ...[
             pw.Text(
               note,
               maxLines: 3,
-              style: const pw.TextStyle(fontSize: 16, color: _Colors.ink),
+              style: const pw.TextStyle(fontSize: 15, color: _Colors.ink),
             ),
+            pw.SizedBox(height: 10),
           ],
         ],
       ),
     );
-    return pw.Padding(
-      padding: const pw.EdgeInsets.all(40),
-      child: pw.Align(
-        alignment: onPhoto ? pw.Alignment.bottomLeft : pw.Alignment.centerLeft,
-        child: card,
-      ),
+    if (photo == null) return pw.Row(children: [pw.Expanded(child: panel)]);
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+      children: [
+        panel,
+        pw.Expanded(child: pw.Image(photo, fit: pw.BoxFit.cover)),
+      ],
     );
   }
 }
