@@ -22,14 +22,21 @@ class StopSlide {
   final List<String> notes;
 }
 
-/// A photo on its own slide.
+/// A photo on its own slide (shown without text).
 class PhotoSlide {
-  const PhotoSlide({required this.path, this.caption, this.place});
+  const PhotoSlide({required this.path, this.place});
 
   final String path;
+  final String? place;
+}
 
-  /// The note of the photo's entry, if any.
-  final String? caption;
+/// A note of the day: what happened when and where.
+class DayNote {
+  const DayNote({required this.time, required this.text, this.place});
+
+  /// Local wall-clock time of the note's entry.
+  final DateTime time;
+  final String text;
   final String? place;
 }
 
@@ -52,8 +59,8 @@ class DaySlide {
   final List<String> places;
   final String? titlePhotoPath;
 
-  /// Notes of the day's entries without photos.
-  final List<String> notes;
+  /// The notes of all the day's entries, in time order.
+  final List<DayNote> notes;
   final List<PhotoSlide> photos;
 }
 
@@ -146,11 +153,7 @@ DaySlide _daySlide(
     for (final entry in entries)
       for (final path in entry.photoPaths)
         if (!excludedPhotos.contains(path))
-          PhotoSlide(
-            path: path,
-            caption: entry.note.trim().isEmpty ? null : entry.note.trim(),
-            place: entry.placeName,
-          ),
+          PhotoSlide(path: path, place: entry.placeName),
   ];
   final chosen = trip.dayCoverPhotos[day];
   final title =
@@ -164,9 +167,13 @@ DaySlide _daySlide(
     titlePhotoPath: title?.path,
     notes: [
       for (final entry in entries)
-        if (entry.photoPaths.isEmpty && entry.note.trim().isNotEmpty)
-          entry.note.trim(),
-    ].take(maxNotesPerSlide).toList(),
+        if (entry.note.trim().isNotEmpty)
+          DayNote(
+            time: _wallClock(entry.localDateTime),
+            text: entry.note.trim(),
+            place: entry.placeName,
+          ),
+    ],
     photos: [
       for (final photo in photos)
         if (!identical(photo, title)) photo,
@@ -174,18 +181,15 @@ DaySlide _daySlide(
   );
 }
 
+/// [time] as a plain local date and time (without UTC flag).
+DateTime _wallClock(DateTime time) =>
+    DateTime(time.year, time.month, time.day, time.hour, time.minute);
+
 StopSlide _stopSlide(int number, String name, List<Entry> entries) {
-  final first = entries.first.localDateTime;
   return StopSlide(
     number: number,
     name: name,
-    firstVisit: DateTime(
-      first.year,
-      first.month,
-      first.day,
-      first.hour,
-      first.minute,
-    ),
+    firstVisit: _wallClock(entries.first.localDateTime),
     photoPath: [for (final entry in entries) ...entry.photoPaths].firstOrNull,
     notes: [
       for (final entry in entries)

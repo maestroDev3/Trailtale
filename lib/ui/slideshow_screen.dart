@@ -149,14 +149,11 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
           DaySlideText(
             heading: _dayHeading(l10n, day),
             dateText: l10n.tripSingleDate(day.day),
-            notes: day.notes,
+            notes: [for (final note in day.notes) note.text],
             photoPath: absolute(day.titlePhotoPath),
             photos: [
               for (final photo in day.photos)
-                PhotoSlideText(
-                  photoPath: absolute(photo.path) ?? photo.path,
-                  caption: photo.caption,
-                ),
+                PhotoSlideText(photoPath: absolute(photo.path) ?? photo.path),
             ],
           ),
       ],
