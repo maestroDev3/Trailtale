@@ -202,9 +202,11 @@ void main() {
               dateText: 'Sep 26 – Oct 6, 2026',
               factsText: '12 days · 4 places · 49 km',
               stops: [
-                SlideText(
-                  number: 1,
-                  name: 'Čanj',
+                SlideText(number: 1, name: 'Čanj', dateText: '', notes: []),
+              ],
+              days: [
+                DaySlideText(
+                  heading: 'Day 7 · Čanj',
                   dateText: 'Oct 1, 2026',
                   notes: ['Plaža'],
                 ),
