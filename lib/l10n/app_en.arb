@@ -696,7 +696,7 @@
   "@shareOptionSlideshowDescription": {
     "description": "Description of the slideshow option in the share sheet."
   },
-  "slideshowDescription": "A title slide, one slide per place with its photo and notes, and the whole route at the end.",
+  "slideshowDescription": "A title slide, then per day a slide with its title photo followed by every photo on its own, and the whole route at the end.",
   "@slideshowDescription": {
     "description": "Explanation on the slideshow screen."
   },
@@ -715,5 +715,31 @@
   "slideshowFailed": "The slideshow could not be created",
   "@slideshowFailed": {
     "description": "Message when the slideshow PDF could not be created."
+  },
+  "slideshowDayLabel": "Day {number}",
+  "@slideshowDayLabel": {
+    "description": "Label of a trip day in the slideshow, e.g. 'Day 2'.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "slideshowDayTitlePhoto": "Title photo of this day",
+  "@slideshowDayTitlePhoto": {
+    "description": "Tooltip/semantics of the title photo of a day on the slideshow screen."
+  },
+  "slideshowChooseDayTitle": "Title photo of {day}",
+  "@slideshowChooseDayTitle": {
+    "description": "Title of the sheet that chooses the title photo of a day.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "slideshowPhotosHint": "Tap a photo to leave it out of the slideshow.",
+  "@slideshowPhotosHint": {
+    "description": "Hint above the photos of the days on the slideshow screen."
   }
 }
