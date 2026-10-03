@@ -17,6 +17,34 @@ class SlideText {
   final String? photoPath;
 }
 
+/// A photo on its own slide, with an optional caption.
+class PhotoSlideText {
+  const PhotoSlideText({required this.photoPath, this.caption});
+
+  /// Absolute path of the photo.
+  final String photoPath;
+  final String? caption;
+}
+
+/// A day slide (e.g. “Day 1 · Kotor”) followed by its photo slides.
+class DaySlideText {
+  const DaySlideText({
+    required this.heading,
+    required this.dateText,
+    required this.notes,
+    this.photoPath,
+    this.photos = const [],
+  });
+
+  final String heading;
+  final String dateText;
+  final List<String> notes;
+
+  /// Absolute path of the day's title photo, if any.
+  final String? photoPath;
+  final List<PhotoSlideText> photos;
+}
+
 /// Everything a slideshow file shows, with localized texts, so writers only
 /// lay it out.
 class SlideshowDocument {
@@ -25,6 +53,7 @@ class SlideshowDocument {
     required this.dateText,
     required this.factsText,
     required this.stops,
+    this.days = const [],
     required this.closingTitle,
     required this.wordmark,
     this.coverPhotoPath,
@@ -36,7 +65,12 @@ class SlideshowDocument {
 
   /// Absolute path of the title slide's photo, if any.
   final String? coverPhotoPath;
+
+  /// The stops, listed on the closing slide.
   final List<SlideText> stops;
+
+  /// The days with their photos.
+  final List<DaySlideText> days;
   final String closingTitle;
   final String wordmark;
 }
