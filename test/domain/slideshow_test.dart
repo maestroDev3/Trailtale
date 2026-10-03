@@ -223,7 +223,7 @@ void main() {
       ]);
     });
 
-    test('captions a photo slide with its note and place', () {
+    test('gives photo slides their place but no caption', () {
       final slideshow = buildSlideshow(trip, [
         entry(27, 8, place: 'Kotor', photos: ['p/a.jpg']),
         entry(
@@ -237,22 +237,43 @@ void main() {
 
       final photos = slideshow.days.single.photos;
       expect([for (final photo in photos) photo.path], ['p/b.jpg', 'p/c.jpg']);
-      expect(photos.first.caption, 'Cats everywhere');
       expect(photos.first.place, 'Kotor');
     });
 
-    test('puts the notes of entries without photos on the day slide', () {
-      final kotorDay = buildSlideshow(
-        trip,
-        entries,
-        leaveOutEnds: false,
-      ).days[1];
+    test(
+      'puts every note of the day on the day slide, with time and place',
+      () {
+        final kotorDay = buildSlideshow(
+          trip,
+          entries,
+          leaveOutEnds: false,
+        ).days[1];
 
-      expect(kotorDay.notes, [
-        'Old town walls',
-        'Cats everywhere',
-        'Fish dinner',
-      ]);
+        expect(
+          [for (final note in kotorDay.notes) note.text],
+          [
+            'Old town walls',
+            'Cats everywhere',
+            'Fish dinner',
+            'Sunset at the fortress',
+          ],
+        );
+        expect(kotorDay.notes.first.time, DateTime(2026, 9, 27, 10));
+        expect(kotorDay.notes.first.place, 'Kotor');
+      },
+    );
+
+    test('includes the notes of entries with photos', () {
+      final day = buildSlideshow(trip, [
+        entry(27, 8, place: 'Kotor', photos: ['p/a.jpg'], note: 'Arrival'),
+        entry(27, 9, note: 'Car rental'),
+      ], leaveOutEnds: false).days.single;
+
+      expect(
+        [for (final note in day.notes) note.text],
+        ['Arrival', 'Car rental'],
+      );
+      expect(day.notes.last.place, isNull);
     });
 
     test('leaves out excluded photos, also as title photo', () {
