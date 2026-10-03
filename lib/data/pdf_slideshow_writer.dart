@@ -21,8 +21,8 @@ abstract final class _Colors {
 typedef SlideshowFonts = ({ByteData display, ByteData text, ByteData bold});
 
 /// Lays out a [SlideshowDocument] as a 16:9 PDF (package `pdf`): a title
-/// slide over the cover photo, one slide per stop over its photo and a
-/// closing slide with all stops.
+/// slide over the cover photo, per day a day slide over its title photo
+/// followed by one slide per photo, and a closing slide with all stops.
 class PdfSlideshowWriter implements SlideshowWriter {
   PdfSlideshowWriter({
     required this.shrinker,
@@ -65,13 +65,19 @@ class PdfSlideshowWriter implements SlideshowWriter {
         (photo) => _TitleSlide(document, heading: heading, onPhoto: photo),
       ),
     );
-    for (final stop in document.stops) {
+    for (final day in document.days) {
       pdf.addPage(
         _page(
-          await _photo(stop.photoPath),
-          (photo) => _StopSlide(stop, heading: heading, onPhoto: photo),
+          await _photo(day.photoPath),
+          (photo) => _DaySlide(day, heading: heading, onPhoto: photo),
         ),
       );
+      for (final slide in day.photos) {
+        // A photo that cannot be read gets no slide.
+        if (await _photo(slide.photoPath) case final photo?) {
+          pdf.addPage(_photoPage(photo, slide.caption));
+        }
+      }
     }
     pdf.addPage(_page(null, (_) => _ClosingSlide(document, heading: heading)));
     return pdf.save();
@@ -82,6 +88,50 @@ class PdfSlideshowWriter implements SlideshowWriter {
     final jpeg = await shrinker.shrink(path, maxSide: photoMaxSide);
     return jpeg == null ? null : pw.MemoryImage(Uint8List.fromList(jpeg));
   }
+
+  /// The whole photo on the ink color, with its caption on a translucent
+  /// band.
+  pw.Page _photoPage(pw.ImageProvider photo, String? caption) => pw.Page(
+    pageFormat: _format,
+    margin: pw.EdgeInsets.zero,
+    build: (context) => pw.Stack(
+      fit: pw.StackFit.expand,
+      children: [
+        pw.Container(color: _Colors.ink),
+        pw.Center(child: pw.Image(photo, fit: pw.BoxFit.contain)),
+        if (caption != null)
+          pw.Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: pw.Stack(
+              children: [
+                pw.Positioned.fill(
+                  child: pw.Opacity(
+                    opacity: 0.6,
+                    child: pw.Container(color: _Colors.shade),
+                  ),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 18,
+                  ),
+                  child: pw.Text(
+                    caption,
+                    maxLines: 2,
+                    style: const pw.TextStyle(
+                      fontSize: 18,
+                      color: _Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
 
   /// A full page: the photo (cover) or paper behind the slide's content.
   pw.Page _page(
@@ -163,17 +213,17 @@ class _TitleSlide extends pw.StatelessWidget {
   }
 }
 
-class _StopSlide extends pw.StatelessWidget {
-  _StopSlide(this.stop, {required this.heading, required this.onPhoto});
+class _DaySlide extends pw.StatelessWidget {
+  _DaySlide(this.day, {required this.heading, required this.onPhoto});
 
-  final SlideText stop;
+  final DaySlideText day;
   final pw.TextStyle heading;
   final bool onPhoto;
 
   @override
   pw.Widget build(pw.Context context) {
     final card = pw.Container(
-      width: onPhoto ? 440 : 760,
+      width: onPhoto ? 460 : 780,
       padding: const pw.EdgeInsets.all(28),
       decoration: pw.BoxDecoration(
         color: onPhoto ? _Colors.card : null,
@@ -183,44 +233,22 @@ class _StopSlide extends pw.StatelessWidget {
         mainAxisSize: pw.MainAxisSize.min,
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Row(
-            children: [
-              pw.Container(
-                width: 40,
-                height: 40,
-                alignment: pw.Alignment.center,
-                decoration: const pw.BoxDecoration(
-                  color: _Colors.clay,
-                  shape: pw.BoxShape.circle,
-                ),
-                child: pw.Text(
-                  '${stop.number}',
-                  style: pw.TextStyle(
-                    fontSize: 18,
-                    fontWeight: pw.FontWeight.bold,
-                    color: _Colors.white,
-                  ),
-                ),
-              ),
-              pw.SizedBox(width: 14),
-              pw.Expanded(
-                child: pw.Text(
-                  stop.name,
-                  maxLines: 2,
-                  style: heading.copyWith(
-                    fontSize: onPhoto ? 40 : 56,
-                    color: _Colors.ink,
-                  ),
-                ),
-              ),
-            ],
+          pw.Container(width: 40, height: 4, color: _Colors.clay),
+          pw.SizedBox(height: 12),
+          pw.Text(
+            day.heading,
+            maxLines: 2,
+            style: heading.copyWith(
+              fontSize: onPhoto ? 36 : 52,
+              color: _Colors.ink,
+            ),
           ),
           pw.SizedBox(height: 8),
           pw.Text(
-            stop.dateText,
+            day.dateText,
             style: const pw.TextStyle(fontSize: 16, color: _Colors.muted),
           ),
-          for (final note in stop.notes) ...[
+          for (final note in day.notes) ...[
             pw.SizedBox(height: 10),
             pw.Text(
               note,
