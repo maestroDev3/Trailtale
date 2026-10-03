@@ -48,9 +48,10 @@ void main() {
       'Kotor',
       42.4247,
       18.7712,
-      photos: ['photos/k1.jpg'],
+      photos: ['photos/k1.jpg', 'photos/k2.jpg'],
       note: 'Old town walls',
     ),
+    stop('p', 27, 'Perast', 42.4864, 18.6989, photos: ['photos/p1.jpg']),
     stop('c', 28, 'Budva', 42.2864, 18.84),
   ];
 
@@ -61,7 +62,11 @@ void main() {
       FakeFileSharer sharer,
     })
   >
-  openScreen(WidgetTester tester, {FakeSlideshowWriter? writer}) async {
+  openScreen(
+    WidgetTester tester, {
+    FakeSlideshowWriter? writer,
+    FakeTripRepository? trips,
+  }) async {
     final slideshowWriter = writer ?? FakeSlideshowWriter();
     final files = FakeTemporaryFiles();
     final sharer = FakeFileSharer();
@@ -69,7 +74,7 @@ void main() {
       tester,
       SlideshowScreen(
         services: testServices(
-          trips: FakeTripRepository([trip]),
+          trips: trips ?? FakeTripRepository([trip]),
           entries: FakeEntryRepository(entries),
           slideshowWriter: slideshowWriter,
           temporaryFiles: files,
@@ -79,6 +84,11 @@ void main() {
       ),
     );
     return (writer: slideshowWriter, files: files, sharer: sharer);
+  }
+
+  Future<void> createPdf(WidgetTester tester) async {
+    await tester.tap(find.text('Create PDF'));
+    await tester.pumpAndSettle();
   }
 
   group('SlideshowScreen', () {
@@ -97,25 +107,79 @@ void main() {
     testWidgets('fills the document with localized texts', (tester) async {
       final (:writer, files: _, sharer: _) = await openScreen(tester);
 
-      await tester.tap(find.text('Create PDF'));
-      await tester.pumpAndSettle();
+      await createPdf(tester);
 
       final document = writer.written.single;
       expect(document.title, 'Montenegro');
       expect(document.dateText, 'Sep 26, 2026 – Sep 30, 2026');
-      expect(document.factsText, startsWith('5 days · 3 places · '));
+      expect(document.factsText, startsWith('5 days · 4 places · '));
       expect(document.closingTitle, 'The route');
       expect(document.wordmark, 'Trailtale');
       expect(
-        [for (final slide in document.stops) slide.name],
-        ['Munich', 'Kotor', 'Budva'],
+        [for (final stop in document.stops) stop.name],
+        ['Munich', 'Kotor', 'Perast', 'Budva'],
       );
-      final kotor = document.stops[1];
-      expect(kotor.number, 2);
-      expect(kotor.dateText, 'Sep 27, 2026');
-      expect(kotor.notes, ['Old town walls']);
-      expect(kotor.photoPath, endsWith('photos/k1.jpg'));
+      expect(
+        [for (final day in document.days) day.heading],
+        ['Day 1 · Munich', 'Day 2 · Kotor · Perast', 'Day 3 · Budva'],
+      );
+      final kotorDay = document.days[1];
+      expect(kotorDay.dateText, 'Sep 27, 2026');
+      expect(kotorDay.photoPath, endsWith('photos/k1.jpg'));
+      expect(
+        [for (final photo in kotorDay.photos) photo.photoPath],
+        [endsWith('photos/k2.jpg'), endsWith('photos/p1.jpg')],
+      );
+      expect(kotorDay.photos.first.caption, 'Old town walls');
       expect(document.coverPhotoPath, endsWith('photos/k1.jpg'));
+    });
+
+    testWidgets('lists the days with their photos', (tester) async {
+      await openScreen(tester);
+
+      expect(find.text('Day 2 · Kotor · Perast'), findsOneWidget);
+      expect(
+        find.byKey(const Key('slide-photo-photos/k2.jpg')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('stores the title photo chosen for a day', (tester) async {
+      final trips = FakeTripRepository([trip]);
+      final (:writer, files: _, sharer: _) = await openScreen(
+        tester,
+        trips: trips,
+      );
+
+      await tester.tap(find.byKey(const Key('day-title-2026-09-27')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('day-title-option-photos/p1.jpg')));
+      await tester.pumpAndSettle();
+      await createPdf(tester);
+
+      expect(trips.trips.single.dayCoverPhotos.values, ['photos/p1.jpg']);
+      expect(
+        writer.written.single.days[1].photoPath,
+        endsWith('photos/p1.jpg'),
+      );
+    });
+
+    testWidgets('leaves out deselected photos', (tester) async {
+      final (:writer, files: _, sharer: _) = await openScreen(tester);
+
+      final photo = find.byKey(const Key('slide-photo-photos/k2.jpg'));
+      await tester.ensureVisible(photo);
+      await tester.tap(photo);
+      await tester.pumpAndSettle();
+      await createPdf(tester);
+
+      expect(
+        [
+          for (final photo in writer.written.single.days[1].photos)
+            photo.photoPath,
+        ],
+        [endsWith('photos/p1.jpg')],
+      );
     });
 
     testWidgets('leaves out the first and last stop', (tester) async {
