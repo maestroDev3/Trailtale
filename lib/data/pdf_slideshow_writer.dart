@@ -75,7 +75,7 @@ class PdfSlideshowWriter implements SlideshowWriter {
       for (final slide in day.photos) {
         // A photo that cannot be read gets no slide.
         if (await _photo(slide.photoPath) case final photo?) {
-          pdf.addPage(_photoPage(photo, slide.caption));
+          pdf.addPage(_photoPage(photo, null));
         }
       }
     }

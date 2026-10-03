@@ -17,13 +17,12 @@ class SlideText {
   final String? photoPath;
 }
 
-/// A photo on its own slide, with an optional caption.
+/// A photo on its own slide (only the photo).
 class PhotoSlideText {
-  const PhotoSlideText({required this.photoPath, this.caption});
+  const PhotoSlideText({required this.photoPath});
 
   /// Absolute path of the photo.
   final String photoPath;
-  final String? caption;
 }
 
 /// A day slide (e.g. “Day 1 · Kotor”) followed by its photo slides.

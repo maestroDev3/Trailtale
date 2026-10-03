@@ -36,9 +36,7 @@ void main() {
         dateText: 'Sep 27, 2026',
         notes: ['Old town walls'],
         photoPath: '/photos/kotor.jpg',
-        photos: [
-          PhotoSlideText(photoPath: '/photos/cats.jpg', caption: 'Cats here'),
-        ],
+        photos: [PhotoSlideText(photoPath: '/photos/cats.jpg')],
       ),
       DaySlideText(
         heading: 'Day 2 - Perast - Budva',
@@ -46,7 +44,7 @@ void main() {
         notes: [],
         photoPath: '/photos/missing.jpg',
         photos: [
-          PhotoSlideText(photoPath: '/photos/beach.jpg', caption: 'Beach'),
+          PhotoSlideText(photoPath: '/photos/beach.jpg'),
           PhotoSlideText(photoPath: '/photos/sunset.jpg'),
         ],
       ),
@@ -129,8 +127,6 @@ void main() {
         'Day 2 - Perast - Budva',
         'Old town walls',
         'Sep 27, 2026',
-        'Cats here',
-        'Beach',
         'The route',
         'Trailtale',
       ]) {
@@ -219,6 +215,53 @@ void main() {
 
       expect(RegExp(r'/Type\s*/Page(?![s])').allMatches(pdf), hasLength(3));
       expect(pdf, contains('/FontFile2'));
+    });
+
+    SlideshowDocument withNotes(int count, {String? photoPath}) =>
+        SlideshowDocument(
+          title: 'Montenegro',
+          dateText: '',
+          factsText: '',
+          stops: const [],
+          days: [
+            DaySlideText(
+              heading: 'Day 1',
+              dateText: '',
+              notes: [for (var i = 1; i <= count; i++) 'Note$i'],
+              photoPath: photoPath,
+              photos: const [PhotoSlideText(photoPath: '/photos/beach.jpg')],
+            ),
+          ],
+          closingTitle: 'The route',
+          wordmark: 'Trailtale',
+        );
+
+    Future<String> write(SlideshowDocument document) async => latin1.decode(
+      await PdfSlideshowWriter(
+        shrinker: FakePhotoShrinker(),
+        compress: false,
+      ).write(document),
+    );
+
+    test('continues the notes of a day on a further slide', () async {
+      final pdf = await write(withNotes(8, photoPath: '/photos/kotor.jpg'));
+
+      expect(pages(pdf), 1 + 2 + 1 + 1);
+      for (var i = 1; i <= 8; i++) {
+        expect(pdf, contains('(Note$i)'));
+      }
+    });
+
+    test('keeps up to six notes on one day slide', () async {
+      final pdf = await write(withNotes(6));
+
+      expect(pages(pdf), 1 + 1 + 1 + 1);
+    });
+
+    test('shows photo slides without a text band', () async {
+      final pdf = await write(withNotes(2));
+
+      expect(pdf, isNot(matches(RegExp(r'/ca\s+0\.'))));
     });
   });
 }
