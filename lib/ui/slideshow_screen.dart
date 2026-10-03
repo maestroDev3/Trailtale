@@ -403,7 +403,11 @@ class _Thumbnail extends StatelessWidget {
               child: CircleAvatar(
                 radius: 9,
                 backgroundColor: colorScheme.primary,
-                child: Icon(Icons.check, size: 12, color: colorScheme.onPrimary),
+                child: Icon(
+                  Icons.check,
+                  size: 12,
+                  color: colorScheme.onPrimary,
+                ),
               ),
             ),
         ],
