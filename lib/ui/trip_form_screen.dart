@@ -60,6 +60,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
       startDate: _dates.start,
       endDate: _dates.end,
       coverPhotoPath: widget.trip?.coverPhotoPath,
+      dayCoverPhotos: widget.trip?.dayCoverPhotos ?? const {},
     );
     await widget.services.tripRepository.saveTrip(trip);
     if (!mounted) return;

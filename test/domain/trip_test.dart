@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:trailtale/domain/clock.dart';
 import 'package:trailtale/domain/trip.dart';
 
 void main() {
@@ -131,6 +132,51 @@ void main() {
         trip.copyWith(coverPhotoPath: 'photos/a.jpg'),
         trip.copyWith(coverPhotoPath: 'photos/a.jpg'),
       );
+    });
+  });
+
+  group('Trip day covers', () {
+    final trip = Trip(
+      id: 'me',
+      title: 'Montenegro',
+      startDate: DateTime(2026, 9, 26),
+      endDate: DateTime(2026, 9, 30),
+    );
+
+    test('has no day covers by default', () {
+      expect(trip.dayCoverPhotos, isEmpty);
+    });
+
+    test('sets and removes the cover of one day', () {
+      final withCover = trip
+          .withDayCover(DateTime(2026, 9, 27, 18, 30), 'photos/kotor.jpg')
+          .withDayCover(DateTime(2026, 9, 28), 'photos/budva.jpg');
+
+      expect(withCover.dayCoverPhotos, {
+        dayOf(DateTime(2026, 9, 27)): 'photos/kotor.jpg',
+        dayOf(DateTime(2026, 9, 28)): 'photos/budva.jpg',
+      });
+      expect(
+        withCover.withDayCover(DateTime(2026, 9, 27), null).dayCoverPhotos,
+        {dayOf(DateTime(2026, 9, 28)): 'photos/budva.jpg'},
+      );
+    });
+
+    test('cannot be changed from outside', () {
+      final withCover = trip.withDayCover(DateTime(2026, 9, 27), 'p/a.jpg');
+
+      expect(
+        () => withCover.dayCoverPhotos[DateTime(2026)] = 'p/b.jpg',
+        throwsUnsupportedError,
+      );
+    });
+
+    test('takes part in equality and survives copyWith', () {
+      final withCover = trip.withDayCover(DateTime(2026, 9, 27), 'p/a.jpg');
+
+      expect(withCover, isNot(trip));
+      expect(withCover, trip.withDayCover(DateTime(2026, 9, 27), 'p/a.jpg'));
+      expect(withCover.copyWith(title: 'Boka').dayCoverPhotos, hasLength(1));
     });
   });
 
