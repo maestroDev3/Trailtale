@@ -112,18 +112,17 @@ class Trip {
       );
 
   @override
-  int get hashCode =>
-      Object.hash(
-        id,
-        title,
-        startDate,
-        endDate,
-        coverPhotoPath,
-        Object.hashAllUnordered([
-          for (final entry in dayCoverPhotos.entries)
-            Object.hash(entry.key, entry.value),
-        ]),
-      );
+  int get hashCode => Object.hash(
+    id,
+    title,
+    startDate,
+    endDate,
+    coverPhotoPath,
+    Object.hashAllUnordered([
+      for (final entry in dayCoverPhotos.entries)
+        Object.hash(entry.key, entry.value),
+    ]),
+  );
 
   @override
   String toString() => 'Trip($id, $title, $startDate – $endDate)';
