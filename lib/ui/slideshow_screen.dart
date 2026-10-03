@@ -121,6 +121,15 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     });
   }
 
+  /// “9:30 AM · Kotor – Arrival”, without place “9:30 AM – Car rental”.
+  String _noteText(AppLocalizations l10n, DayNote note) {
+    final time = DateFormat.jm(l10n.localeName).format(note.time);
+    return switch (note.place) {
+      final place? => l10n.slideshowNoteWithPlace(time, place, note.text),
+      null => l10n.slideshowNote(time, note.text),
+    };
+  }
+
   /// The slideshow with all texts localized for the writer.
   SlideshowDocument _document(AppLocalizations l10n) {
     final trip = _trip;
@@ -149,7 +158,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
           DaySlideText(
             heading: _dayHeading(l10n, day),
             dateText: l10n.tripSingleDate(day.day),
-            notes: [for (final note in day.notes) note.text],
+            notes: [for (final note in day.notes) _noteText(l10n, note)],
             photoPath: absolute(day.titlePhotoPath),
             photos: [
               for (final photo in day.photos)
