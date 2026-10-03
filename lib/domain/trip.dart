@@ -13,6 +13,7 @@ class Trip {
     required DateTime startDate,
     required DateTime endDate,
     String? coverPhotoPath,
+    Map<DateTime, String> dayCoverPhotos = const {},
   }) {
     final trimmedTitle = title.trim();
     if (trimmedTitle.isEmpty) {
@@ -30,6 +31,10 @@ class Trip {
       startDate: start,
       endDate: end,
       coverPhotoPath: cover == null || cover.isEmpty ? null : cover,
+      dayCoverPhotos: Map.unmodifiable({
+        for (final MapEntry(:key, :value) in dayCoverPhotos.entries)
+          if (value.trim().isNotEmpty) dayOf(key): value.trim(),
+      }),
     );
   }
 
@@ -39,6 +44,7 @@ class Trip {
     required this.startDate,
     required this.endDate,
     required this.coverPhotoPath,
+    required this.dayCoverPhotos,
   });
 
   final String id;
@@ -52,10 +58,21 @@ class Trip {
 
   /// Title photos chosen for single days of the trip (calendar day →
   /// relative photo path), e.g. for the slideshow.
-  Map<DateTime, String> get dayCoverPhotos => throw UnimplementedError();
+  final Map<DateTime, String> dayCoverPhotos;
 
   /// Returns the trip with [path] as title photo of [day]; `null` removes it.
-  Trip withDayCover(DateTime day, String? path) => throw UnimplementedError();
+  Trip withDayCover(DateTime day, String? path) {
+    final covers = {...dayCoverPhotos}..remove(dayOf(day));
+    if (path != null) covers[dayOf(day)] = path;
+    return Trip(
+      id: id,
+      title: title,
+      startDate: startDate,
+      endDate: endDate,
+      coverPhotoPath: coverPhotoPath,
+      dayCoverPhotos: covers,
+    );
+  }
 
   /// Number of calendar days the trip covers, counting both ends.
   int get dayCount => endDate.difference(startDate).inDays + 1;
@@ -77,6 +94,7 @@ class Trip {
       coverPhotoPath: clearCoverPhoto
           ? null
           : coverPhotoPath ?? this.coverPhotoPath,
+      dayCoverPhotos: dayCoverPhotos,
     );
   }
 
@@ -87,11 +105,25 @@ class Trip {
       other.title == title &&
       other.startDate == startDate &&
       other.endDate == endDate &&
-      other.coverPhotoPath == coverPhotoPath;
+      other.coverPhotoPath == coverPhotoPath &&
+      other.dayCoverPhotos.length == dayCoverPhotos.length &&
+      dayCoverPhotos.entries.every(
+        (entry) => other.dayCoverPhotos[entry.key] == entry.value,
+      );
 
   @override
   int get hashCode =>
-      Object.hash(id, title, startDate, endDate, coverPhotoPath);
+      Object.hash(
+        id,
+        title,
+        startDate,
+        endDate,
+        coverPhotoPath,
+        Object.hashAllUnordered([
+          for (final entry in dayCoverPhotos.entries)
+            Object.hash(entry.key, entry.value),
+        ]),
+      );
 
   @override
   String toString() => 'Trip($id, $title, $startDate – $endDate)';

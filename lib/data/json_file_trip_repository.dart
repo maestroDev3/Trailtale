@@ -10,7 +10,8 @@ import 'versioned_json_list.dart';
 ///
 /// Format version 1: `{"version": 1, "trips": [{"id", "title", "startDate",
 /// "endDate", "coverPhoto"?}]}` with dates as `yyyy-MM-dd`; `coverPhoto`
-/// (the chosen cover's relative path) is optional and only written when set.
+/// (the chosen cover's relative path) and `dayCovers` (`{"yyyy-MM-dd": path}`,
+/// title photos of single days) are optional and only written when set.
 class JsonFileTripRepository implements TripRepository {
   JsonFileTripRepository(File file)
     : _store = VersionedJsonList(
@@ -53,6 +54,11 @@ Map<String, Object?> _tripToJson(Trip trip) => {
   'startDate': _formatDate(trip.startDate),
   'endDate': _formatDate(trip.endDate),
   'coverPhoto': ?trip.coverPhotoPath,
+  if (trip.dayCoverPhotos.isNotEmpty)
+    'dayCovers': {
+      for (final MapEntry(:key, :value) in trip.dayCoverPhotos.entries)
+        _formatDate(key): value,
+    },
 };
 
 Trip _tripFromJson(Map<String, dynamic> json) => Trip(
@@ -61,6 +67,11 @@ Trip _tripFromJson(Map<String, dynamic> json) => Trip(
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: DateTime.parse(json['endDate'] as String),
   coverPhotoPath: json['coverPhoto'] as String?,
+  dayCoverPhotos: {
+    for (final MapEntry(:key, :value)
+        in ((json['dayCovers'] as Map<String, dynamic>?) ?? const {}).entries)
+      DateTime.parse(key): value as String,
+  },
 );
 
 String _formatDate(DateTime day) {
