@@ -28,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 5 of 8 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → #161 Instagram carousel, one picture per day → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ → ~~#213 Stops within a day in the slideshow~~ |
+| #14 Data safety and sharing | 6 of 9 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → #161 Instagram carousel, one picture per day → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ → ~~#213 Stops within a day in the slideshow~~ → ~~#220 Keep full photo quality in the slideshow~~ |
 
 **#156 Ship it**
 
@@ -42,11 +42,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
-- #213 Slideshow: days with several places show an overview, then each stop with its notes and photos; photos at 1280 px (smaller PDF)
+- #220 Slideshow photos back at 1600 px – quality before file size (user decision)
+- #213 Slideshow: days with several places show an overview, then each stop with its notes and photos
 - #206 Slideshow: all notes of a day on its first slide next to the title photo, photos without text
 - #160 Slideshow as PDF: per day a title slide (chosen title photo, stored) and every photo on its own slide
 - #16 Share a trip as one picture for Instagram (story/post, real map, own photo choice) – tested by the user
-- #178 Bug fixed: the trip map opens zoomed to the trip's places
 
 ## Open decisions (user only)
 

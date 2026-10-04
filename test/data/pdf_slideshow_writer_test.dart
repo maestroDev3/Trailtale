@@ -137,18 +137,18 @@ void main() {
       }
     });
 
-    test('shrinks every photo to at most 1280 pixels', () async {
+    test('shrinks every photo to at most 1600 pixels', () async {
       final shrinker = FakePhotoShrinker();
 
       await writePdf(shrinker);
 
       expect(shrinker.calls, [
-        ('/photos/cover.jpg', 1280),
-        ('/photos/kotor.jpg', 1280),
-        ('/photos/cats.jpg', 1280),
-        ('/photos/missing.jpg', 1280),
-        ('/photos/beach.jpg', 1280),
-        ('/photos/sunset.jpg', 1280),
+        ('/photos/cover.jpg', 1600),
+        ('/photos/kotor.jpg', 1600),
+        ('/photos/cats.jpg', 1600),
+        ('/photos/missing.jpg', 1600),
+        ('/photos/beach.jpg', 1600),
+        ('/photos/sunset.jpg', 1600),
       ]);
     });
 
