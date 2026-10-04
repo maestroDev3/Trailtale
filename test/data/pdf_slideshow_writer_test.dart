@@ -137,18 +137,18 @@ void main() {
       }
     });
 
-    test('shrinks every photo to at most 1600 pixels', () async {
+    test('shrinks every photo to at most 1280 pixels', () async {
       final shrinker = FakePhotoShrinker();
 
       await writePdf(shrinker);
 
       expect(shrinker.calls, [
-        ('/photos/cover.jpg', 1600),
-        ('/photos/kotor.jpg', 1600),
-        ('/photos/cats.jpg', 1600),
-        ('/photos/missing.jpg', 1600),
-        ('/photos/beach.jpg', 1600),
-        ('/photos/sunset.jpg', 1600),
+        ('/photos/cover.jpg', 1280),
+        ('/photos/kotor.jpg', 1280),
+        ('/photos/cats.jpg', 1280),
+        ('/photos/missing.jpg', 1280),
+        ('/photos/beach.jpg', 1280),
+        ('/photos/sunset.jpg', 1280),
       ]);
     });
 
@@ -262,6 +262,51 @@ void main() {
       final pdf = await write(withNotes(2));
 
       expect(pdf, isNot(matches(RegExp(r'/ca\s+0\.'))));
+    });
+
+    test('writes every stop of a day with its slides and photos', () async {
+      final pdf = await write(
+        const SlideshowDocument(
+          title: 'Montenegro',
+          dateText: '',
+          factsText: '',
+          stops: [],
+          days: [
+            DaySlideText(
+              heading: 'Day 2 - Perast - Kotor',
+              dateText: 'Sep 26, 2026',
+              notes: ['1 Perast', '2 Kotor'],
+              photoPath: '/photos/title.jpg',
+              stops: [
+                DaySlideText(
+                  heading: 'StopPerast',
+                  dateText: '',
+                  notes: ['Lunch'],
+                  photoPath: '/photos/p1.jpg',
+                  photos: [PhotoSlideText(photoPath: '/photos/p2.jpg')],
+                ),
+                DaySlideText(
+                  heading: 'StopKotor',
+                  dateText: '',
+                  notes: [],
+                  photoPath: '/photos/k1.jpg',
+                  photos: [
+                    PhotoSlideText(photoPath: '/photos/k2.jpg'),
+                    PhotoSlideText(photoPath: '/photos/k3.jpg'),
+                  ],
+                ),
+              ],
+            ),
+          ],
+          closingTitle: 'The route',
+          wordmark: 'Trailtale',
+        ),
+      );
+
+      expect(pages(pdf), 1 + (1 + (1 + 1) + (1 + 2)) + 1);
+      expect(pdf, contains('(StopPerast)'));
+      expect(pdf, contains('(StopKotor)'));
+      expect(pdf, contains('(Lunch)'));
     });
   });
 }
