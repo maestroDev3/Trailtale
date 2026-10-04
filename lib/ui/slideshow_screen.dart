@@ -121,6 +121,46 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     });
   }
 
+  /// A day with several stops: an overview (“Day 2 · Perast → Kotor”, one
+  /// line per stop with its time) next to the title photo, then each stop
+  /// with its notes, its photo and its photo slides.
+  DaySlideText _overviewSlide(
+    AppLocalizations l10n,
+    DaySlide day,
+    String? Function(String?) absolute,
+  ) {
+    String time(DateTime value) => DateFormat.jm(l10n.localeName).format(value);
+    String stopHeading(int number, DayStop stop) =>
+        ['$number', ?stop.place].join(' · ');
+    final label = switch (day.dayNumber) {
+      final number? => l10n.slideshowDayLabel(number),
+      null => l10n.tripSingleDate(day.day),
+    };
+    final places = [for (final stop in day.stops) ?stop.place];
+    return DaySlideText(
+      heading: places.isEmpty ? label : '$label · ${places.join(' → ')}',
+      dateText: l10n.tripSingleDate(day.day),
+      notes: [
+        for (final (index, stop) in day.stops.indexed)
+          '${stopHeading(index + 1, stop)} · ${time(stop.time)}',
+      ],
+      photoPath: absolute(day.titlePhotoPath),
+      stops: [
+        for (final (index, stop) in day.stops.indexed)
+          DaySlideText(
+            heading: stopHeading(index + 1, stop),
+            dateText: time(stop.time),
+            notes: [for (final note in stop.notes) _noteText(l10n, note)],
+            photoPath: absolute(stop.photoPath),
+            photos: [
+              for (final photo in stop.photos)
+                PhotoSlideText(photoPath: absolute(photo.path) ?? photo.path),
+            ],
+          ),
+      ],
+    );
+  }
+
   /// “9:30 AM · Kotor – Arrival”, without place “9:30 AM – Car rental”.
   String _noteText(AppLocalizations l10n, DayNote note) {
     final time = DateFormat.jm(l10n.localeName).format(note.time);
@@ -155,16 +195,19 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
       ],
       days: [
         for (final day in slideshow.days)
-          DaySlideText(
-            heading: _dayHeading(l10n, day),
-            dateText: l10n.tripSingleDate(day.day),
-            notes: [for (final note in day.notes) _noteText(l10n, note)],
-            photoPath: absolute(day.titlePhotoPath),
-            photos: [
-              for (final photo in day.photos)
-                PhotoSlideText(photoPath: absolute(photo.path) ?? photo.path),
-            ],
-          ),
+          if (day.stops.length > 1)
+            _overviewSlide(l10n, day, absolute)
+          else
+            DaySlideText(
+              heading: _dayHeading(l10n, day),
+              dateText: l10n.tripSingleDate(day.day),
+              notes: [for (final note in day.notes) _noteText(l10n, note)],
+              photoPath: absolute(day.titlePhotoPath),
+              photos: [
+                for (final photo in day.photos)
+                  PhotoSlideText(photoPath: absolute(photo.path) ?? photo.path),
+              ],
+            ),
       ],
       closingTitle: l10n.slideshowRouteTitle,
       wordmark: l10n.appTitle,
