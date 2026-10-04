@@ -38,8 +38,9 @@ class PdfSlideshowWriter implements SlideshowWriter {
   /// Whether page contents are compressed (switched off in tests).
   final bool compress;
 
-  /// Longest side of embedded photos in pixels.
-  static const photoMaxSide = 1600;
+  /// Longest side of embedded photos in pixels: sharp on a TV, about half
+  /// the file size of 1600 px.
+  static const photoMaxSide = 1280;
 
   static const _format = PdfPageFormat(960, 540);
 
@@ -69,37 +70,49 @@ class PdfSlideshowWriter implements SlideshowWriter {
       ),
     );
     for (final day in document.days) {
-      final photo = await _photo(day.photoPath);
-      final chunks = [
-        for (var start = 0; start < day.notes.length; start += notesPerSlide)
-          day.notes.skip(start).take(notesPerSlide).toList(),
-      ];
-      // The first slide shows the title photo next to the notes; further
-      // notes continue on paper.
-      for (final (index, notes)
-          in (chunks.isEmpty ? [<String>[]] : chunks).indexed) {
-        pdf.addPage(
-          pw.Page(
-            pageFormat: _format,
-            margin: pw.EdgeInsets.zero,
-            build: (context) => _DaySlide(
-              day,
-              notes: notes,
-              heading: heading,
-              photo: index == 0 ? photo : null,
-            ),
-          ),
-        );
-      }
-      for (final slide in day.photos) {
-        // A photo that cannot be read gets no slide.
-        if (await _photo(slide.photoPath) case final photo?) {
-          pdf.addPage(_photoPage(photo));
-        }
-      }
+      await _addDay(pdf, day, heading);
     }
     pdf.addPage(_page(null, (_) => _ClosingSlide(document, heading: heading)));
     return pdf.save();
+  }
+
+  /// Writes the slides of [day] (notes next to its photo, continuation
+  /// slides for more notes), its photo slides and then each of its stops in
+  /// the same way.
+  Future<void> _addDay(
+    pw.Document pdf,
+    DaySlideText day,
+    pw.TextStyle heading,
+  ) async {
+    final photo = await _photo(day.photoPath);
+    final chunks = [
+      for (var start = 0; start < day.notes.length; start += notesPerSlide)
+        day.notes.skip(start).take(notesPerSlide).toList(),
+    ];
+    for (final (index, notes)
+        in (chunks.isEmpty ? [<String>[]] : chunks).indexed) {
+      pdf.addPage(
+        pw.Page(
+          pageFormat: _format,
+          margin: pw.EdgeInsets.zero,
+          build: (context) => _DaySlide(
+            day,
+            notes: notes,
+            heading: heading,
+            photo: index == 0 ? photo : null,
+          ),
+        ),
+      );
+    }
+    for (final slide in day.photos) {
+      // A photo that cannot be read gets no slide.
+      if (await _photo(slide.photoPath) case final photo?) {
+        pdf.addPage(_photoPage(photo));
+      }
+    }
+    for (final stop in day.stops) {
+      await _addDay(pdf, stop, heading);
+    }
   }
 
   Future<pw.MemoryImage?> _photo(String? path) async {
