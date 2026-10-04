@@ -12,7 +12,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Up next
 
-- Candidates: #161 Instagram carousel, #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
+- Candidates: #213 Stops within a day in the slideshow, #161 Instagram carousel, #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
 
 ## Backlog by initiative → epic
 
@@ -28,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 4 of 7 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → #161 Instagram carousel, one picture per day → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ |
+| #14 Data safety and sharing | 4 of 8 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → #161 Instagram carousel, one picture per day → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ → #213 Stops within a day in the slideshow |
 
 **#156 Ship it**
 
