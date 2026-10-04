@@ -129,12 +129,9 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     DaySlide day,
     String? Function(String?) absolute,
   ) {
-    String time(DateTime value) =>
-        DateFormat.jm(l10n.localeName).format(value);
-    String stopHeading(int number, DayStop stop) => [
-      '$number',
-      ?stop.place,
-    ].join(' · ');
+    String time(DateTime value) => DateFormat.jm(l10n.localeName).format(value);
+    String stopHeading(int number, DayStop stop) =>
+        ['$number', ?stop.place].join(' · ');
     final label = switch (day.dayNumber) {
       final number? => l10n.slideshowDayLabel(number),
       null => l10n.tripSingleDate(day.day),
