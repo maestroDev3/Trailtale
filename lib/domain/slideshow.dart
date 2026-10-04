@@ -193,15 +193,7 @@ DaySlide _daySlide(
     dayNumber: number >= 1 && number <= trip.dayCount ? number : null,
     places: places.values.toList(),
     titlePhotoPath: title?.path,
-    notes: [
-      for (final entry in entries)
-        if (entry.note.trim().isNotEmpty)
-          DayNote(
-            time: _wallClock(entry.localDateTime),
-            text: entry.note.trim(),
-            place: entry.placeName,
-          ),
-    ],
+    notes: _notesOf(entries),
     photos: [
       for (final photo in photos)
         if (!identical(photo, title)) photo,
@@ -212,6 +204,17 @@ DaySlide _daySlide(
     ],
   );
 }
+
+/// The non-empty notes of [entries], in their order.
+List<DayNote> _notesOf(List<Entry> entries) => [
+  for (final entry in entries)
+    if (entry.note.trim().isNotEmpty)
+      DayNote(
+        time: _wallClock(entry.localDateTime),
+        text: entry.note.trim(),
+        place: entry.placeName,
+      ),
+];
 
 /// Consecutive entries at the same place form one stop; entries without
 /// place join the stop before them.
@@ -245,15 +248,7 @@ DayStop _dayStop(
   return DayStop(
     place: entries.first.placeName,
     time: _wallClock(entries.first.localDateTime),
-    notes: [
-      for (final entry in entries)
-        if (entry.note.trim().isNotEmpty)
-          DayNote(
-            time: _wallClock(entry.localDateTime),
-            text: entry.note.trim(),
-            place: entry.placeName,
-          ),
-    ],
+    notes: _notesOf(entries),
     photoPath: photos.firstOrNull?.path,
     photos: photos.skip(1).toList(),
   );
