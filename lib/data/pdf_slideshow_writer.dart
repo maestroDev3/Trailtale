@@ -38,9 +38,9 @@ class PdfSlideshowWriter implements SlideshowWriter {
   /// Whether page contents are compressed (switched off in tests).
   final bool compress;
 
-  /// Longest side of embedded photos in pixels: sharp on a TV, about half
-  /// the file size of 1600 px.
-  static const photoMaxSide = 1280;
+  /// Longest side of embedded photos in pixels: quality before file size
+  /// (user decision 2026-10-05, about 22 MB for 60 photos).
+  static const photoMaxSide = 1600;
 
   static const _format = PdfPageFormat(960, 540);
 
