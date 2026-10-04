@@ -206,6 +206,56 @@ DaySlide _daySlide(
       for (final photo in photos)
         if (!identical(photo, title)) photo,
     ],
+    stops: [
+      for (final stopEntries in _groupStops(entries))
+        _dayStop(stopEntries, excludedPhotos, title?.path),
+    ],
+  );
+}
+
+/// Consecutive entries at the same place form one stop; entries without
+/// place join the stop before them.
+List<List<Entry>> _groupStops(List<Entry> entries) {
+  String? key(Entry entry) => entry.placeName?.trim().toLowerCase();
+  final stops = <List<Entry>>[];
+  String? current;
+  for (final entry in entries) {
+    final place = key(entry);
+    if (stops.isEmpty || (place != null && place != current)) {
+      stops.add([entry]);
+      current = place;
+    } else {
+      stops.last.add(entry);
+    }
+  }
+  return stops;
+}
+
+DayStop _dayStop(
+  List<Entry> entries,
+  Set<String> excludedPhotos,
+  String? dayTitlePhoto,
+) {
+  final photos = [
+    for (final entry in entries)
+      for (final path in entry.photoPaths)
+        if (!excludedPhotos.contains(path) && path != dayTitlePhoto)
+          PhotoSlide(path: path, place: entry.placeName),
+  ];
+  return DayStop(
+    place: entries.first.placeName,
+    time: _wallClock(entries.first.localDateTime),
+    notes: [
+      for (final entry in entries)
+        if (entry.note.trim().isNotEmpty)
+          DayNote(
+            time: _wallClock(entry.localDateTime),
+            text: entry.note.trim(),
+            place: entry.placeName,
+          ),
+    ],
+    photoPath: photos.firstOrNull?.path,
+    photos: photos.skip(1).toList(),
   );
 }
 
