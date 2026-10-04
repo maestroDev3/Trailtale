@@ -128,15 +128,25 @@ void main() {
       );
       expect(
         [for (final day in document.days) day.heading],
-        ['Day 1 · Munich', 'Day 2 · Kotor · Perast', 'Day 3 · Budva'],
+        ['Day 1 · Munich', 'Day 2 · Kotor → Perast', 'Day 3 · Budva'],
       );
       final kotorDay = document.days[1];
       expect(kotorDay.dateText, 'Sep 27, 2026');
       expect(kotorDay.photoPath, endsWith('photos/k1.jpg'));
+      expect(kotorDay.photos, isEmpty);
+      expect(kotorDay.notes, [
+        matches(RegExp(r'^1 · Kotor · 9:00\sAM$')),
+        matches(RegExp(r'^2 · Perast · 9:00\sAM$')),
+      ]);
       expect(
-        [for (final photo in kotorDay.photos) photo.photoPath],
-        [endsWith('photos/k2.jpg'), endsWith('photos/p1.jpg')],
+        [for (final stop in kotorDay.stops) stop.heading],
+        ['1 · Kotor', '2 · Perast'],
       );
+      expect(kotorDay.stops[0].dateText, matches(RegExp(r'^9:00\sAM$')));
+      expect(kotorDay.stops[0].photoPath, endsWith('photos/k2.jpg'));
+      expect(kotorDay.stops[1].photoPath, endsWith('photos/p1.jpg'));
+      expect(document.days.first.stops, isEmpty);
+      expect(document.days.first.notes, isEmpty);
       expect(document.coverPhotoPath, endsWith('photos/k1.jpg'));
     });
 
@@ -147,10 +157,11 @@ void main() {
 
       await createPdf(tester);
 
-      final notes = writer.written.single.days[1].notes;
-      expect(notes, hasLength(2));
-      expect(notes[0], matches(RegExp(r'^9:00\sAM · Kotor – Old town walls$')));
-      expect(notes[1], matches(RegExp(r'^9:15\sPM – Rainy evening$')));
+      final stops = writer.written.single.days[1].stops;
+      expect(stops[0].notes, [
+        matches(RegExp(r'^9:00\sAM · Kotor – Old town walls$')),
+      ]);
+      expect(stops[1].notes, [matches(RegExp(r'^9:15\sPM – Rainy evening$'))]);
     });
 
     testWidgets('lists the days with their photos', (tester) async {
@@ -177,10 +188,10 @@ void main() {
       await createPdf(tester);
 
       expect(trips.trips.single.dayCoverPhotos.values, ['photos/p1.jpg']);
-      expect(
-        writer.written.single.days[1].photoPath,
-        endsWith('photos/p1.jpg'),
-      );
+      final day = writer.written.single.days[1];
+      expect(day.photoPath, endsWith('photos/p1.jpg'));
+      expect(day.stops[0].photoPath, endsWith('photos/k1.jpg'));
+      expect(day.stops[1].photoPath, isNull);
     });
 
     testWidgets('leaves out deselected photos', (tester) async {
@@ -192,13 +203,9 @@ void main() {
       await tester.pumpAndSettle();
       await createPdf(tester);
 
-      expect(
-        [
-          for (final photo in writer.written.single.days[1].photos)
-            photo.photoPath,
-        ],
-        [endsWith('photos/p1.jpg')],
-      );
+      final stops = writer.written.single.days[1].stops;
+      expect(stops[0].photoPath, isNull);
+      expect(stops[1].photoPath, endsWith('photos/p1.jpg'));
     });
 
     testWidgets('leaves out the first and last stop', (tester) async {
@@ -215,7 +222,7 @@ void main() {
       );
       expect(
         [for (final day in writer.written.single.days) day.heading],
-        ['Day 2 · Kotor · Perast'],
+        ['Day 2 · Kotor → Perast'],
       );
     });
 
