@@ -33,6 +33,7 @@ class DaySlideText {
     required this.notes,
     this.photoPath,
     this.photos = const [],
+    this.stops = const [],
   });
 
   final String heading;
@@ -42,6 +43,10 @@ class DaySlideText {
   /// Absolute path of the day's title photo, if any.
   final String? photoPath;
   final List<PhotoSlideText> photos;
+
+  /// Stops within the day, each written like a day after the day's own
+  /// slides (empty for a day at one place).
+  final List<DaySlideText> stops;
 }
 
 /// Everything a slideshow file shows, with localized texts, so writers only
