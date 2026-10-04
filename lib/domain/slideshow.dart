@@ -40,6 +40,30 @@ class DayNote {
   final String? place;
 }
 
+/// A stop within a day: consecutive entries at the same place.
+class DayStop {
+  const DayStop({
+    required this.place,
+    required this.time,
+    required this.notes,
+    required this.photoPath,
+    required this.photos,
+  });
+
+  /// `null` for entries without place at the start of a day.
+  final String? place;
+
+  /// Local time of the stop's first entry.
+  final DateTime time;
+  final List<DayNote> notes;
+
+  /// The stop's first photo (shown on its stop slide).
+  final String? photoPath;
+
+  /// The stop's other photos, each on its own slide.
+  final List<PhotoSlide> photos;
+}
+
 /// One slide per trip day, followed by its photos.
 class DaySlide {
   const DaySlide({
@@ -49,7 +73,11 @@ class DaySlide {
     required this.titlePhotoPath,
     required this.notes,
     required this.photos,
+    this.stops = const [],
   });
+
+  /// The day's stops in time order (one for a day at one place).
+  final List<DayStop> stops;
 
   /// The local calendar day (see `dayOf`).
   final DateTime day;
