@@ -296,4 +296,85 @@ void main() {
       expect(slideshow.days.first.places, ['Kotor']);
     });
   });
+
+  group('buildSlideshow stops within a day', () {
+    List<String?> stopPlaces(DaySlide day) => [
+      for (final stop in day.stops) stop.place,
+    ];
+
+    test('makes one stop of consecutive entries at the same place', () {
+      final day = buildSlideshow(trip, [
+        entry(27, 8, place: 'Kotor', note: 'Arrival'),
+        entry(27, 9, place: ' kotor', note: 'Car rental'),
+        entry(27, 12, place: 'Perast'),
+        entry(27, 16, place: 'Kotor'),
+      ], leaveOutEnds: false).days.single;
+
+      expect(stopPlaces(day), ['Kotor', 'Perast', 'Kotor']);
+      expect(day.stops.first.time, DateTime(2026, 9, 27, 10));
+      expect(
+        [for (final note in day.stops.first.notes) note.text],
+        ['Arrival', 'Car rental'],
+      );
+    });
+
+    test('adds an entry without place to the stop before it', () {
+      final day = buildSlideshow(trip, [
+        entry(27, 7, note: 'Breakfast'),
+        entry(27, 8, place: 'Kotor'),
+        entry(27, 9, note: 'Coffee'),
+        entry(27, 12, place: 'Perast'),
+      ], leaveOutEnds: false).days.single;
+
+      expect(stopPlaces(day), [null, 'Kotor', 'Perast']);
+      expect([for (final note in day.stops[1].notes) note.text], ['Coffee']);
+    });
+
+    test('gives a stop its first photo and the rest as photo slides', () {
+      final day = buildSlideshow(trip, [
+        entry(27, 8, place: 'Kotor', photos: ['p/k1.jpg', 'p/k2.jpg']),
+        entry(27, 12, place: 'Perast', photos: ['p/p1.jpg', 'p/p2.jpg']),
+        entry(27, 13, place: 'Perast', photos: ['p/p3.jpg']),
+      ], leaveOutEnds: false).days.single;
+
+      expect(day.titlePhotoPath, 'p/k1.jpg');
+      expect(day.stops[0].photoPath, 'p/k2.jpg');
+      expect(day.stops[0].photos, isEmpty);
+      expect(day.stops[1].photoPath, 'p/p1.jpg');
+      expect(
+        [for (final photo in day.stops[1].photos) photo.path],
+        ['p/p2.jpg', 'p/p3.jpg'],
+      );
+    });
+
+    test('leaves out excluded photos in the stops', () {
+      final day = buildSlideshow(
+        trip,
+        [
+          entry(27, 8, place: 'Kotor', photos: ['p/k1.jpg']),
+          entry(27, 12, place: 'Perast', photos: ['p/p1.jpg', 'p/p2.jpg']),
+        ],
+        leaveOutEnds: false,
+        excludedPhotos: const {'p/p1.jpg'},
+      ).days.single;
+
+      expect(day.stops[1].photoPath, 'p/p2.jpg');
+      expect(day.stops[1].photos, isEmpty);
+    });
+
+    test('keeps a day with one stop as before', () {
+      final kotorDay = buildSlideshow(
+        trip,
+        entries,
+        leaveOutEnds: false,
+      ).days[1];
+
+      expect(stopPlaces(kotorDay), ['Kotor']);
+      expect(
+        [for (final photo in kotorDay.photos) photo.path],
+        ['p/kotor2.jpg'],
+      );
+      expect(kotorDay.notes, hasLength(4));
+    });
+  });
 }

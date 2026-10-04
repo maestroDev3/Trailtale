@@ -40,6 +40,30 @@ class DayNote {
   final String? place;
 }
 
+/// A stop within a day: consecutive entries at the same place.
+class DayStop {
+  const DayStop({
+    required this.place,
+    required this.time,
+    required this.notes,
+    required this.photoPath,
+    required this.photos,
+  });
+
+  /// `null` for entries without place at the start of a day.
+  final String? place;
+
+  /// Local time of the stop's first entry.
+  final DateTime time;
+  final List<DayNote> notes;
+
+  /// The stop's first photo (shown on its stop slide).
+  final String? photoPath;
+
+  /// The stop's other photos, each on its own slide.
+  final List<PhotoSlide> photos;
+}
+
 /// One slide per trip day, followed by its photos.
 class DaySlide {
   const DaySlide({
@@ -49,7 +73,11 @@ class DaySlide {
     required this.titlePhotoPath,
     required this.notes,
     required this.photos,
+    this.stops = const [],
   });
+
+  /// The day's stops in time order (one for a day at one place).
+  final List<DayStop> stops;
 
   /// The local calendar day (see `dayOf`).
   final DateTime day;
@@ -165,19 +193,64 @@ DaySlide _daySlide(
     dayNumber: number >= 1 && number <= trip.dayCount ? number : null,
     places: places.values.toList(),
     titlePhotoPath: title?.path,
-    notes: [
-      for (final entry in entries)
-        if (entry.note.trim().isNotEmpty)
-          DayNote(
-            time: _wallClock(entry.localDateTime),
-            text: entry.note.trim(),
-            place: entry.placeName,
-          ),
-    ],
+    notes: _notesOf(entries),
     photos: [
       for (final photo in photos)
         if (!identical(photo, title)) photo,
     ],
+    stops: [
+      for (final stopEntries in _groupStops(entries))
+        _dayStop(stopEntries, excludedPhotos, title?.path),
+    ],
+  );
+}
+
+/// The non-empty notes of [entries], in their order.
+List<DayNote> _notesOf(List<Entry> entries) => [
+  for (final entry in entries)
+    if (entry.note.trim().isNotEmpty)
+      DayNote(
+        time: _wallClock(entry.localDateTime),
+        text: entry.note.trim(),
+        place: entry.placeName,
+      ),
+];
+
+/// Consecutive entries at the same place form one stop; entries without
+/// place join the stop before them.
+List<List<Entry>> _groupStops(List<Entry> entries) {
+  String? key(Entry entry) => entry.placeName?.trim().toLowerCase();
+  final stops = <List<Entry>>[];
+  String? current;
+  for (final entry in entries) {
+    final place = key(entry);
+    if (stops.isEmpty || (place != null && place != current)) {
+      stops.add([entry]);
+      current = place;
+    } else {
+      stops.last.add(entry);
+    }
+  }
+  return stops;
+}
+
+DayStop _dayStop(
+  List<Entry> entries,
+  Set<String> excludedPhotos,
+  String? dayTitlePhoto,
+) {
+  final photos = [
+    for (final entry in entries)
+      for (final path in entry.photoPaths)
+        if (!excludedPhotos.contains(path) && path != dayTitlePhoto)
+          PhotoSlide(path: path, place: entry.placeName),
+  ];
+  return DayStop(
+    place: entries.first.placeName,
+    time: _wallClock(entries.first.localDateTime),
+    notes: _notesOf(entries),
+    photoPath: photos.firstOrNull?.path,
+    photos: photos.skip(1).toList(),
   );
 }
 
