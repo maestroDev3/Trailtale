@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:trailtale/domain/clock.dart';
 import 'package:trailtale/domain/entry.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
@@ -225,6 +226,69 @@ void main() {
       );
 
       expect(picture.photoPaths, ['photos/a.jpg']);
+    });
+  });
+
+  group('buildDayPictures', () {
+    final perast = GeoPoint(latitude: 42.4864, longitude: 18.6989);
+    final days = [
+      entry(26, 8, place: 'Munich', location: home, photos: ['p/home.jpg']),
+      entry(27, 9, place: 'Kotor', location: kotor, photos: ['p/k1.jpg']),
+      entry(27, 12, place: 'Perast', location: perast, photos: ['p/p1.jpg']),
+      entry(27, 15, place: 'Kotor', photos: ['p/k2.jpg', 'p/k3.jpg']),
+      entry(27, 18, photos: ['p/k4.jpg']),
+      entry(28, 9, place: 'Budva', location: budva),
+      entry(30, 20, place: 'Munich', location: home),
+    ];
+
+    test('has one picture per day with entries, numbered in the trip', () {
+      final pictures = buildDayPictures(trip, days, leaveOutEnds: false);
+
+      expect(
+        [for (final picture in pictures) picture.day],
+        [
+          for (final day in [26, 27, 28, 30]) dayOf(DateTime(2026, 9, day)),
+        ],
+      );
+      expect([for (final picture in pictures) picture.dayNumber], [1, 2, 3, 5]);
+    });
+
+    test('has the places of the day with their first location', () {
+      final kotorDay = buildDayPictures(
+        trip,
+        days,
+        leaveOutEnds: false,
+      )[1].picture;
+
+      expect(
+        [for (final stop in kotorDay.stops) stop.name],
+        ['Kotor', 'Perast'],
+      );
+      expect(kotorDay.stops.first.location, kotor);
+      expect(kotorDay.placeCount, 2);
+      expect(kotorDay.distanceMeters, closeTo(kotor.distanceTo(perast), 1));
+    });
+
+    test('puts the stored day title photo first, at most four photos', () {
+      final pictures = buildDayPictures(
+        trip.withDayCover(DateTime(2026, 9, 27), 'p/k3.jpg'),
+        days,
+        leaveOutEnds: false,
+      );
+
+      expect(pictures[1].picture.photoPaths, [
+        'p/k3.jpg',
+        'p/k1.jpg',
+        'p/p1.jpg',
+        'p/k2.jpg',
+      ]);
+      expect(pictures[0].picture.photoPaths, ['p/home.jpg']);
+    });
+
+    test('ignores left-out stops and drops days without entries', () {
+      final pictures = buildDayPictures(trip, days, leaveOutEnds: true);
+
+      expect([for (final picture in pictures) picture.dayNumber], [2, 3]);
     });
   });
 }
