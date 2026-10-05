@@ -147,3 +147,26 @@ List<String> _pickPhotos(List<Entry> chronological) {
   }
   return picked;
 }
+
+/// The picture of one trip day, e.g. for an Instagram carousel.
+class DayPicture {
+  const DayPicture({
+    required this.day,
+    required this.dayNumber,
+    required this.picture,
+  });
+
+  /// The local calendar day (see `dayOf`).
+  final DateTime day;
+
+  /// 1 for the trip's first day; `null` outside the trip dates.
+  final int? dayNumber;
+  final TripPicture picture;
+}
+
+/// One [DayPicture] per local day with entries.
+List<DayPicture> buildDayPictures(
+  Trip trip,
+  List<Entry> entries, {
+  required bool leaveOutEnds,
+}) => throw UnimplementedError();
