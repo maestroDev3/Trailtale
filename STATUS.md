@@ -4,11 +4,11 @@ Current project state for planning and Claude projects. Maintained by Claude
 after every status change (see CLAUDE.md, “Keeping the status”).
 The GitHub issues are authoritative; this file is the summary.
 
-**Last updated:** 2026-10-03
+**Last updated:** 2026-10-05
 
 ## In progress
 
-- #161 Instagram carousel: overview + one picture per day
+- Nothing – waiting for your choice of the next story
 
 ## Up next
 
@@ -28,7 +28,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 | Epic | State | Stories (in order) |
 |---|---|---|
-| #14 Data safety and sharing | 6 of 9 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → #161 Instagram carousel, one picture per day → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ → ~~#213 Stops within a day in the slideshow~~ → ~~#220 Keep full photo quality in the slideshow~~ |
+| #14 Data safety and sharing | 7 of 9 closed | ~~#15~~ → #101 Automatic backups to Google Drive including photos (needs Google Cloud setup) → ~~#16 Share a trip as one picture~~ → ~~#160 Trip slideshow as PDF~~ → ~~#161 Instagram carousel, one picture per day~~ → #162 Animated route video (later) → ~~#206 Notes tell the day's story in the slideshow~~ → ~~#213 Stops within a day in the slideshow~~ → ~~#220 Keep full photo quality in the slideshow~~ |
 
 **#156 Ship it**
 
@@ -42,11 +42,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #161 Instagram carousel: overview plus one picture per day (max. 20), shared together or saved
 - #220 Slideshow photos back at 1600 px – quality before file size (user decision)
 - #213 Slideshow: days with several places show an overview, then each stop with its notes and photos
 - #206 Slideshow: all notes of a day on its first slide next to the title photo, photos without text
 - #160 Slideshow as PDF: per day a title slide (chosen title photo, stored) and every photo on its own slide
-- #16 Share a trip as one picture for Instagram (story/post, real map, own photo choice) – tested by the user
 
 ## Open decisions (user only)
 
