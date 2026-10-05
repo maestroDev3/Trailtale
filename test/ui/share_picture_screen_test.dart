@@ -65,7 +65,7 @@ void main() {
       FakePhotoGallery gallery,
     })
   >
-  openScreen(WidgetTester tester) async {
+  openScreen(WidgetTester tester, {Trip? shownTrip, List<Entry>? shown}) async {
     final files = FakeTemporaryFiles();
     final sharer = FakeFileSharer();
     final gallery = FakePhotoGallery();
@@ -74,12 +74,12 @@ void main() {
       SharePictureScreen(
         services: testServices(
           trips: FakeTripRepository([trip]),
-          entries: FakeEntryRepository(entries),
+          entries: FakeEntryRepository(shown ?? entries),
           temporaryFiles: files,
           fileSharer: sharer,
           photoGallery: gallery,
         ),
-        trip: trip,
+        trip: shownTrip ?? trip,
       ),
     );
     // Map tiles and photos get time to load before sharing is possible.
@@ -88,12 +88,16 @@ void main() {
   }
 
   /// Taps [label] and lets the picture be rendered for real.
-  Future<void> tapAndRender(WidgetTester tester, String label) async {
+  Future<void> tapAndRender(
+    WidgetTester tester,
+    String label, {
+    int steps = 6,
+  }) async {
     await tester.tap(find.text(label));
     await tester.pump();
     // Loading photos and rendering need real time; each step continues in
     // the next frame, so alternate between real waiting and pumping.
-    for (var step = 0; step < 6; step++) {
+    for (var step = 0; step < steps; step++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 150)),
       );
@@ -258,6 +262,92 @@ void main() {
         () => Future<void>.delayed(const Duration(milliseconds: 500)),
       );
       await tester.pumpAndSettle();
+    });
+  });
+
+  group('SharePictureScreen carousel', () {
+    Future<void> chooseCarousel(WidgetTester tester) async {
+      await tester.tap(find.text('Carousel'));
+      await tester.pump(const Duration(seconds: 2));
+    }
+
+    List<TripPictureView> views(WidgetTester tester) => tester
+        .widgetList<TripPictureView>(find.byType(TripPictureView))
+        .toList();
+
+    testWidgets('shows the overview and one picture per day', (tester) async {
+      await openScreen(tester);
+
+      await chooseCarousel(tester);
+
+      final shown = views(tester);
+      expect(
+        [for (final view in shown) view.picture.title],
+        ['Montenegro', 'Day 1', 'Day 2', 'Day 3'],
+      );
+      expect({for (final view in shown) view.format}, {TripPictureFormat.post});
+      expect(shown.first.facts, isNull);
+      expect(shown[2].subtitle, 'Sunday, September 27');
+      expect(shown[2].facts, '1 place');
+      expect([for (final stop in shown[2].picture.stops) stop.name], ['Kotor']);
+    });
+
+    testWidgets('shares one numbered 1080 × 1350 PNG per picture together', (
+      tester,
+    ) async {
+      final (:files, :sharer, gallery: _) = await openScreen(tester);
+      await chooseCarousel(tester);
+
+      await tapAndRender(tester, 'Share', steps: 20);
+
+      final names = [for (var i = 1; i <= 4; i++) 'Montenegro-0$i.png'];
+      expect(files.written.keys, names);
+      for (final name in names) {
+        expect(pngSize(files.written[name] ?? const []), (1080, 1350));
+      }
+      expect(
+        [for (final file in sharer.sharedTogether.single) file.path],
+        [for (final name in names) '/temporary/$name'],
+      );
+    });
+
+    testWidgets('saves every picture to the gallery', (tester) async {
+      final (files: _, sharer: _, :gallery) = await openScreen(tester);
+      await chooseCarousel(tester);
+
+      await tapAndRender(tester, 'Save to gallery', steps: 20);
+
+      expect(
+        [for (final image in gallery.savedImages) image.title],
+        [for (var i = 1; i <= 4; i++) 'Montenegro-0$i'],
+      );
+      expect(find.text('Saved to your gallery'), findsOneWidget);
+    });
+
+    testWidgets('makes at most 20 pictures and says so', (tester) async {
+      final longTrip = Trip(
+        id: 'me',
+        title: 'Long trip',
+        startDate: DateTime(2026, 9, 1),
+        endDate: DateTime(2026, 9, 25),
+      );
+      await openScreen(
+        tester,
+        shownTrip: longTrip,
+        shown: [
+          for (var day = 1; day <= 25; day++)
+            stop('d$day', day, 'Place $day', 42 + day / 100, 18.7),
+        ],
+      );
+
+      await chooseCarousel(tester);
+
+      expect(find.byType(TripPictureView), findsNWidgets(20));
+      expect(views(tester).last.picture.title, 'Day 19');
+      expect(
+        find.text('Instagram allows 20 pictures – the last days are left out'),
+        findsOneWidget,
+      );
     });
   });
 }
