@@ -41,6 +41,8 @@ class TripPictureView extends StatelessWidget {
     required this.format,
     required this.photoFile,
     required this.routeMap,
+    this.subtitle,
+    this.facts,
   });
 
   final TripPicture picture;
@@ -51,6 +53,12 @@ class TripPictureView extends StatelessWidget {
 
   /// Builds the map with the route (OpenStreetMap in the app).
   final TripMapBuilder routeMap;
+
+  /// Shown instead of the date range, e.g. the date of a day picture.
+  final String? subtitle;
+
+  /// Shown instead of the trip figures, e.g. the figures of one day.
+  final String? facts;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +88,11 @@ class TripPictureView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _Heading(picture: picture, compact: !story),
+                  _Heading(
+                    picture: picture,
+                    subtitle: subtitle,
+                    compact: !story,
+                  ),
                   SizedBox(height: story ? 16 : 8),
                   // Photos first; the map below is a smaller strip in the
                   // post format.
@@ -97,7 +109,7 @@ class TripPictureView extends StatelessWidget {
                   if (story) ...[
                     _StopList(stops: picture.stops, maxStops: 6),
                     const SizedBox(height: 12),
-                    _Facts(picture: picture),
+                    _Facts(picture: picture, text: facts),
                     const SizedBox(height: 14),
                     const _Wordmark(),
                   ] else ...[
@@ -105,7 +117,9 @@ class TripPictureView extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Expanded(child: _Facts(picture: picture)),
+                        Expanded(
+                          child: _Facts(picture: picture, text: facts),
+                        ),
                         const _Wordmark(),
                       ],
                     ),
@@ -121,9 +135,14 @@ class TripPictureView extends StatelessWidget {
 }
 
 class _Heading extends StatelessWidget {
-  const _Heading({required this.picture, required this.compact});
+  const _Heading({
+    required this.picture,
+    required this.subtitle,
+    required this.compact,
+  });
 
   final TripPicture picture;
+  final String? subtitle;
 
   /// One title line in a smaller style, for the post format.
   final bool compact;
@@ -146,7 +165,8 @@ class _Heading extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          dateRangeText(context, picture.startDate, picture.endDate),
+          subtitle ??
+              dateRangeText(context, picture.startDate, picture.endDate),
           style:
               (compact ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium)
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -361,16 +381,17 @@ class _StopLine extends StatelessWidget {
 }
 
 class _Facts extends StatelessWidget {
-  const _Facts({required this.picture});
+  const _Facts({required this.picture, required this.text});
 
   final TripPicture picture;
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Text(
-      pictureFactsText(l10n, picture),
+      text ?? pictureFactsText(l10n, picture),
       style: theme.textTheme.titleSmall?.copyWith(
         color: theme.colorScheme.secondary,
       ),
