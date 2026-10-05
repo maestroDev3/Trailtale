@@ -117,7 +117,9 @@ class TripPictureView extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Expanded(child: _Facts(picture: picture, text: facts)),
+                        Expanded(
+                          child: _Facts(picture: picture, text: facts),
+                        ),
                         const _Wordmark(),
                       ],
                     ),
