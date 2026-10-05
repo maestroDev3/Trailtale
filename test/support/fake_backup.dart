@@ -32,9 +32,17 @@ class FakeBackupService implements BackupService {
 class FakeFileSharer implements FileSharer {
   final shared = <File>[];
 
+  /// Files passed to [shareFiles], one list per call.
+  final sharedTogether = <List<File>>[];
+
   @override
   Future<void> shareFile(File file, {required String subject}) async {
     shared.add(file);
+  }
+
+  @override
+  Future<void> shareFiles(List<File> files, {required String subject}) async {
+    sharedTogether.add(files);
   }
 }
 
