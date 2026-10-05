@@ -41,6 +41,8 @@ class TripPictureView extends StatelessWidget {
     required this.format,
     required this.photoFile,
     required this.routeMap,
+    this.subtitle,
+    this.facts,
   });
 
   final TripPicture picture;
@@ -52,8 +54,15 @@ class TripPictureView extends StatelessWidget {
   /// Builds the map with the route (OpenStreetMap in the app).
   final TripMapBuilder routeMap;
 
+  /// Shown instead of the date range, e.g. the date of a day picture.
+  final String? subtitle;
+
+  /// Shown instead of the trip figures, e.g. the figures of one day.
+  final String? facts;
+
   @override
   Widget build(BuildContext context) {
+    // Test stub: overrides are not shown yet.
     final theme = buildLightTheme();
     final story = format == TripPictureFormat.story;
     final hasRoute = picture.stops.any((stop) => stop.location != null);

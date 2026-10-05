@@ -35,6 +35,8 @@ void main() {
     WidgetTester tester, {
     TripPicture? content,
     TripPictureFormat format = TripPictureFormat.story,
+    String? subtitle,
+    String? facts,
   }) => pumpApp(
     tester,
     Center(
@@ -43,6 +45,8 @@ void main() {
         format: format,
         photoFile: (path) => File('/nonexistent/$path'),
         routeMap: PlaceholderTripMap.new,
+        subtitle: subtitle,
+        facts: facts,
       ),
     ),
   );
@@ -75,6 +79,32 @@ void main() {
         await pumpPicture(tester, format: format);
 
         expect(find.text('Montenegro'), findsOneWidget);
+        expect(find.text('Sep 26, 2026 – Sep 30, 2026'), findsOneWidget);
+        expect(find.text('5 days · 3 places · 16 km'), findsOneWidget);
+      });
+
+      testWidgets('shows a subtitle instead of the dates in ${format.name}', (
+        tester,
+      ) async {
+        await pumpPicture(tester, format: format, subtitle: 'Sun, Sep 27');
+
+        expect(find.text('Sun, Sep 27'), findsOneWidget);
+        expect(find.text('Sep 26, 2026 – Sep 30, 2026'), findsNothing);
+      });
+
+      testWidgets('shows facts instead of the figures in ${format.name}', (
+        tester,
+      ) async {
+        await pumpPicture(tester, format: format, facts: '2 places · 15 km');
+
+        expect(find.text('2 places · 15 km'), findsOneWidget);
+        expect(find.text('5 days · 3 places · 16 km'), findsNothing);
+      });
+
+      testWidgets('shows dates and figures without overrides in '
+          '${format.name}', (tester) async {
+        await pumpPicture(tester, format: format);
+
         expect(find.text('Sep 26, 2026 – Sep 30, 2026'), findsOneWidget);
         expect(find.text('5 days · 3 places · 16 km'), findsOneWidget);
       });
