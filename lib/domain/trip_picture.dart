@@ -1,6 +1,7 @@
 import 'entry.dart';
 import 'geo_point.dart';
 import 'trip.dart';
+import 'trip_day.dart';
 
 /// A place of the trip, in visiting order.
 class TripStop {
@@ -54,33 +55,25 @@ TripPicture buildTripPicture(
   required bool leaveOutEnds,
   List<String> chosenPhotos = const [],
 }) {
-  String key(String name) => name.trim().toLowerCase();
   final chronological = sortEntriesChronologically(entries);
   final names = <String, String>{};
   final locations = <String, GeoPoint>{};
   for (final entry in chronological) {
     if (entry.placeName case final name?) {
-      final placeKey = key(name);
+      final placeKey = _placeKey(name);
       names.putIfAbsent(placeKey, () => name);
       if (entry.location case final location?) {
         locations.putIfAbsent(placeKey, () => location);
       }
     }
   }
-  var keys = names.keys.toList();
-  final leftOut = <String>{};
-  if (leaveOutEnds && keys.isNotEmpty) {
-    // The trip ends where the last named entry is – on a round trip that is
-    // the first place again, so only home is left out.
-    final lastNamed = chronological.lastWhere(
-      (entry) => entry.placeName != null,
-    );
-    leftOut.addAll({keys.first, key(lastNamed.placeName ?? '')});
-    keys = [
-      for (final placeKey in keys)
-        if (!leftOut.contains(placeKey)) placeKey,
-    ];
-  }
+  final leftOut = leaveOutEnds
+      ? _leftOutPlaces(chronological)
+      : const <String>{};
+  final keys = [
+    for (final placeKey in names.keys)
+      if (!leftOut.contains(placeKey)) placeKey,
+  ];
   final stops = [
     for (final placeKey in keys)
       TripStop(name: names[placeKey] ?? '', location: locations[placeKey]),
@@ -90,12 +83,7 @@ TripPicture buildTripPicture(
   for (var i = 1; i < located.length; i++) {
     distance += located[i - 1].distanceTo(located[i]);
   }
-  final shown = [
-    for (final entry in chronological)
-      if (entry.placeName == null ||
-          !leftOut.contains(key(entry.placeName ?? '')))
-        entry,
-  ];
+  final shown = _withoutPlaces(chronological, leftOut);
   return TripPicture(
     title: trip.title,
     startDate: trip.startDate,
@@ -109,6 +97,26 @@ TripPicture buildTripPicture(
     },
   );
 }
+
+String _placeKey(String name) => name.trim().toLowerCase();
+
+/// The first and the last place of the trip (by [chronological] entries).
+/// The trip ends where the last named entry is – on a round trip that is
+/// the first place again, so only home is left out.
+Set<String> _leftOutPlaces(List<Entry> chronological) {
+  final named = [
+    for (final entry in chronological) ?entry.placeName,
+  ];
+  if (named.isEmpty) return const {};
+  return {_placeKey(named.first), _placeKey(named.last)};
+}
+
+List<Entry> _withoutPlaces(List<Entry> entries, Set<String> leftOut) => [
+  for (final entry in entries)
+    if (entry.placeName == null ||
+        !leftOut.contains(_placeKey(entry.placeName ?? '')))
+      entry,
+];
 
 List<String> _keepChosen(List<String> chosen, List<Entry> entries) {
   final available = {for (final entry in entries) ...entry.photoPaths};
@@ -164,9 +172,44 @@ class DayPicture {
   final TripPicture picture;
 }
 
-/// One [DayPicture] per local day with entries.
+/// One [DayPicture] per local day with entries, in date order. Each shows
+/// the places of that day like [buildTripPicture]; its photos start with
+/// the day's stored title photo. With [leaveOutEnds] the first and last
+/// place of the whole trip are left out and days without other entries
+/// are dropped.
 List<DayPicture> buildDayPictures(
   Trip trip,
   List<Entry> entries, {
   required bool leaveOutEnds,
-}) => throw UnimplementedError();
+}) {
+  final chronological = sortEntriesChronologically(entries);
+  final shown = leaveOutEnds
+      ? _withoutPlaces(chronological, _leftOutPlaces(chronological))
+      : chronological;
+  return [
+    for (final day in groupEntriesByDay(trip, shown))
+      DayPicture(
+        day: day.day,
+        dayNumber: day.dayNumber,
+        picture: _dayPicture(trip, day),
+      ),
+  ];
+}
+
+TripPicture _dayPicture(Trip trip, TripDay day) {
+  final picture = buildTripPicture(trip, day.entries, leaveOutEnds: false);
+  final cover = trip.dayCoverPhotos[day.day];
+  final dayPhotos = {for (final entry in day.entries) ...entry.photoPaths};
+  return TripPicture(
+    title: trip.title,
+    startDate: day.day,
+    endDate: day.day,
+    dayCount: 1,
+    stops: picture.stops,
+    distanceMeters: picture.distanceMeters,
+    photoPaths: {
+      if (cover != null && dayPhotos.contains(cover)) cover,
+      ...picture.photoPaths,
+    }.take(TripPicture.maxPhotos).toList(),
+  );
+}
