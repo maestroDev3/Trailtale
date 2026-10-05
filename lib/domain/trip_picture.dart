@@ -104,9 +104,7 @@ String _placeKey(String name) => name.trim().toLowerCase();
 /// The trip ends where the last named entry is – on a round trip that is
 /// the first place again, so only home is left out.
 Set<String> _leftOutPlaces(List<Entry> chronological) {
-  final named = [
-    for (final entry in chronological) ?entry.placeName,
-  ];
+  final named = [for (final entry in chronological) ?entry.placeName];
   if (named.isEmpty) return const {};
   return {_placeKey(named.first), _placeKey(named.last)};
 }

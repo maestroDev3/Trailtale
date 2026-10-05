@@ -227,7 +227,6 @@ void main() {
 
       expect(picture.photoPaths, ['photos/a.jpg']);
     });
-
   });
 
   group('buildDayPictures', () {
@@ -245,9 +244,12 @@ void main() {
     test('has one picture per day with entries, numbered in the trip', () {
       final pictures = buildDayPictures(trip, days, leaveOutEnds: false);
 
-      expect([for (final picture in pictures) picture.day], [
-        for (final day in [26, 27, 28, 30]) dayOf(DateTime(2026, 9, day)),
-      ]);
+      expect(
+        [for (final picture in pictures) picture.day],
+        [
+          for (final day in [26, 27, 28, 30]) dayOf(DateTime(2026, 9, day)),
+        ],
+      );
       expect([for (final picture in pictures) picture.dayNumber], [1, 2, 3, 5]);
     });
 
@@ -258,10 +260,10 @@ void main() {
         leaveOutEnds: false,
       )[1].picture;
 
-      expect([for (final stop in kotorDay.stops) stop.name], [
-        'Kotor',
-        'Perast',
-      ]);
+      expect(
+        [for (final stop in kotorDay.stops) stop.name],
+        ['Kotor', 'Perast'],
+      );
       expect(kotorDay.stops.first.location, kotor);
       expect(kotorDay.placeCount, 2);
       expect(kotorDay.distanceMeters, closeTo(kotor.distanceTo(perast), 1));
