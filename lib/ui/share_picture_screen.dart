@@ -10,11 +10,23 @@ import '../domain/trip.dart';
 import '../domain/trip_picture.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'formatting.dart';
 import 'picture_photo_chooser.dart';
 import 'widgets/trip_picture_view.dart';
 
-/// Shows the shareable picture of [trip] in Story or Post format and shares
-/// it or saves it to the gallery as a PNG in full resolution.
+/// What the share picture screen makes.
+enum _Mode { story, post, carousel }
+
+/// One picture of the carousel with its texts.
+typedef _CarouselPicture = ({
+  TripPicture picture,
+  String? subtitle,
+  String? facts,
+});
+
+/// Shows the shareable picture of [trip] in Story or Post format, or a
+/// carousel (overview plus one picture per day), and shares it or saves it
+/// to the gallery as PNGs in full resolution.
 class SharePictureScreen extends StatefulWidget {
   const SharePictureScreen({
     super.key,
@@ -34,8 +46,12 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
   /// before it can be shared.
   static const settleTime = Duration(milliseconds: 1500);
 
+  /// Most pictures an Instagram carousel takes.
+  static const maxCarouselPictures = 20;
+
   final _pictureKey = GlobalKey();
-  var _format = TripPictureFormat.story;
+  final _carouselKeys = <GlobalKey>[];
+  var _mode = _Mode.story;
   var _leaveOutEnds = false;
   var _busy = false;
   var _settling = true;
@@ -85,6 +101,53 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     chosenPhotos: _chosenPhotos,
   );
 
+  TripPictureFormat get _format =>
+      _mode == _Mode.story ? TripPictureFormat.story : TripPictureFormat.post;
+
+  /// The overview and the day pictures, at most [maxCarouselPictures]; the
+  /// flag says whether days were left out.
+  (List<_CarouselPicture>, bool) _carousel(
+    AppLocalizations l10n,
+    TripPicture overview,
+  ) {
+    final days = buildDayPictures(
+      widget.trip,
+      _entries,
+      leaveOutEnds: _leaveOutEnds,
+    );
+    final shown = days.take(maxCarouselPictures - 1);
+    return (
+      [
+        (picture: overview, subtitle: null, facts: null),
+        for (final day in shown)
+          (
+            picture: TripPicture(
+              title: switch (day.dayNumber) {
+                final number? => l10n.tripDayTitle(number),
+                null => l10n.tripSingleDate(day.day),
+              },
+              startDate: day.picture.startDate,
+              endDate: day.picture.endDate,
+              dayCount: day.picture.dayCount,
+              stops: day.picture.stops,
+              distanceMeters: day.picture.distanceMeters,
+              photoPaths: day.picture.photoPaths,
+            ),
+            subtitle: day.dayNumber == null ? '' : l10n.tripDayDate(day.day),
+            facts: dayPictureFactsText(l10n, day.picture),
+          ),
+      ],
+      days.length > shown.length,
+    );
+  }
+
+  GlobalKey _carouselKey(int index) {
+    while (_carouselKeys.length <= index) {
+      _carouselKeys.add(GlobalKey());
+    }
+    return _carouselKeys[index];
+  }
+
   Future<void> _choosePhotos() async {
     final chosen = await Navigator.of(context).push<List<String>>(
       MaterialPageRoute(
@@ -99,10 +162,23 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     _change(() => _chosenPhotos = chosen);
   }
 
-  /// Renders the visible preview at [TripPictureFormat.pixelRatio] as PNG
-  /// bytes; its photos and map tiles were loaded while it was shown.
-  Future<Uint8List?> _render() async {
-    if (_pictureKey.currentContext?.findRenderObject()
+  /// Renders the shown picture(s) at [TripPictureFormat.pixelRatio] as PNG
+  /// bytes; their photos and map tiles were loaded while they were shown.
+  Future<List<Uint8List>?> _renderAll(int carouselCount) async {
+    final keys = _mode == _Mode.carousel
+        ? [for (var i = 0; i < carouselCount; i++) _carouselKey(i)]
+        : [_pictureKey];
+    final pictures = <Uint8List>[];
+    for (final key in keys) {
+      final png = await _render(key);
+      if (png == null) return null;
+      pictures.add(png);
+    }
+    return pictures;
+  }
+
+  Future<Uint8List?> _render(GlobalKey key) async {
+    if (key.currentContext?.findRenderObject()
         case final RenderRepaintBoundary boundary) {
       final image = await boundary.toImage(
         pixelRatio: TripPictureFormat.pixelRatio,
@@ -114,12 +190,17 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     return null;
   }
 
-  Future<void> _withPicture(Future<void> Function(Uint8List png) use) async {
+  /// Number of pictures in the shown carousel.
+  var _carouselCount = 0;
+
+  Future<void> _withPictures(
+    Future<void> Function(List<Uint8List> pngs) use,
+  ) async {
     setState(() => _busy = true);
     try {
-      final png = await _render();
+      final pngs = await _renderAll(_carouselCount);
       if (!mounted) return;
-      if (png == null) {
+      if (pngs == null) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
@@ -129,26 +210,42 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
           );
         return;
       }
-      await use(png);
+      await use(pngs);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
-  Future<void> _share() => _withPicture((png) async {
+  /// File title of picture [index]: the trip title, numbered in a
+  /// carousel (“Montenegro-01”).
+  String _title(int index) => _mode == _Mode.carousel
+      ? '${widget.trip.title}-${(index + 1).toString().padLeft(2, '0')}'
+      : widget.trip.title;
+
+  Future<void> _share() => _withPictures((pngs) async {
     final services = widget.services;
-    final file = await services.temporaryFiles.write(
-      '${widget.trip.title}.png',
-      png,
-    );
-    await services.fileSharer.shareFile(file, subject: widget.trip.title);
+    final files = [
+      for (final (index, png) in pngs.indexed)
+        await services.temporaryFiles.write('${_title(index)}.png', png),
+    ];
+    if (_mode == _Mode.carousel) {
+      await services.fileSharer.shareFiles(files, subject: widget.trip.title);
+    } else {
+      await services.fileSharer.shareFile(
+        files.single,
+        subject: widget.trip.title,
+      );
+    }
   });
 
-  Future<void> _save() => _withPicture((png) async {
-    final saved = await widget.services.photoGallery.saveImage(
-      png,
-      title: widget.trip.title,
-    );
+  Future<void> _save() => _withPictures((pngs) async {
+    var saved = true;
+    for (final (index, png) in pngs.indexed) {
+      saved &= await widget.services.photoGallery.saveImage(
+        png,
+        title: _title(index),
+      );
+    }
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
@@ -166,6 +263,10 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
     final services = widget.services;
     final picture = _picture;
     final canExport = !_busy && !_settling;
+    final (carousel, carouselCapped) = _mode == _Mode.carousel
+        ? _carousel(l10n, picture)
+        : (const <_CarouselPicture>[], false);
+    _carouselCount = carousel.length;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.sharePicture)),
       body: Column(
@@ -173,20 +274,24 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: SegmentedButton<TripPictureFormat>(
+            child: SegmentedButton<_Mode>(
               segments: [
                 ButtonSegment(
-                  value: TripPictureFormat.story,
+                  value: _Mode.story,
                   label: Text(l10n.pictureStoryFormat),
                 ),
                 ButtonSegment(
-                  value: TripPictureFormat.post,
+                  value: _Mode.post,
                   label: Text(l10n.picturePostFormat),
                 ),
+                ButtonSegment(
+                  value: _Mode.carousel,
+                  label: Text(l10n.pictureCarouselFormat),
+                ),
               ],
-              selected: {_format},
+              selected: {_mode},
               onSelectionChanged: (selection) =>
-                  _change(() => _format = selection.first),
+                  _change(() => _mode = selection.first),
             ),
           ),
           SwitchListTile(
@@ -205,25 +310,21 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
             onTap: _choosePhotos,
           ),
           Expanded(
-            child: Builder(
-              builder: (context) {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: FittedBox(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.shadow
-                                  .withValues(alpha: 0.18),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: RepaintBoundary(
-                          key: _pictureKey,
+            child: _mode == _Mode.carousel
+                ? _CarouselPreview(
+                    pictures: carousel,
+                    capped: carouselCapped
+                        ? l10n.pictureCarouselLimit(maxCarouselPictures)
+                        : null,
+                    keyOf: _carouselKey,
+                    services: services,
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: FittedBox(
+                        child: _PictureFrame(
+                          boundaryKey: _pictureKey,
                           child: TripPictureView(
                             picture: picture,
                             format: _format,
@@ -234,9 +335,6 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
                       ),
                     ),
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -263,6 +361,94 @@ class _SharePictureScreenState extends State<SharePictureScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A picture with a soft shadow, rendered through [boundaryKey].
+class _PictureFrame extends StatelessWidget {
+  const _PictureFrame({required this.boundaryKey, required this.child});
+
+  final GlobalKey boundaryKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.18),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: RepaintBoundary(key: boundaryKey, child: child),
+    );
+  }
+}
+
+/// All carousel pictures below each other. A plain scroll view (not a lazy
+/// list) keeps every picture built and painted, so each can be rendered.
+class _CarouselPreview extends StatelessWidget {
+  const _CarouselPreview({
+    required this.pictures,
+    required this.capped,
+    required this.keyOf,
+    required this.services,
+  });
+
+  final List<_CarouselPicture> pictures;
+
+  /// Hint that days were left out, if any.
+  final String? capped;
+  final GlobalKey Function(int index) keyOf;
+  final AppServices services;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const format = TripPictureFormat.post;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          if (capped case final hint?) ...[
+            Text(
+              hint,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          for (final (index, item) in pictures.indexed) ...[
+            if (index > 0) const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 300),
+              child: AspectRatio(
+                aspectRatio:
+                    format.logicalSize.width / format.logicalSize.height,
+                child: FittedBox(
+                  child: _PictureFrame(
+                    boundaryKey: keyOf(index),
+                    child: TripPictureView(
+                      picture: item.picture,
+                      format: format,
+                      photoFile: services.photoLibrary.fileFor,
+                      routeMap: services.tripMap,
+                      subtitle: item.subtitle,
+                      facts: item.facts,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

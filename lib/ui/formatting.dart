@@ -16,6 +16,13 @@ String formatKilometers(double meters, String locale) {
 
 /// Days, places and kilometers of a trip picture or slideshow, e.g.
 /// “5 days · 3 places · 16 km”.
+/// Figures of a day picture, e.g. “2 places · 12 km”.
+String dayPictureFactsText(AppLocalizations l10n, TripPicture picture) => [
+  l10n.placeCount(picture.placeCount),
+  if (picture.distanceMeters > 0)
+    l10n.distanceKm(formatKilometers(picture.distanceMeters, l10n.localeName)),
+].join(' · ');
+
 String pictureFactsText(AppLocalizations l10n, TripPicture picture) =>
     picture.distanceMeters > 0
     ? l10n.pictureFacts(

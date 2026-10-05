@@ -617,6 +617,19 @@
   "@picturePostFormat": {
     "description": "Picture format for Instagram posts (4:5)."
   },
+  "pictureCarouselFormat": "Carousel",
+  "@pictureCarouselFormat": {
+    "description": "Picture format for an Instagram carousel post: an overview and one picture per trip day (4:5)."
+  },
+  "pictureCarouselLimit": "Instagram allows {count} pictures – the last days are left out",
+  "@pictureCarouselLimit": {
+    "description": "Hint when a trip has more days than an Instagram carousel can take.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pictureLeaveOutEnds": "Leave out first and last stop",
   "@pictureLeaveOutEnds": {
     "description": "Switch that hides the first and last stop of the trip in the picture, e.g. to keep one's home private."

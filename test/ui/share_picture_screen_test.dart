@@ -281,19 +281,15 @@ void main() {
       await chooseCarousel(tester);
 
       final shown = views(tester);
-      expect([for (final view in shown) view.picture.title], [
-        'Montenegro',
-        'Day 1',
-        'Day 2',
-        'Day 3',
-      ]);
+      expect(
+        [for (final view in shown) view.picture.title],
+        ['Montenegro', 'Day 1', 'Day 2', 'Day 3'],
+      );
       expect({for (final view in shown) view.format}, {TripPictureFormat.post});
       expect(shown.first.facts, isNull);
       expect(shown[2].subtitle, 'Sunday, September 27');
       expect(shown[2].facts, '1 place');
-      expect([for (final stop in shown[2].picture.stops) stop.name], [
-        'Kotor',
-      ]);
+      expect([for (final stop in shown[2].picture.stops) stop.name], ['Kotor']);
     });
 
     testWidgets('shares one numbered 1080 × 1350 PNG per picture together', (
@@ -309,9 +305,10 @@ void main() {
       for (final name in names) {
         expect(pngSize(files.written[name] ?? const []), (1080, 1350));
       }
-      expect([
-        for (final file in sharer.sharedTogether.single) file.path,
-      ], [for (final name in names) '/temporary/$name']);
+      expect(
+        [for (final file in sharer.sharedTogether.single) file.path],
+        [for (final name in names) '/temporary/$name'],
+      );
     });
 
     testWidgets('saves every picture to the gallery', (tester) async {
@@ -320,9 +317,10 @@ void main() {
 
       await tapAndRender(tester, 'Save to gallery', steps: 20);
 
-      expect([for (final image in gallery.savedImages) image.title], [
-        for (var i = 1; i <= 4; i++) 'Montenegro-0$i',
-      ]);
+      expect(
+        [for (final image in gallery.savedImages) image.title],
+        [for (var i = 1; i <= 4; i++) 'Montenegro-0$i'],
+      );
       expect(find.text('Saved to your gallery'), findsOneWidget);
     });
 
