@@ -46,18 +46,17 @@ class _TrailtaleAppState extends State<TrailtaleApp> {
     super.dispose();
   }
 
-  void _openQuickCapture() {
+  /// Opens [screen] on top of the current one.
+  void _open(Widget Function(AppServices services) screen) {
     final navigator = _navigatorKey.currentState;
     if (navigator == null) {
       // The request came before the first frame; open it right after.
-      WidgetsBinding.instance.addPostFrameCallback((_) => _openQuickCapture());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _open(screen));
       return;
     }
     unawaited(
       navigator.push(
-        MaterialPageRoute<void>(
-          builder: (_) => QuickCaptureScreen(services: widget.services),
-        ),
+        MaterialPageRoute<void>(builder: (_) => screen(widget.services)),
       ),
     );
   }

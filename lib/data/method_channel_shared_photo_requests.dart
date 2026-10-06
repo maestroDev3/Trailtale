@@ -25,7 +25,9 @@ class MethodChannelSharedPhotoRequests implements SharedPhotoRequests {
       onListen: () {
         _channel.setMethodCallHandler((call) async {
           if (call.method == 'photos') {
-            emit((call.arguments as List<Object?>?)?.whereType<String>().toList());
+            emit(
+              (call.arguments as List<Object?>?)?.whereType<String>().toList(),
+            );
           }
         });
         unawaited(
