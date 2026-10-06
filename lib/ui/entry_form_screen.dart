@@ -17,6 +17,7 @@ import '../domain/position_service.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'formatting.dart';
 import 'gallery_picker_screen.dart';
 import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
@@ -63,6 +64,17 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late final List<String> _photos;
   late Set<EntryTag> _tags;
 
+  /// The voice note shown in the form (relative path) and its length.
+  String? _voicePath;
+  Duration? _voiceLength;
+
+  /// Voice notes recorded while this form is open; deleted unless saved.
+  final _recordings = <String>{};
+
+  /// The recording being made: its path and whether it could start.
+  ({String path, Future<bool> started})? _recording;
+  var _isRecording = false;
+
   /// Photos imported while this form is open; deleted again unless saved.
   final _importedPhotos = <String>{};
   var _saved = false;
@@ -96,6 +108,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     _time = TimeOfDay(hour: start.hour, minute: start.minute);
     _photos = [...?entry?.photoPaths];
     _tags = {...?entry?.tags};
+    _voicePath = entry?.voiceNotePath;
+    _voiceLength = entry?.voiceNoteLength;
     if (widget.addPhotosOnOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_addPhotos());
@@ -105,8 +119,14 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
 
   @override
   void dispose() {
-    if (!_saved && _importedPhotos.isNotEmpty) {
-      unawaited(widget.services.photoLibrary.deletePhotos(_importedPhotos));
+    if (_recording != null) unawaited(widget.services.voiceRecorder.cancel());
+    if (!_saved && (_importedPhotos.isNotEmpty || _recordings.isNotEmpty)) {
+      unawaited(
+        widget.services.photoLibrary.deletePhotos({
+          ..._importedPhotos,
+          ..._recordings,
+        }),
+      );
     }
     _note.dispose();
     _place.dispose();
@@ -247,7 +267,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         (note ?? '').trim().isNotEmpty ||
         _place.text.trim().isNotEmpty ||
         _photos.isNotEmpty ||
-        _tags.isNotEmpty;
+        _tags.isNotEmpty ||
+        _voicePath != null;
     return hasContent ? null : l10n.entryNeedsContent;
   }
 
@@ -371,6 +392,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         location: location,
         photoPaths: _photos,
         tags: _tags,
+        voiceNotePath: _voicePath,
+        voiceNoteLength: _voiceLength,
       ),
       null => Entry.atLocalTime(
         id: id,
@@ -381,6 +404,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         location: location,
         photoPaths: _photos,
         tags: _tags,
+        voiceNotePath: _voicePath,
+        voiceNoteLength: _voiceLength,
       ),
     };
     await widget.services.entryRepository.saveEntry(entry);
@@ -388,12 +413,61 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     final dropped = {
       ...?widget.entry?.photoPaths,
       ..._importedPhotos,
-    }.difference(_photos.toSet());
+      ?widget.entry?.voiceNotePath,
+      ..._recordings,
+    }.difference({..._photos, ?_voicePath});
     if (dropped.isNotEmpty) {
       await widget.services.photoLibrary.deletePhotos(dropped);
     }
     if (!mounted) return;
     await Navigator.of(context).maybePop();
+  }
+
+  /// Starts a voice note while the record button is held.
+  Future<void> _startRecording() async {
+    final services = widget.services;
+    final path = 'voice/${services.newId()}.m4a';
+    final started = services.voiceRecorder.start(
+      services.photoLibrary.fileFor(path),
+    );
+    _recording = (path: path, started: started);
+    final allowed = await started;
+    if (!mounted) return;
+    if (!allowed) {
+      _recording = null;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).voiceNoteDenied)),
+        );
+      return;
+    }
+    _recordings.add(path);
+    setState(() => _isRecording = true);
+  }
+
+  /// Stops the voice note when the record button is released; it replaces
+  /// the previous one.
+  Future<void> _stopRecording() async {
+    final recording = _recording;
+    if (recording == null) return;
+    if (!await recording.started) return;
+    _recording = null;
+    final length = await widget.services.voiceRecorder.stop();
+    if (!mounted) return;
+    setState(() {
+      _isRecording = false;
+      _voicePath = recording.path;
+      _voiceLength = length;
+    });
+  }
+
+  void _showRecordHint() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).voiceNoteHoldHint)),
+      );
   }
 
   Future<void> _confirmDelete(Entry entry) async {
@@ -407,6 +481,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     await widget.services.photoLibrary.deletePhotos({
       ...entry.photoPaths,
       ..._importedPhotos,
+      ?entry.voiceNotePath,
+      ..._recordings,
     });
     if (!mounted) return;
     await Navigator.of(context).maybePop();
@@ -492,6 +568,18 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               TagChips(
                 selected: _tags,
                 onChanged: (tags) => setState(() => _tags = tags),
+              ),
+              const SizedBox(height: 16),
+              _VoiceNoteSection(
+                length: _voicePath == null ? null : _voiceLength,
+                recording: _isRecording,
+                onStart: _startRecording,
+                onStop: _stopRecording,
+                onTap: _showRecordHint,
+                onDelete: () => setState(() {
+                  _voicePath = null;
+                  _voiceLength = null;
+                }),
               ),
               const SizedBox(height: 16),
               RawAutocomplete<Place>(
@@ -793,6 +881,66 @@ class _DeleteEntryDialog extends StatelessWidget {
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
           child: Text(l10n.delete),
+        ),
+      ],
+    );
+  }
+}
+
+/// “Hold to record” and the entry's voice note with its length.
+class _VoiceNoteSection extends StatelessWidget {
+  const _VoiceNoteSection({
+    required this.length,
+    required this.recording,
+    required this.onStart,
+    required this.onStop,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  /// Length of the voice note; `null` without one.
+  final Duration? length;
+  final bool recording;
+  final VoidCallback onStart;
+  final VoidCallback onStop;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (length case final length?)
+          Row(
+            children: [
+              Icon(Icons.graphic_eq, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.voiceNoteLength(formatVoiceLength(length)),
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ),
+              IconButton(
+                tooltip: l10n.deleteVoiceNote,
+                icon: const Icon(Icons.delete_outline),
+                onPressed: onDelete,
+              ),
+            ],
+          ),
+        GestureDetector(
+          onLongPressStart: (_) => onStart(),
+          onLongPressEnd: (_) => onStop(),
+          child: OutlinedButton.icon(
+            onPressed: onTap,
+            icon: Icon(recording ? Icons.mic : Icons.mic_none),
+            label: Text(
+              recording ? l10n.voiceNoteRecording : l10n.voiceNoteHold,
+            ),
+          ),
         ),
       ],
     );

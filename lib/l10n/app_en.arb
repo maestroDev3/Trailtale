@@ -908,5 +908,34 @@
   "entryTagsLabel": "What was it?",
   "@entryTagsLabel": {
     "description": "Label above the one-tap tags in the entry form."
+  },
+  "voiceNoteHold": "Hold to record",
+  "@voiceNoteHold": {
+    "description": "Button in the entry form: hold it to record a voice note."
+  },
+  "voiceNoteRecording": "Recording… release to stop",
+  "@voiceNoteRecording": {
+    "description": "Button text while a voice note is recorded."
+  },
+  "voiceNoteHoldHint": "Hold the button while you speak",
+  "@voiceNoteHoldHint": {
+    "description": "Hint after a short tap on the record button."
+  },
+  "deleteVoiceNote": "Delete voice note",
+  "@deleteVoiceNote": {
+    "description": "Tooltip of the button that removes the voice note from an entry."
+  },
+  "voiceNoteDenied": "Microphone access was not allowed",
+  "@voiceNoteDenied": {
+    "description": "Message when the microphone may not be used for a voice note."
+  },
+  "voiceNoteLength": "Voice note · {length}",
+  "@voiceNoteLength": {
+    "description": "The voice note of an entry with its length, e.g. 'Voice note · 0:12'.",
+    "placeholders": {
+      "length": {
+        "type": "String"
+      }
+    }
   }
 }

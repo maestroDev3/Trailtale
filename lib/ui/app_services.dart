@@ -15,6 +15,7 @@ import '../domain/shared_photo_requests.dart';
 import '../domain/slideshow_document.dart';
 import '../domain/temporary_files.dart';
 import '../domain/trip_repository.dart';
+import '../domain/voice_recorder.dart';
 import 'widgets/picker_map.dart';
 import 'widgets/trip_map_view.dart';
 
@@ -40,6 +41,7 @@ class AppServices {
     required this.positionService,
     required this.quickCaptureRequests,
     required this.sharedPhotoRequests,
+    required this.voiceRecorder,
     this.clock = DateTime.now,
   });
 
@@ -81,5 +83,8 @@ class AppServices {
 
   /// Photos other apps share to Trailtale.
   final SharedPhotoRequests sharedPhotoRequests;
+
+  /// Records voice notes for entries.
+  final VoiceRecorder voiceRecorder;
   final Clock clock;
 }

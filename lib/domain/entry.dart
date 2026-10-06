@@ -88,6 +88,8 @@ class Entry {
     GeoPoint? location,
     List<String> photoPaths = const [],
     Set<EntryTag> tags = const {},
+    String? voiceNotePath,
+    Duration? voiceNoteLength,
   }) {
     return Entry(
       id: id,
@@ -99,6 +101,8 @@ class Entry {
       location: location,
       photoPaths: photoPaths,
       tags: tags,
+      voiceNotePath: voiceNotePath,
+      voiceNoteLength: voiceNoteLength,
     );
   }
 

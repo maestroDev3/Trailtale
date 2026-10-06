@@ -19,6 +19,7 @@ import 'data/json_file_trip_repository.dart';
 import 'data/method_channel_quick_capture_requests.dart';
 import 'data/method_channel_shared_photo_requests.dart';
 import 'data/random_id.dart';
+import 'data/record_voice_recorder.dart';
 import 'data/share_plus_file_sharer.dart';
 import 'data/storage_locations.dart';
 import 'data/zip_backup_service.dart';
@@ -93,6 +94,7 @@ Future<void> main() async {
         positionService: GeolocatorPositionService(),
         quickCaptureRequests: MethodChannelQuickCaptureRequests(),
         sharedPhotoRequests: MethodChannelSharedPhotoRequests(),
+        voiceRecorder: RecordVoiceRecorder(),
         placeDirectory: AssetPlaceDirectory(
           loadBytes: () async =>
               (await rootBundle.load('assets/places/cities.tsv.gz')).buffer

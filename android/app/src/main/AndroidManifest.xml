@@ -18,6 +18,8 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
         tools:node="remove" />
+    <!-- Voice notes for entries, only while recording in the app (#233). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Loads OpenStreetMap tiles for the trip map (#12). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <application
