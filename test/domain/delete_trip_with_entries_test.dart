@@ -54,7 +54,7 @@ void main() {
         expect(photos.deleted, ['photos/a1.jpg', 'photos/a2.jpg']);
       },
     );
-  
+
     test('deletes the voice notes of the trip entries', () async {
       final photos = FakePhotoLibrary();
 

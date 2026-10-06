@@ -13,8 +13,8 @@ const Object _unchanged = Object();
 /// and day even when viewed in another time zone.
 class Entry {
   /// Creates a validated entry; throws [ArgumentError] if it has neither a
-  /// note, a place name, a location, photos nor tags, or if a photo path is
-  /// blank or absolute.
+  /// note, a place name, a location, photos, tags nor a voice note, or if a
+  /// photo or voice note path is blank or absolute.
   factory Entry({
     required String id,
     required String tripId,
@@ -33,6 +33,14 @@ class Entry {
         throw ArgumentError.value(path, 'photoPaths', 'must be relative');
       }
     }
+    if (voiceNotePath != null &&
+        (voiceNotePath.trim().isEmpty || voiceNotePath.startsWith('/'))) {
+      throw ArgumentError.value(
+        voiceNotePath,
+        'voiceNotePath',
+        'must be relative',
+      );
+    }
     final trimmedNote = note.trim();
     final trimmedPlace = placeName?.trim();
     final place = trimmedPlace == null || trimmedPlace.isEmpty
@@ -42,9 +50,11 @@ class Entry {
         place == null &&
         location == null &&
         photoPaths.isEmpty &&
-        tags.isEmpty) {
+        tags.isEmpty &&
+        voiceNotePath == null) {
       throw ArgumentError(
-        'An entry needs a note, a place name, a location, photos or tags',
+        'An entry needs a note, a place name, a location, photos, tags or a '
+        'voice note',
       );
     }
     return Entry._(
@@ -60,6 +70,10 @@ class Entry {
         for (final tag in EntryTag.values)
           if (tags.contains(tag)) tag,
       }),
+      voiceNotePath: voiceNotePath,
+      voiceNoteLength: voiceNotePath == null
+          ? null
+          : voiceNoteLength ?? Duration.zero,
     );
   }
 
@@ -98,6 +112,8 @@ class Entry {
     required this.location,
     required this.photoPaths,
     required this.tags,
+    required this.voiceNotePath,
+    required this.voiceNoteLength,
   });
 
   final String id;
@@ -114,11 +130,11 @@ class Entry {
   /// What kind of moment this was (food, view, …), in [EntryTag] order.
   final Set<EntryTag> tags;
 
-  /// Relative path of the entry's voice note, if any.
-  String? get voiceNotePath => null;
+  /// Relative path of the entry's voice note (`voice/<id>.m4a`), if any.
+  final String? voiceNotePath;
 
-  /// Length of the voice note.
-  Duration? get voiceNoteLength => null;
+  /// Length of the voice note; `null` without one.
+  final Duration? voiceNoteLength;
 
   /// Wall-clock time where the entry was recorded. The value is flagged as
   /// UTC only so that its fields are not converted again; read its fields.
@@ -128,7 +144,8 @@ class Entry {
   DateTime get localDay => dayOf(localDateTime);
 
   /// Returns a new entry with the given fields replaced; passing `null` for
-  /// [placeName] or [location] removes them. Validated like a new entry.
+  /// [placeName], [location] or [voiceNotePath] removes them. Validated like
+  /// a new entry.
   Entry copyWith({
     DateTime? time,
     Duration? utcOffset,
@@ -154,6 +171,10 @@ class Entry {
           : location as GeoPoint?,
       photoPaths: photoPaths ?? this.photoPaths,
       tags: tags ?? this.tags,
+      voiceNotePath: identical(voiceNotePath, _unchanged)
+          ? this.voiceNotePath
+          : voiceNotePath as String?,
+      voiceNoteLength: voiceNoteLength ?? this.voiceNoteLength,
     );
   }
 
@@ -169,7 +190,9 @@ class Entry {
       other.location == location &&
       _sameList(other.photoPaths, photoPaths) &&
       other.tags.length == tags.length &&
-      other.tags.containsAll(tags);
+      other.tags.containsAll(tags) &&
+      other.voiceNotePath == voiceNotePath &&
+      other.voiceNoteLength == voiceNoteLength;
 
   @override
   int get hashCode => Object.hash(
@@ -182,6 +205,8 @@ class Entry {
     location,
     Object.hashAll(photoPaths),
     Object.hashAll(tags),
+    voiceNotePath,
+    voiceNoteLength,
   );
 
   @override

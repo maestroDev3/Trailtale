@@ -6,8 +6,9 @@ import 'package:archive/archive.dart';
 import '../domain/backup_service.dart';
 import '../domain/clock.dart';
 
-/// Backs up the documents directory's trips, entries and photos into one
-/// ZIP file: `manifest.json`, `trips.json`, `entries.json`, `photos/…`.
+/// Backs up the documents directory's trips, entries, photos and voice notes
+/// into one ZIP file: `manifest.json`, `trips.json`, `entries.json`,
+/// `photos/…`, `voice/…`.
 class ZipBackupService implements BackupService {
   ZipBackupService({
     required this.documents,
@@ -19,7 +20,8 @@ class ZipBackupService implements BackupService {
   static const format = 1;
 
   static const _dataFiles = {'trips.json': 'trips', 'entries.json': 'entries'};
-  static const _photos = 'photos';
+  /// Folders of media files and their count in the manifest.
+  static const _mediaFolders = {'photos': 'photos', 'voice': 'voiceNotes'};
   static const _manifest = 'manifest.json';
 
   final Directory documents;
@@ -39,17 +41,21 @@ class ZipBackupService implements BackupService {
       counts[listKey] = _countItems(bytes, listKey);
       files.add(ArchiveFile.bytes(name, bytes));
     }
-    final photos = _photoFiles();
-    for (final photo in photos) {
-      final relative = photo.path.substring(documents.path.length + 1);
-      files.add(ArchiveFile.bytes(relative, await photo.readAsBytes()));
+    for (final MapEntry(key: folder, value: countKey) in _mediaFolders.entries) {
+      final media = _filesIn(folder);
+      counts[countKey] = media.length;
+      for (final file in media) {
+        final relative = file.path.substring(documents.path.length + 1);
+        files.add(ArchiveFile.bytes(relative, await file.readAsBytes()));
+      }
     }
     final manifest = {
       'format': format,
       'createdAt': now.toIso8601String(),
       'trips': counts['trips'],
       'entries': counts['entries'],
-      'photos': photos.length,
+      'photos': counts['photos'],
+      'voiceNotes': counts['voiceNotes'],
     };
     final archive = Archive()
       ..addFile(ArchiveFile.string(_manifest, jsonEncode(manifest)));
@@ -114,17 +120,17 @@ class ZipBackupService implements BackupService {
     if (name == _manifest || _dataFiles.containsKey(name)) return true;
     final segments = name.split('/');
     return segments.length > 1 &&
-        segments.first == _photos &&
+        _mediaFolders.containsKey(segments.first) &&
         !segments.any((segment) => segment.isEmpty || segment == '..');
   }
 
-  /// Replaces trips, entries and photos in [documents] with the ones in
+  /// Replaces trips, entries and media in [documents] with the ones in
   /// [staging]; the previous ones are kept aside until the swap succeeded.
   Future<void> _swapIn(Directory staging) async {
     final previous = Directory('${documents.path}.previous');
     if (previous.existsSync()) await previous.delete(recursive: true);
     await previous.create(recursive: true);
-    final managed = [..._dataFiles.keys, _photos];
+    final managed = [..._dataFiles.keys, ..._mediaFolders.keys];
     for (final name in managed) {
       final current = '${documents.path}/$name';
       if (FileSystemEntity.typeSync(current) != FileSystemEntityType.notFound) {
@@ -145,10 +151,10 @@ class ZipBackupService implements BackupService {
   FileSystemEntity _entity(String path) =>
       FileSystemEntity.isDirectorySync(path) ? Directory(path) : File(path);
 
-  List<File> _photoFiles() {
-    final photos = Directory('${documents.path}/$_photos');
-    if (!photos.existsSync()) return const [];
-    return photos.listSync(recursive: true).whereType<File>().toList()
+  List<File> _filesIn(String folder) {
+    final directory = Directory('${documents.path}/$folder');
+    if (!directory.existsSync()) return const [];
+    return directory.listSync(recursive: true).whereType<File>().toList()
       ..sort((a, b) => a.path.compareTo(b.path));
   }
 

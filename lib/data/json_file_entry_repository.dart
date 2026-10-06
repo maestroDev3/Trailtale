@@ -14,8 +14,8 @@ import 'versioned_json_list.dart';
 /// (ISO-8601 UTC), "utcOffsetMinutes", "note", "placeName", "location":
 /// {"latitude", "longitude"} | null, "photoPaths": [...]}]}`.
 /// Version 1 is the same without `photoPaths` and is still read. The
-/// optional `"tags": ["food", …]` came later within version 2; unknown tag
-/// names are skipped.
+/// optional `"tags": ["food", …]` and `"voiceNote": {"path", "lengthMs"}`
+/// came later within version 2; unknown tag names are skipped.
 class JsonFileEntryRepository implements EntryRepository {
   JsonFileEntryRepository(File file)
     : _store = VersionedJsonList(
@@ -92,6 +92,11 @@ Map<String, Object?> _entryToJson(Entry entry) => {
   },
   'photoPaths': entry.photoPaths,
   if (entry.tags.isNotEmpty) 'tags': [for (final tag in entry.tags) tag.name],
+  if (entry.voiceNotePath case final path?)
+    'voiceNote': {
+      'path': path,
+      'lengthMs': entry.voiceNoteLength?.inMilliseconds ?? 0,
+    },
 };
 
 Entry _entryFromJson(Map<String, dynamic> json) => Entry(
@@ -112,5 +117,10 @@ Entry _entryFromJson(Map<String, dynamic> json) => Entry(
   tags: {
     for (final name in (json['tags'] as List<dynamic>?) ?? const [])
       ?EntryTag.values.asNameMap()[name],
+  },
+  voiceNotePath: (json['voiceNote'] as Map<String, dynamic>?)?['path'] as String?,
+  voiceNoteLength: switch (json['voiceNote']) {
+    {'lengthMs': final int milliseconds} => Duration(milliseconds: milliseconds),
+    _ => null,
   },
 );
