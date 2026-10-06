@@ -55,7 +55,7 @@ void main() {
       },
     );
   
-    test('deletes the voice notes of the trip's entries', () async {
+    test('deletes the voice notes of the trip entries', () async {
       final photos = FakePhotoLibrary();
 
       await deleteTripWithEntries(
