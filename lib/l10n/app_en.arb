@@ -937,5 +937,13 @@
         "type": "String"
       }
     }
+  },
+  "playVoiceNote": "Play voice note",
+  "@playVoiceNote": {
+    "description": "Tooltip of the button that plays an entry's voice note."
+  },
+  "stopVoiceNote": "Stop voice note",
+  "@stopVoiceNote": {
+    "description": "Tooltip of the button that stops a playing voice note."
   }
 }

@@ -17,6 +17,7 @@ import 'fake_place_directory.dart';
 import 'fake_slideshow_writer.dart';
 import 'fake_temporary_files.dart';
 import 'fake_trip_repository.dart';
+import 'fake_voice_player.dart';
 import 'fake_voice_recorder.dart';
 import 'placeholder_picker_map.dart';
 import 'placeholder_trip_map.dart';
@@ -45,6 +46,7 @@ AppServices testServices({
   FakeQuickCaptureRequests? quickCaptureRequests,
   FakeSharedPhotoRequests? sharedPhotoRequests,
   FakeVoiceRecorder? voiceRecorder,
+  FakeVoicePlayer? voicePlayer,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
@@ -70,5 +72,6 @@ AppServices testServices({
     quickCaptureRequests: quickCaptureRequests ?? FakeQuickCaptureRequests(),
     sharedPhotoRequests: sharedPhotoRequests ?? FakeSharedPhotoRequests(),
     voiceRecorder: voiceRecorder ?? FakeVoiceRecorder(),
+    voicePlayer: voicePlayer ?? FakeVoicePlayer(),
   );
 }

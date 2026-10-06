@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'data/asset_place_directory.dart';
+import 'data/audioplayers_voice_player.dart';
 import 'data/exif_photo_metadata_reader.dart';
 import 'data/file_photo_library.dart';
 import 'data/codec_photo_shrinker.dart';
@@ -95,6 +96,7 @@ Future<void> main() async {
         quickCaptureRequests: MethodChannelQuickCaptureRequests(),
         sharedPhotoRequests: MethodChannelSharedPhotoRequests(),
         voiceRecorder: RecordVoiceRecorder(),
+        voicePlayer: AudioplayersVoicePlayer(),
         placeDirectory: AssetPlaceDirectory(
           loadBytes: () async =>
               (await rootBundle.load('assets/places/cities.tsv.gz')).buffer

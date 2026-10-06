@@ -23,6 +23,7 @@ import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/position_feedback.dart';
 import 'widgets/tag_chips.dart';
+import 'widgets/voice_play_button.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
 /// deleting it.
@@ -572,6 +573,14 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               const SizedBox(height: 16),
               _VoiceNoteSection(
                 length: _voicePath == null ? null : _voiceLength,
+                playButton: switch (_voicePath) {
+                  final path? => VoicePlayButton(
+                    key: ValueKey(path),
+                    player: widget.services.voicePlayer,
+                    file: widget.services.photoLibrary.fileFor(path),
+                  ),
+                  null => null,
+                },
                 recording: _isRecording,
                 onStart: _startRecording,
                 onStop: _stopRecording,
@@ -891,6 +900,7 @@ class _DeleteEntryDialog extends StatelessWidget {
 class _VoiceNoteSection extends StatelessWidget {
   const _VoiceNoteSection({
     required this.length,
+    required this.playButton,
     required this.recording,
     required this.onStart,
     required this.onStop,
@@ -900,6 +910,9 @@ class _VoiceNoteSection extends StatelessWidget {
 
   /// Length of the voice note; `null` without one.
   final Duration? length;
+
+  /// Plays the voice note; `null` without one.
+  final Widget? playButton;
   final bool recording;
   final VoidCallback onStart;
   final VoidCallback onStop;
@@ -916,8 +929,8 @@ class _VoiceNoteSection extends StatelessWidget {
         if (length case final length?)
           Row(
             children: [
-              Icon(Icons.graphic_eq, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
+              ?playButton,
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   l10n.voiceNoteLength(formatVoiceLength(length)),

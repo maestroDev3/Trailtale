@@ -25,6 +25,7 @@ import '../support/fake_position_service.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/placeholder_picker_map.dart';
 import '../support/pump_app.dart';
+import '../support/fake_voice_player.dart';
 import '../support/fake_voice_recorder.dart';
 import '../support/test_services.dart';
 
@@ -55,6 +56,7 @@ void main() {
     FakePositionService? positionService,
     PickerMapBuilder? pickerMap,
     FakeVoiceRecorder? voiceRecorder,
+    FakeVoicePlayer? voicePlayer,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -71,6 +73,7 @@ void main() {
           positionService: positionService,
           pickerMap: pickerMap,
           voiceRecorder: voiceRecorder,
+          voicePlayer: voicePlayer,
         ),
       ),
     );
@@ -1358,6 +1361,50 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(library.deleted, contains('voice/id.m4a'));
+    });
+  });
+
+  group('EntryFormScreen voice note playback', () {
+    final spoken = breakfast.copyWith(
+      voiceNotePath: 'voice/old.m4a',
+      voiceNoteLength: const Duration(seconds: 7),
+    );
+
+    Future<void> tapTooltip(WidgetTester tester, String tooltip) async {
+      await tester.ensureVisible(find.byTooltip(tooltip));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip(tooltip));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('plays the voice note; tapping again stops it', (tester) async {
+      final player = FakeVoicePlayer();
+      await openTrip(tester, entries: [spoken], voicePlayer: player);
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await tapTooltip(tester, 'Play voice note');
+
+      expect(player.played.single.path, endsWith('voice/old.m4a'));
+      expect(find.byTooltip('Stop voice note'), findsOneWidget);
+
+      await tapTooltip(tester, 'Stop voice note');
+
+      expect(player.stopCount, 1);
+      expect(find.byTooltip('Play voice note'), findsOneWidget);
+    });
+
+    testWidgets('shows play again when playback ends', (tester) async {
+      final player = FakeVoicePlayer();
+      await openTrip(tester, entries: [spoken], voicePlayer: player);
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+      await tapTooltip(tester, 'Play voice note');
+
+      player.finish();
+      await tester.pumpAndSettle();
+
+      expect(find.byTooltip('Play voice note'), findsOneWidget);
     });
   });
 }

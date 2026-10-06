@@ -11,6 +11,7 @@ import '../domain/trip_day.dart';
 import '../domain/trip_map.dart';
 import '../domain/trip_overview.dart';
 import '../domain/trip_summary.dart';
+import '../domain/voice_player.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'cover_picker_screen.dart';
@@ -25,6 +26,7 @@ import 'widgets/stat_tile.dart';
 import 'widgets/tag_chips.dart';
 import 'widgets/trip_cover.dart';
 import 'widgets/trip_dates.dart';
+import 'widgets/voice_play_button.dart';
 
 /// Shows one trip with its dates and entries, and offers editing and
 /// deleting it.
@@ -261,6 +263,7 @@ class TripDetailScreen extends StatelessWidget {
                   entries: entriesSnapshot.data,
                   onOpen: (entry) => _openEntryForm(context, current, entry),
                   photoFile: services.photoLibrary.fileFor,
+                  voicePlayer: services.voicePlayer,
                 ),
               ],
             ),
@@ -529,7 +532,10 @@ class _EntryList extends StatelessWidget {
     required this.entries,
     required this.onOpen,
     required this.photoFile,
+    required this.voicePlayer,
   });
+
+  final VoicePlayer voicePlayer;
 
   final Trip trip;
 
@@ -552,6 +558,7 @@ class _EntryList extends StatelessWidget {
         ],
         onOpen: onOpen,
         photoFile: photoFile,
+        voicePlayer: voicePlayer,
       ),
     };
   }
@@ -579,7 +586,10 @@ class _TimelineList extends StatelessWidget {
     required this.items,
     required this.onOpen,
     required this.photoFile,
+    required this.voicePlayer,
   });
+
+  final VoicePlayer voicePlayer;
 
   final List<_TimelineItem> items;
   final ValueChanged<Entry> onOpen;
@@ -597,6 +607,7 @@ class _TimelineList extends StatelessWidget {
             entry: entry,
             onTap: () => onOpen(entry),
             photoFile: photoFile,
+            voicePlayer: voicePlayer,
           ),
         },
       ),
@@ -670,7 +681,10 @@ class _EntryCard extends StatelessWidget {
     required this.entry,
     required this.onTap,
     required this.photoFile,
+    required this.voicePlayer,
   });
+
+  final VoicePlayer voicePlayer;
 
   final Entry entry;
   final VoidCallback onTap;
@@ -712,6 +726,12 @@ class _EntryCard extends StatelessWidget {
                           ),
                         ),
                         if (entry.tags.isNotEmpty) TagIcons(tags: entry.tags),
+                        if (entry.voiceNotePath case final path?)
+                          VoicePlayButton(
+                            key: ValueKey(path),
+                            player: voicePlayer,
+                            file: photoFile(path),
+                          ),
                       ],
                     ),
                     if (entry.note.isNotEmpty) ...[
