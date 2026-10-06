@@ -29,11 +29,19 @@ class EntryFormScreen extends StatefulWidget {
     required this.services,
     required this.trip,
     this.entry,
+    this.addPhotosOnOpen = false,
+    this.focusNote = false,
   });
 
   final AppServices services;
   final Trip trip;
   final Entry? entry;
+
+  /// Opens the photo picker right away (quick capture “Add photo”).
+  final bool addPhotosOnOpen;
+
+  /// Puts the cursor into the note right away (quick capture “Add note”).
+  final bool focusNote;
 
   @override
   State<EntryFormScreen> createState() => _EntryFormScreenState();
@@ -84,6 +92,11 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     _date = DateTime(start.year, start.month, start.day);
     _time = TimeOfDay(hour: start.hour, minute: start.minute);
     _photos = [...?entry?.photoPaths];
+    if (widget.addPhotosOnOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_addPhotos());
+      });
+    }
   }
 
   @override
@@ -447,6 +460,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _note,
+              autofocus: widget.focusNote,
               minLines: 4,
               maxLines: null,
               textCapitalization: TextCapitalization.sentences,
