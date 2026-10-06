@@ -14,15 +14,21 @@ void main() {
     startDate: DateTime(2026, 5, 1),
     endDate: DateTime(2026, 5, 2),
   );
-  Entry entry(String id, String tripId, {List<String> photos = const []}) =>
-      Entry(
-        id: id,
-        tripId: tripId,
-        time: DateTime.utc(2026, 5, 1, 9),
-        utcOffset: Duration.zero,
-        note: id,
-        photoPaths: photos,
-      );
+  Entry entry(
+    String id,
+    String tripId, {
+    List<String> photos = const [],
+    String? voice,
+  }) => Entry(
+    id: id,
+    tripId: tripId,
+    time: DateTime.utc(2026, 5, 1, 9),
+    utcOffset: Duration.zero,
+    note: id,
+    photoPaths: photos,
+    voiceNotePath: voice,
+    voiceNoteLength: voice == null ? null : const Duration(seconds: 3),
+  );
 
   group('deleteTripWithEntries', () {
     test(
@@ -48,5 +54,20 @@ void main() {
         expect(photos.deleted, ['photos/a1.jpg', 'photos/a2.jpg']);
       },
     );
+
+    test('deletes the voice notes of the trip entries', () async {
+      final photos = FakePhotoLibrary();
+
+      await deleteTripWithEntries(
+        tripRepository: FakeTripRepository([trip('lisbon')]),
+        entryRepository: FakeEntryRepository([
+          entry('a', 'lisbon', photos: ['photos/a1.jpg'], voice: 'voice/a.m4a'),
+        ]),
+        photoLibrary: photos,
+        tripId: 'lisbon',
+      );
+
+      expect(photos.deleted, ['photos/a1.jpg', 'voice/a.m4a']);
+    });
   });
 }

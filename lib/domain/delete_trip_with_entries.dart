@@ -2,7 +2,8 @@ import 'entry_repository.dart';
 import 'photo_library.dart';
 import 'trip_repository.dart';
 
-/// Deletes a trip together with its entries and their photo files.
+/// Deletes a trip together with its entries and their photo and voice note
+/// files.
 ///
 /// Entries go first, so an interruption never leaves entries without their
 /// trip; photo files go last, so no entry ever points to a deleted file.
@@ -14,6 +15,8 @@ Future<void> deleteTripWithEntries({
 }) async {
   final entries = await entryRepository.deleteEntriesOfTrip(tripId);
   await tripRepository.deleteTrip(tripId);
-  final photos = [for (final entry in entries) ...entry.photoPaths];
+  final photos = [
+    for (final entry in entries) ...[...entry.photoPaths, ?entry.voiceNotePath],
+  ];
   if (photos.isNotEmpty) await photoLibrary.deletePhotos(photos);
 }
