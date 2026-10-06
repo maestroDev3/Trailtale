@@ -15,6 +15,7 @@ import '../domain/shared_photo_requests.dart';
 import '../domain/slideshow_document.dart';
 import '../domain/temporary_files.dart';
 import '../domain/trip_repository.dart';
+import '../domain/voice_player.dart';
 import '../domain/voice_recorder.dart';
 import 'widgets/picker_map.dart';
 import 'widgets/trip_map_view.dart';
@@ -42,6 +43,7 @@ class AppServices {
     required this.quickCaptureRequests,
     required this.sharedPhotoRequests,
     required this.voiceRecorder,
+    required this.voicePlayer,
     this.clock = DateTime.now,
   });
 
@@ -86,5 +88,8 @@ class AppServices {
 
   /// Records voice notes for entries.
   final VoiceRecorder voiceRecorder;
+
+  /// Plays voice notes.
+  final VoicePlayer voicePlayer;
   final Clock clock;
 }

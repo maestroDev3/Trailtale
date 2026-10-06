@@ -19,6 +19,7 @@ import '../support/fake_photo_library.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/placeholder_trip_map.dart';
 import '../support/pump_app.dart';
+import '../support/fake_voice_player.dart';
 import '../support/test_services.dart';
 
 void main() {
@@ -171,6 +172,32 @@ void main() {
         [for (final icon in tester.widgetList<Icon>(icons)) icon.icon],
         [Icons.restaurant_outlined, Icons.landscape_outlined],
       );
+    });
+
+    testWidgets('play a voice note from the timeline', (tester) async {
+      final player = FakeVoicePlayer();
+      await pumpApp(
+        tester,
+        HomeScreen(
+          services: testServices(
+            trips: FakeTripRepository([lisbon]),
+            entries: FakeEntryRepository([
+              breakfast.copyWith(
+                voiceNotePath: 'voice/b.m4a',
+                voiceNoteLength: const Duration(seconds: 3),
+              ),
+            ]),
+            voicePlayer: player,
+          ),
+        ),
+      );
+      await tester.tap(find.text('Lisbon'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Play voice note'));
+      await tester.pumpAndSettle();
+
+      expect(player.played.single.path, endsWith('voice/b.m4a'));
     });
 
     testWidgets('are grouped under a header per trip day', (tester) async {
