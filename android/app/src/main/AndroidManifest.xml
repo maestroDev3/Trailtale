@@ -49,6 +49,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Home screen widget “I'm here”: opens quick capture (#230). -->
+        <receiver
+            android:name=".QuickCaptureWidget"
+            android:exported="false"
+            android:label="@string/quick_capture_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/quick_capture_widget_info" />
+        </receiver>
         <service
             android:name="com.baseflow.geolocator.GeolocatorLocationService"
             tools:node="remove" />

@@ -27,8 +27,9 @@ void main() {
     test('emits a request that started the app', () async {
       answerPendingRequest(pending: true);
       var count = 0;
-      final subscription = MethodChannelQuickCaptureRequests().requests
-          .listen((_) => count++);
+      final subscription = MethodChannelQuickCaptureRequests().requests.listen(
+        (_) => count++,
+      );
       await pumpEventQueue();
 
       expect(count, 1);
@@ -38,8 +39,9 @@ void main() {
     test('emits nothing without a pending request', () async {
       answerPendingRequest(pending: false);
       var count = 0;
-      final subscription = MethodChannelQuickCaptureRequests().requests
-          .listen((_) => count++);
+      final subscription = MethodChannelQuickCaptureRequests().requests.listen(
+        (_) => count++,
+      );
       await pumpEventQueue();
 
       expect(count, 0);
@@ -49,8 +51,9 @@ void main() {
     test('emits a request for every capture call from Android', () async {
       answerPendingRequest(pending: false);
       var count = 0;
-      final subscription = MethodChannelQuickCaptureRequests().requests
-          .listen((_) => count++);
+      final subscription = MethodChannelQuickCaptureRequests().requests.listen(
+        (_) => count++,
+      );
       await pumpEventQueue();
 
       await captureFromAndroid();

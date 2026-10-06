@@ -69,9 +69,7 @@ void main() {
     testWidgets('opens quick capture when a request arrives', (tester) async {
       final requests = FakeQuickCaptureRequests();
       await tester.pumpWidget(
-        TrailtaleApp(
-          services: testServices(quickCaptureRequests: requests),
-        ),
+        TrailtaleApp(services: testServices(quickCaptureRequests: requests)),
       );
       await tester.pumpAndSettle();
 
@@ -86,9 +84,7 @@ void main() {
     ) async {
       final requests = FakeQuickCaptureRequests();
       await tester.pumpWidget(
-        TrailtaleApp(
-          services: testServices(quickCaptureRequests: requests),
-        ),
+        TrailtaleApp(services: testServices(quickCaptureRequests: requests)),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text('New trip').first);
@@ -99,10 +95,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(QuickCaptureScreen), findsOneWidget);
-      expect(
-        find.byType(TripFormScreen, skipOffstage: false),
-        findsOneWidget,
-      );
+      expect(find.byType(TripFormScreen, skipOffstage: false), findsOneWidget);
     });
   });
 }
