@@ -479,6 +479,16 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
               ),
               validator: _validateNote,
             ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.entryTagsLabel,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
+            TagChips(
+              selected: _tags,
+              onChanged: (tags) => setState(() => _tags = tags),
+            ),
             const SizedBox(height: 16),
             RawAutocomplete<Place>(
               textEditingController: _place,
@@ -569,16 +579,6 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.entryTagsLabel,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 8),
-            TagChips(
-              selected: _tags,
-              onChanged: (tags) => setState(() => _tags = tags),
             ),
             const SizedBox(height: 24),
             FilledButton(onPressed: _save, child: Text(l10n.save)),

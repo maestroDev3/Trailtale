@@ -100,6 +100,7 @@ void main() {
   Future<void> showCoordinates(WidgetTester tester) async {
     if (field('Latitude (optional)').evaluate().isNotEmpty) return;
     await tester.ensureVisible(find.text('Coordinates'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Coordinates'));
     await tester.pumpAndSettle();
   }
@@ -110,6 +111,7 @@ void main() {
         .removeCurrentSnackBar();
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
   }
@@ -265,6 +267,7 @@ void main() {
     Future<void> tapAddPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -272,6 +275,7 @@ void main() {
     Future<void> tapRemovePhoto(WidgetTester tester) async {
       final button = find.byTooltip('Remove photo').first;
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -391,6 +395,7 @@ void main() {
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -549,6 +554,7 @@ void main() {
     Future<void> addPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -701,6 +707,7 @@ void main() {
     Future<void> useMyPosition(WidgetTester tester) async {
       final button = find.text('Use my position');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -748,6 +755,7 @@ void main() {
       await openForm(tester, positions);
       final button = find.text('Use my position');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
 
       await tester.tap(button);
       await tester.pump();
@@ -838,6 +846,7 @@ void main() {
       await tester.pumpAndSettle();
       final button = find.text('Pick on map');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -1112,6 +1121,7 @@ void main() {
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -1186,6 +1196,7 @@ void main() {
         expect(chip(tester, label).selected, isFalse, reason: label);
       }
       await tester.ensureVisible(find.text('Food'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Food'));
       await tester.pumpAndSettle();
       expect(chip(tester, 'Food').selected, isTrue);
@@ -1203,6 +1214,8 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.ensureVisible(find.text('View'));
+
+      await tester.pumpAndSettle();
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
       await save(tester);
@@ -1218,6 +1231,8 @@ void main() {
       final entries = await openNewEntryForm(tester);
 
       await tester.ensureVisible(find.text('Beach'));
+
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Beach'));
       await tester.pumpAndSettle();
       await save(tester);
