@@ -20,6 +20,7 @@ class ZipBackupService implements BackupService {
   static const format = 1;
 
   static const _dataFiles = {'trips.json': 'trips', 'entries.json': 'entries'};
+
   /// Folders of media files and their count in the manifest.
   static const _mediaFolders = {'photos': 'photos', 'voice': 'voiceNotes'};
   static const _manifest = 'manifest.json';
@@ -41,7 +42,8 @@ class ZipBackupService implements BackupService {
       counts[listKey] = _countItems(bytes, listKey);
       files.add(ArchiveFile.bytes(name, bytes));
     }
-    for (final MapEntry(key: folder, value: countKey) in _mediaFolders.entries) {
+    for (final MapEntry(key: folder, value: countKey)
+        in _mediaFolders.entries) {
       final media = _filesIn(folder);
       counts[countKey] = media.length;
       for (final file in media) {

@@ -118,9 +118,12 @@ Entry _entryFromJson(Map<String, dynamic> json) => Entry(
     for (final name in (json['tags'] as List<dynamic>?) ?? const [])
       ?EntryTag.values.asNameMap()[name],
   },
-  voiceNotePath: (json['voiceNote'] as Map<String, dynamic>?)?['path'] as String?,
+  voiceNotePath:
+      (json['voiceNote'] as Map<String, dynamic>?)?['path'] as String?,
   voiceNoteLength: switch (json['voiceNote']) {
-    {'lengthMs': final int milliseconds} => Duration(milliseconds: milliseconds),
+    {'lengthMs': final int milliseconds} => Duration(
+      milliseconds: milliseconds,
+    ),
     _ => null,
   },
 );
