@@ -44,4 +44,4 @@ SnackBarAction? positionSettingsAction(
     onPressed: service.openLocationSettings,
   ),
   _ => null,
-}
+};

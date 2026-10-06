@@ -74,9 +74,9 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
 
   Future<void> _start() async {
     final services = widget.services;
-    final trips = await services.tripRepository.watchTrips().first;
+    final allTrips = await services.tripRepository.watchTrips().first;
     if (!mounted) return;
-    switch (quickCaptureTarget(trips, today: services.clock())) {
+    switch (quickCaptureTarget(allTrips, today: services.clock())) {
       case CaptureInto(:final trip):
         await _capture(trip);
       case ChooseTrip(:final trips):
