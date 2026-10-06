@@ -4,15 +4,16 @@ Current project state for planning and Claude projects. Maintained by Claude
 after every status change (see CLAUDE.md, “Keeping the status”).
 The GitHub issues are authoritative; this file is the summary.
 
-**Last updated:** 2026-10-05
+**Last updated:** 2026-10-06
 
 ## In progress
 
-- Nothing – waiting for your choice of the next story
+- #230 Home screen widget “I'm here” saves an entry with one tap (epic #229, chosen by the user)
 
 ## Up next
 
-- Candidates: #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
+- Epic #229 in order: #231 Share photos from the gallery → #232 One-tap tags → #233 Voice note
+- Other candidates: #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
 
 ## Backlog by initiative → epic
 
@@ -21,6 +22,7 @@ The GitHub issues are authoritative; this file is the summary.
 | Epic | State | Stories (in order) |
 |---|---|---|
 | #20 Location capture | 4 of 5 closed | ~~#21~~ → ~~#123~~ → ~~#22~~ → ~~#124~~ → #125 Create an entry from a place shared by another app |
+| #229 Capture on the go in seconds | 0 of 4 closed | #230 Home screen widget “I'm here” → #231 Share photos from the gallery into a trip → #232 Quick notes with one-tap tags → #233 Voice note instead of typing |
 | #157 Evening recap | 0 of 1 closed | #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#1 Foundation~~, ~~#5 Photos~~ | done | |
 
@@ -36,9 +38,12 @@ The GitHub issues are authoritative; this file is the summary.
 |---|---|---|
 | #158 Release readiness | 0 of 2 closed | #111 Store the release signing key safely (user task, after vacation) → #159 Switch the map to a tile provider with a free tier |
 
-**Dormant**
+**#154 The trip as a story**
 
-- #154 The trip as a story – all epics done (latest: ~~#169~~ cover photo, ~~#177~~ map opens on the trip)
+| Epic | State | Stories (in order) |
+|---|---|---|
+| #234 My travel atlas | 0 of 4 closed | #235 All trips on one world map → #236 Countries and places I have visited → #237 “A year ago today” → #238 Year in review picture |
+| ~~#8~~, ~~#11~~, ~~#70~~, ~~#169~~, ~~#177~~ | done | |
 
 ## Recently done
 
@@ -50,6 +55,7 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Open decisions (user only)
 
+- Newly created – please confirm or re-sort: epics #229 Capture on the go in seconds (initiative #153, first) and #234 My travel atlas (initiative #154, later).
 - Newly created – please confirm or re-sort: epics #169 Trips look the way I want (#170, done) and #177 The map opens on my trip (#178), both in initiative #154.
 - Planning structure introduced 2026-10-01 – please confirm or re-sort: initiatives #153 Effortless capture, #154 The trip as a story, #155 Own your data, #156 Ship it; new epics #157 Evening recap (#114 moved from #5, #5 closed again) and #158 Release readiness (#111 moved from #14, new story #159).
 - #114 Evening recap: allow notifications and reading the gallery? Reminder time?
