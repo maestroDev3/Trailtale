@@ -10,6 +10,7 @@ import '../domain/photo_metadata.dart';
 import '../domain/photo_picker.dart';
 import '../domain/place.dart';
 import '../domain/position_service.dart';
+import '../domain/quick_capture_requests.dart';
 import '../domain/slideshow_document.dart';
 import '../domain/temporary_files.dart';
 import '../domain/trip_repository.dart';
@@ -36,6 +37,7 @@ class AppServices {
     required this.pickerMap,
     required this.placeDirectory,
     required this.positionService,
+    required this.quickCaptureRequests,
     this.clock = DateTime.now,
   });
 
@@ -71,5 +73,8 @@ class AppServices {
 
   /// The device's current position, only while the app is in use.
   final PositionService positionService;
+
+  /// Taps on the home screen widget “I'm here”.
+  final QuickCaptureRequests quickCaptureRequests;
   final Clock clock;
 }

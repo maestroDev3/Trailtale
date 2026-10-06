@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/l10n/app_localizations.dart';
 import 'package:trailtale/ui/app.dart';
+import 'package:trailtale/ui/quick_capture_screen.dart';
+import 'package:trailtale/ui/trip_form_screen.dart';
 import 'package:trailtale/ui/theme.dart';
 
+import '../support/fake_quick_capture_requests.dart';
 import '../support/test_services.dart';
 
 void main() {
@@ -59,6 +62,40 @@ void main() {
           .toList();
 
       expect(offenders, isEmpty);
+    });
+  });
+
+  group('TrailtaleApp quick capture', () {
+    testWidgets('opens quick capture when a request arrives', (tester) async {
+      final requests = FakeQuickCaptureRequests();
+      await tester.pumpWidget(
+        TrailtaleApp(services: testServices(quickCaptureRequests: requests)),
+      );
+      await tester.pumpAndSettle();
+
+      requests.request();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(QuickCaptureScreen), findsOneWidget);
+    });
+
+    testWidgets('opens quick capture on top of the current screen', (
+      tester,
+    ) async {
+      final requests = FakeQuickCaptureRequests();
+      await tester.pumpWidget(
+        TrailtaleApp(services: testServices(quickCaptureRequests: requests)),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('New trip').first);
+      await tester.pumpAndSettle();
+      expect(find.byType(TripFormScreen), findsOneWidget);
+
+      requests.request();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(QuickCaptureScreen), findsOneWidget);
+      expect(find.byType(TripFormScreen, skipOffstage: false), findsOneWidget);
     });
   });
 }

@@ -16,6 +16,7 @@ import 'data/pdf_slideshow_writer.dart';
 import 'data/photo_manager_gallery.dart';
 import 'data/json_file_entry_repository.dart';
 import 'data/json_file_trip_repository.dart';
+import 'data/method_channel_quick_capture_requests.dart';
 import 'data/random_id.dart';
 import 'data/share_plus_file_sharer.dart';
 import 'data/storage_locations.dart';
@@ -89,6 +90,7 @@ Future<void> main() async {
               onCenterChanged: onCenterChanged,
             ),
         positionService: GeolocatorPositionService(),
+        quickCaptureRequests: MethodChannelQuickCaptureRequests(),
         placeDirectory: AssetPlaceDirectory(
           loadBytes: () async =>
               (await rootBundle.load('assets/places/cities.tsv.gz')).buffer

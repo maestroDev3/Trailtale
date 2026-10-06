@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Field journal colors (decision 2026-09-30), for the home screen widget. -->
+    <color name="trailtale_paper">#F6F1E7</color>
+    <color name="trailtale_ink">#1F3B34</color>
+    <color name="trailtale_clay">#B84A22</color>
+    <color name="trailtale_outline">#D9CFBD</color>
+    <string name="quick_capture_label">I\'m here</string>
+    <string name="quick_capture_description">Save where you are with one tap</string>
+</resources>
