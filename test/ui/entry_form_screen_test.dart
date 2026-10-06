@@ -266,7 +266,8 @@ void main() {
 
     Future<void> tapAddPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Centred, so the app bar never covers it.
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
@@ -394,7 +395,8 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Centred, so the app bar never covers it.
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
@@ -553,7 +555,8 @@ void main() {
 
     Future<void> addPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Centred, so the app bar never covers it.
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
@@ -1120,7 +1123,8 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Centred, so the app bar never covers it.
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
