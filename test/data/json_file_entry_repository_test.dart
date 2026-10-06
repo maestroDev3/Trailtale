@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/data/json_file_entry_repository.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 
 import '../support/entry_repository_contract.dart';
@@ -130,6 +131,59 @@ void main() {
       );
       await expectLater(repository.saveEntry(dinner), throwsStateError);
       expect(jsonDecode(file.readAsStringSync())['version'], 3);
+    });
+  });
+
+  group('JsonFileEntryRepository tags', () {
+    test('writes and reads tags', () async {
+      final tagged = breakfast.copyWith(tags: {EntryTag.food, EntryTag.view});
+      await JsonFileEntryRepository(file).saveEntry(tagged);
+
+      final json = jsonDecode(file.readAsStringSync());
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
+
+      expect(json['entries'][0]['tags'], ['food', 'view']);
+      expect(entries.single.tags, {EntryTag.food, EntryTag.view});
+    });
+
+    test('reads entries without tags and skips unknown tags', () async {
+      file.writeAsStringSync(
+        jsonEncode({
+          'version': 2,
+          'entries': [
+            {
+              'id': 'old',
+              'tripId': 'lisbon',
+              'time': '2026-05-01T07:15:00.000Z',
+              'utcOffsetMinutes': 60,
+              'note': 'No tags',
+              'placeName': null,
+              'location': null,
+              'photoPaths': <String>[],
+            },
+            {
+              'id': 'future',
+              'tripId': 'lisbon',
+              'time': '2026-05-01T08:15:00.000Z',
+              'utcOffsetMinutes': 60,
+              'note': 'Future tag',
+              'placeName': null,
+              'location': null,
+              'photoPaths': <String>[],
+              'tags': ['beach', 'karaoke'],
+            },
+          ],
+        }),
+      );
+
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
+
+      expect(entries[0].tags, isEmpty);
+      expect(entries[1].tags, {EntryTag.beach});
     });
   });
 }

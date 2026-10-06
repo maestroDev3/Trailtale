@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 
 void main() {
@@ -13,6 +14,7 @@ void main() {
     String? placeName = 'Belém',
     GeoPoint? location,
     List<String> photoPaths = const [],
+    Set<EntryTag> tags = const {},
   }) {
     return Entry(
       id: id,
@@ -23,6 +25,7 @@ void main() {
       placeName: placeName,
       location: location,
       photoPaths: photoPaths,
+      tags: tags,
     );
   }
 
@@ -198,6 +201,28 @@ void main() {
 
       expect(sortEntriesChronologically(input), [earlyA, earlyB, late]);
       expect(input, [late, earlyB, earlyA]);
+    });
+  });
+
+  group('Entry tags', () {
+    test('accepts an entry with only a tag', () {
+      final tagged = entry(note: '', placeName: null, tags: {EntryTag.food});
+
+      expect(tagged.tags, {EntryTag.food});
+      expect(() => entry(note: '', placeName: null), throwsArgumentError);
+    });
+
+    test('keeps tags in their order; copyWith replaces them', () {
+      final tagged = entry(tags: {EntryTag.transport, EntryTag.food});
+
+      expect(tagged.tags.toList(), [EntryTag.food, EntryTag.transport]);
+      expect(tagged.copyWith(tags: {EntryTag.view}).tags, {EntryTag.view});
+      expect(tagged.copyWith(note: 'Other').tags, tagged.tags);
+    });
+
+    test('is not equal to an entry with other tags', () {
+      expect(entry(tags: {EntryTag.food}), isNot(entry()));
+      expect(entry(tags: {EntryTag.food}), entry(tags: {EntryTag.food}));
     });
   });
 }
