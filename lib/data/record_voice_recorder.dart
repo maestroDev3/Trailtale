@@ -8,7 +8,7 @@ import '../domain/voice_recorder.dart';
 /// Records voice notes with the `record` package as AAC in an `.m4a` file;
 /// microphone access is asked for on the first recording.
 class RecordVoiceRecorder implements VoiceRecorder {
-  RecordVoiceRecorder({Clock clock = DateTime.now}) : _clock = clock;
+  RecordVoiceRecorder([this._clock = DateTime.now]);
 
   final Clock _clock;
   final _recorder = AudioRecorder();

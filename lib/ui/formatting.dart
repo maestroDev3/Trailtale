@@ -31,3 +31,9 @@ String pictureFactsText(AppLocalizations l10n, TripPicture picture) =>
         formatKilometers(picture.distanceMeters, l10n.localeName),
       )
     : l10n.pictureFactsNoDistance(picture.dayCount, picture.placeCount);
+
+/// Length of a voice note as minutes and seconds, e.g. “0:12”.
+String formatVoiceLength(Duration length) {
+  final seconds = (length.inSeconds % 60).toString().padLeft(2, '0');
+  return '${length.inMinutes}:$seconds';
+}
