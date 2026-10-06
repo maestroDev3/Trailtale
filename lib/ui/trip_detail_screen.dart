@@ -22,6 +22,7 @@ import 'trip_form_screen.dart';
 import 'trip_map_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/stat_tile.dart';
+import 'widgets/tag_chips.dart';
 import 'widgets/trip_cover.dart';
 import 'widgets/trip_dates.dart';
 
@@ -700,11 +701,18 @@ class _EntryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      time,
-                      style: textTheme.labelLarge?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            time,
+                            style: textTheme.labelLarge?.copyWith(
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        if (entry.tags.isNotEmpty) TagIcons(tags: entry.tags),
+                      ],
                     ),
                     if (entry.note.isNotEmpty) ...[
                       const SizedBox(height: 4),

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../domain/coordinates_input.dart';
 import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
+import '../domain/entry_tag.dart';
 import '../domain/geo_point.dart';
 import '../domain/photo_gallery.dart';
 import '../domain/photo_metadata.dart';
@@ -20,6 +21,7 @@ import 'gallery_picker_screen.dart';
 import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/position_feedback.dart';
+import 'widgets/tag_chips.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
 /// deleting it.
@@ -59,6 +61,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late DateTime _date;
   late TimeOfDay _time;
   late final List<String> _photos;
+  late Set<EntryTag> _tags;
 
   /// Photos imported while this form is open; deleted again unless saved.
   final _importedPhotos = <String>{};
@@ -92,6 +95,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     _date = DateTime(start.year, start.month, start.day);
     _time = TimeOfDay(hour: start.hour, minute: start.minute);
     _photos = [...?entry?.photoPaths];
+    _tags = {...?entry?.tags};
     if (widget.addPhotosOnOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_addPhotos());
@@ -242,7 +246,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     final hasContent =
         (note ?? '').trim().isNotEmpty ||
         _place.text.trim().isNotEmpty ||
-        _photos.isNotEmpty;
+        _photos.isNotEmpty ||
+        _tags.isNotEmpty;
     return hasContent ? null : l10n.entryNeedsContent;
   }
 
@@ -365,6 +370,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         placeName: _place.text,
         location: location,
         photoPaths: _photos,
+        tags: _tags,
       ),
       null => Entry.atLocalTime(
         id: id,
@@ -374,6 +380,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         placeName: _place.text,
         location: location,
         photoPaths: _photos,
+        tags: _tags,
       ),
     };
     await widget.services.entryRepository.saveEntry(entry);
@@ -424,148 +431,164 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
+        // Not lazy: the form is short, and every field (and its validator)
+        // stays built while scrolled out of view.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          children: [
-            _PhotoSection(
-              files: [
-                for (final path in _photos)
-                  (path, widget.services.photoLibrary.fileFor(path)),
-              ],
-              onAdd: _addPhotos,
-              onRemove: _removePhoto,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _PickerField(
-                    icon: Icons.event,
-                    value: DateFormat.yMMMd(locale).format(_date),
-                    label: l10n.entryDateLabel,
-                    onTap: _pickDate,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _PickerField(
-                    icon: Icons.schedule,
-                    value: _time.format(context),
-                    label: l10n.entryTimeLabel,
-                    onTap: _pickTime,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _note,
-              autofocus: widget.focusNote,
-              minLines: 4,
-              maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w400),
-              decoration: InputDecoration(
-                labelText: l10n.entryNoteLabel,
-                alignLabelWithHint: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _PhotoSection(
+                files: [
+                  for (final path in _photos)
+                    (path, widget.services.photoLibrary.fileFor(path)),
+                ],
+                onAdd: _addPhotos,
+                onRemove: _removePhoto,
               ),
-              validator: _validateNote,
-            ),
-            const SizedBox(height: 16),
-            RawAutocomplete<Place>(
-              textEditingController: _place,
-              focusNode: _placeFocus,
-              displayStringForOption: (place) => place.name,
-              optionsBuilder: (value) async =>
-                  (await _places).search(value.text),
-              onSelected: _selectPlace,
-              fieldViewBuilder: (context, controller, focusNode, _) =>
-                  TextFormField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: l10n.entryPlaceLabel,
-                      prefixIcon: const Icon(Icons.place_outlined),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _PickerField(
+                      icon: Icons.event,
+                      value: DateFormat.yMMMd(locale).format(_date),
+                      label: l10n.entryDateLabel,
+                      onTap: _pickDate,
                     ),
                   ),
-              optionsViewBuilder: (context, onSelected, options) =>
-                  _PlaceOptions(
-                    options: options.toList(),
-                    onSelected: onSelected,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _PickerField(
+                      icon: Icons.schedule,
+                      value: _time.format(context),
+                      label: l10n.entryTimeLabel,
+                      onTap: _pickTime,
+                    ),
                   ),
-            ),
-            Wrap(
-              children: [
-                _MyPositionButton(
-                  locating: _locating,
-                  onPressed: _useMyPosition,
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _note,
+                autofocus: widget.focusNote,
+                minLines: 4,
+                maxLines: null,
+                textCapitalization: TextCapitalization.sentences,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w400),
+                decoration: InputDecoration(
+                  labelText: l10n.entryNoteLabel,
+                  alignLabelWithHint: true,
                 ),
-                TextButton.icon(
-                  onPressed: _pickOnMap,
-                  icon: const Icon(Icons.map_outlined),
-                  label: Text(l10n.pickOnMap),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _CoordinatesHeader(
-              value: switch (parseCoordinates(
-                _latitude.text,
-                _longitude.text,
-              )) {
-                ValidCoordinates(:final point) => l10n.coordinatesValue(
-                  point.latitude.toStringAsFixed(4),
-                  point.longitude.toStringAsFixed(4),
-                ),
-                _ => null,
-              },
-              expanded: _showCoordinates,
-              onTap: () => setState(() => _showCoordinates = !_showCoordinates),
-            ),
-            Visibility(
-              visible: _showCoordinates,
-              maintainState: true,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _latitude,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: l10n.latitudeLabel,
-                          errorMaxLines: 3,
-                        ),
-                        validator: _validateCoordinates,
+                validator: _validateNote,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.entryTagsLabel,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              TagChips(
+                selected: _tags,
+                onChanged: (tags) => setState(() => _tags = tags),
+              ),
+              const SizedBox(height: 16),
+              RawAutocomplete<Place>(
+                textEditingController: _place,
+                focusNode: _placeFocus,
+                displayStringForOption: (place) => place.name,
+                optionsBuilder: (value) async =>
+                    (await _places).search(value.text),
+                onSelected: _selectPlace,
+                fieldViewBuilder: (context, controller, focusNode, _) =>
+                    TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: l10n.entryPlaceLabel,
+                        prefixIcon: const Icon(Icons.place_outlined),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _longitude,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: l10n.longitudeLabel,
+                optionsViewBuilder: (context, onSelected, options) =>
+                    _PlaceOptions(
+                      options: options.toList(),
+                      onSelected: onSelected,
+                    ),
+              ),
+              Wrap(
+                children: [
+                  _MyPositionButton(
+                    locating: _locating,
+                    onPressed: _useMyPosition,
+                  ),
+                  TextButton.icon(
+                    onPressed: _pickOnMap,
+                    icon: const Icon(Icons.map_outlined),
+                    label: Text(l10n.pickOnMap),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _CoordinatesHeader(
+                value: switch (parseCoordinates(
+                  _latitude.text,
+                  _longitude.text,
+                )) {
+                  ValidCoordinates(:final point) => l10n.coordinatesValue(
+                    point.latitude.toStringAsFixed(4),
+                    point.longitude.toStringAsFixed(4),
+                  ),
+                  _ => null,
+                },
+                expanded: _showCoordinates,
+                onTap: () =>
+                    setState(() => _showCoordinates = !_showCoordinates),
+              ),
+              Visibility(
+                visible: _showCoordinates,
+                maintainState: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _latitude,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: l10n.latitudeLabel,
+                            errorMaxLines: 3,
+                          ),
+                          validator: _validateCoordinates,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _longitude,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: l10n.longitudeLabel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ],
+              const SizedBox(height: 24),
+              FilledButton(onPressed: _save, child: Text(l10n.save)),
+            ],
+          ),
         ),
       ),
     );

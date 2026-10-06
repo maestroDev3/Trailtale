@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/domain/photo_metadata.dart';
@@ -99,6 +100,7 @@ void main() {
   Future<void> showCoordinates(WidgetTester tester) async {
     if (field('Latitude (optional)').evaluate().isNotEmpty) return;
     await tester.ensureVisible(find.text('Coordinates'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Coordinates'));
     await tester.pumpAndSettle();
   }
@@ -109,6 +111,7 @@ void main() {
         .removeCurrentSnackBar();
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
   }
@@ -263,7 +266,11 @@ void main() {
 
     Future<void> tapAddPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -271,6 +278,7 @@ void main() {
     Future<void> tapRemovePhoto(WidgetTester tester) async {
       final button = find.byTooltip('Remove photo').first;
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -389,7 +397,11 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -547,7 +559,11 @@ void main() {
 
     Future<void> addPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -700,6 +716,7 @@ void main() {
     Future<void> useMyPosition(WidgetTester tester) async {
       final button = find.text('Use my position');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -747,6 +764,7 @@ void main() {
       await openForm(tester, positions);
       final button = find.text('Use my position');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
 
       await tester.tap(button);
       await tester.pump();
@@ -837,6 +855,7 @@ void main() {
       await tester.pumpAndSettle();
       final button = find.text('Pick on map');
       await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -1110,7 +1129,11 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      await tester.ensureVisible(button);
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+      await tester.pumpAndSettle();
       await tester.tap(button);
       await tester.pumpAndSettle();
     }
@@ -1164,6 +1187,70 @@ void main() {
       await addPhoto(tester);
 
       expect(placeText(tester), isEmpty);
+    });
+  });
+
+  group('EntryFormScreen tags', () {
+    FilterChip chip(WidgetTester tester, String label) =>
+        tester.widget<FilterChip>(find.widgetWithText(FilterChip, label));
+
+    testWidgets('shows six tags; a tap selects and clears one', (tester) async {
+      await openNewEntryForm(tester);
+
+      for (final label in [
+        'Food',
+        'View',
+        'Stay',
+        'Beach',
+        'Sight',
+        'Transport',
+      ]) {
+        expect(chip(tester, label).selected, isFalse, reason: label);
+      }
+      await tester.ensureVisible(find.text('Food'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'Food').selected, isTrue);
+
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'Food').selected, isFalse);
+    });
+
+    testWidgets('saves the selected tags and shows them when editing', (
+      tester,
+    ) async {
+      final entries = await openTrip(tester, entries: [breakfast]);
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('View'));
+
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.tags, {EntryTag.view});
+
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'View').selected, isTrue);
+    });
+
+    testWidgets('saves an entry with only a tag', (tester) async {
+      final entries = await openNewEntryForm(tester);
+
+      await tester.ensureVisible(find.text('Beach'));
+
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Beach'));
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.tags, {EntryTag.beach});
+      expect(entries.entries.single.note, isEmpty);
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
@@ -8,6 +9,7 @@ import 'package:trailtale/ui/home_screen.dart';
 import 'package:trailtale/ui/share_picture_screen.dart';
 import 'package:trailtale/ui/slideshow_screen.dart';
 import 'package:trailtale/ui/trip_detail_screen.dart';
+import 'package:trailtale/ui/widgets/tag_chips.dart';
 import 'package:trailtale/ui/trip_map_screen.dart';
 import 'package:trailtale/ui/widgets/photo_thumbnail.dart';
 import 'package:trailtale/ui/widgets/trip_cover.dart';
@@ -151,6 +153,24 @@ void main() {
       expect(find.text('Pastéis de nata'), findsOneWidget);
       expect(find.text('Belém'), findsOneWidget);
       expect(find.text('No entries yet'), findsNothing);
+    });
+
+    testWidgets('show one icon per tag', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          breakfast.copyWith(tags: {EntryTag.food, EntryTag.view}),
+        ],
+      );
+
+      final icons = find.descendant(
+        of: find.byType(TagIcons),
+        matching: find.byType(Icon),
+      );
+      expect(
+        [for (final icon in tester.widgetList<Icon>(icons)) icon.icon],
+        [Icons.restaurant_outlined, Icons.landscape_outlined],
+      );
     });
 
     testWidgets('are grouped under a header per trip day', (tester) async {
