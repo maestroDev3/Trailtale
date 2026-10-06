@@ -6,7 +6,7 @@ import 'trip_dates.dart';
 
 /// The trips to choose from for a quick capture or shared photos.
 class TripChoiceList extends StatelessWidget {
-  const TripChoiceList({required this.trips, required this.onChosen});
+  const TripChoiceList({super.key, required this.trips, required this.onChosen});
 
   final List<Trip> trips;
   final ValueChanged<Trip> onChosen;
@@ -41,6 +41,7 @@ class TripChoiceList extends StatelessWidget {
 /// A centred message with an icon and actions, e.g. “no trip yet”.
 class CaptureMessage extends StatelessWidget {
   const CaptureMessage({
+    super.key,
     required this.icon,
     required this.text,
     required this.actions,

@@ -206,9 +206,7 @@ class _SharedPhotosScreenState extends State<SharedPhotosScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: FilledButton(
-              onPressed: chosenCount == 0 || _saving
-                  ? null
-                  : () => _save(trip),
+              onPressed: chosenCount == 0 || _saving ? null : () => _save(trip),
               child: Text(l10n.sharedPhotosSave(chosenCount)),
             ),
           ),
