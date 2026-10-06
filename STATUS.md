@@ -8,11 +8,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## In progress
 
-- #231 Share photos from the gallery straight into a trip (epic #229)
+- #232 Quick notes with one-tap tags (epic #229)
 
 ## Up next
 
-- Epic #229 in order: #232 One-tap tags → #233 Voice note
+- Epic #229 in order: #233 Voice note
 - Other candidates: #125 Create an entry from a shared place (Google Maps links: my proposal – name only + map picker, needs your decision)
 
 ## Backlog by initiative → epic
@@ -22,7 +22,7 @@ The GitHub issues are authoritative; this file is the summary.
 | Epic | State | Stories (in order) |
 |---|---|---|
 | #20 Location capture | 4 of 5 closed | ~~#21~~ → ~~#123~~ → ~~#22~~ → ~~#124~~ → #125 Create an entry from a place shared by another app |
-| #229 Capture on the go in seconds | 1 of 4 closed | ~~#230 Home screen widget “I'm here”~~ → #231 Share photos from the gallery into a trip → #232 Quick notes with one-tap tags → #233 Voice note instead of typing |
+| #229 Capture on the go in seconds | 2 of 4 closed | ~~#230 Home screen widget “I'm here”~~ → ~~#231 Share photos from the gallery into a trip~~ → #232 Quick notes with one-tap tags → #233 Voice note instead of typing |
 | #157 Evening recap | 0 of 1 closed | #114 Evening recap: add today's photos as entries (needs decision) |
 | ~~#1 Foundation~~, ~~#5 Photos~~ | done | |
 
@@ -47,11 +47,11 @@ The GitHub issues are authoritative; this file is the summary.
 
 ## Recently done
 
+- #231 Share photos from Google Photos or the gallery to Trailtale: grouped into entries by place and time, preview, saved into the trip
 - #230 Home screen widget “I'm here”: one tap saves the current place into the running trip (asks the trip otherwise), then Add note / Add photo
 - #161 Instagram carousel: overview plus one picture per day (max. 20), shared together or saved
 - #220 Slideshow photos back at 1600 px – quality before file size (user decision)
 - #213 Slideshow: days with several places show an overview, then each stop with its notes and photos
-- #206 Slideshow: all notes of a day on its first slide next to the title photo, photos without text
 
 ## Open decisions (user only)
 
