@@ -1,4 +1,5 @@
 import 'clock.dart';
+import 'entry_tag.dart';
 import 'geo_point.dart';
 
 /// Marks a `copyWith` argument that was not passed, so `null` can mean
@@ -23,6 +24,7 @@ class Entry {
     String? placeName,
     GeoPoint? location,
     List<String> photoPaths = const [],
+    Set<EntryTag> tags = const {},
   }) {
     for (final path in photoPaths) {
       if (path.trim().isEmpty || path.startsWith('/')) {
@@ -99,6 +101,9 @@ class Entry {
   /// Relative paths of the entry's photos in the photo library, in order.
   final List<String> photoPaths;
 
+  /// What kind of moment this was (food, view, …).
+  Set<EntryTag> get tags => const {};
+
   /// Wall-clock time where the entry was recorded. The value is flagged as
   /// UTC only so that its fields are not converted again; read its fields.
   DateTime get localDateTime => time.add(utcOffset);
@@ -115,6 +120,7 @@ class Entry {
     Object? placeName = _unchanged,
     Object? location = _unchanged,
     List<String>? photoPaths,
+    Set<EntryTag>? tags,
   }) {
     return Entry(
       id: id,
