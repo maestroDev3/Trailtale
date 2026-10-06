@@ -17,6 +17,7 @@ import '../domain/position_service.dart';
 import '../domain/trip.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
+import 'formatting.dart';
 import 'gallery_picker_screen.dart';
 import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
