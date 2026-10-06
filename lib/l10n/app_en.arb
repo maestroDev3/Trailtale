@@ -842,5 +842,43 @@
         "type": "String"
       }
     }
+  },
+  "sharedPhotosTitle": "Add shared photos",
+  "@sharedPhotosTitle": {
+    "description": "Title of the screen that turns photos shared by another app into entries."
+  },
+  "sharedPhotosInto": "Into {trip}",
+  "@sharedPhotosInto": {
+    "description": "Names the trip the shared photos are added to.",
+    "placeholders": {
+      "trip": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedPhotosUnknownPlace": "Unknown place",
+  "@sharedPhotosUnknownPlace": {
+    "description": "Suggested entry from shared photos without a known place nearby."
+  },
+  "sharedPhotosDateTime": "{date} · {time}",
+  "@sharedPhotosDateTime": {
+    "description": "Date and time of a suggested entry from shared photos, e.g. 'Sun, Sep 27, 2026 · 9:00 AM'.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedPhotosSave": "{count, plural, =0{Choose an entry} =1{Save 1 entry} other{Save {count} entries}}",
+  "@sharedPhotosSave": {
+    "description": "Button that saves the chosen suggested entries from shared photos.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
