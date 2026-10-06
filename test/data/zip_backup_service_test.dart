@@ -41,6 +41,7 @@ void main() {
     write(documents, 'entries.json', utf8.encode(entriesJson));
     write(documents, 'photos/a.jpg', [1, 2, 3]);
     write(documents, 'photos/b.png', [4, 5]);
+    write(documents, 'voice/v1.m4a', [6, 7, 8]);
   });
 
   tearDown(() => root.deleteSync(recursive: true));
@@ -57,8 +58,10 @@ void main() {
         'entries.json',
         'photos/a.jpg',
         'photos/b.png',
+        'voice/v1.m4a',
       });
       expect(archive.findFile('photos/a.jpg')?.content, [1, 2, 3]);
+      expect(archive.findFile('voice/v1.m4a')?.content, [6, 7, 8]);
     });
 
     test('describes the backup in the manifest', () async {
@@ -74,6 +77,7 @@ void main() {
         'trips': 2,
         'entries': 3,
         'photos': 2,
+        'voiceNotes': 1,
       });
     });
 
@@ -108,6 +112,7 @@ void main() {
       await service.restoreBackup(backup);
 
       expect(File('${documents.path}/photos/newer.jpg').existsSync(), isFalse);
+      expect(File('${documents.path}/voice/v1.m4a').existsSync(), isTrue);
       expect(
         File('${documents.path}/trips.json').readAsStringSync(),
         tripsJson,

@@ -225,4 +225,32 @@ void main() {
       expect(entry(tags: {EntryTag.food}), entry(tags: {EntryTag.food}));
     });
   });
+
+  group('Entry voice note', () {
+    Entry withVoice({String? path = 'voice/v1.m4a'}) => Entry(
+      id: 'e',
+      tripId: 'lisbon',
+      time: DateTime.utc(2026, 5, 1, 8, 30),
+      utcOffset: plusTwo,
+      voiceNotePath: path,
+      voiceNoteLength: const Duration(seconds: 12),
+    );
+
+    test('accepts an entry with only a voice note; rejects absolute paths', () {
+      expect(withVoice().voiceNotePath, 'voice/v1.m4a');
+      expect(withVoice().voiceNoteLength, const Duration(seconds: 12));
+      expect(() => withVoice(path: '/sdcard/v1.m4a'), throwsArgumentError);
+    });
+
+    test('removes the voice note with copyWith; compares voice notes', () {
+      final entry = withVoice().copyWith(note: 'Walk');
+
+      final without = entry.copyWith(voiceNotePath: null);
+
+      expect(without.voiceNotePath, isNull);
+      expect(without.voiceNoteLength, isNull);
+      expect(entry, isNot(without));
+      expect(entry.copyWith(note: 'Walk'), entry);
+    });
+  });
 }

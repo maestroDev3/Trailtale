@@ -186,4 +186,41 @@ void main() {
       expect(entries[1].tags, {EntryTag.beach});
     });
   });
+
+  group('JsonFileEntryRepository voice notes', () {
+    test('writes and reads a voice note', () async {
+      final spoken = breakfast.copyWith(
+        voiceNotePath: 'voice/v1.m4a',
+        voiceNoteLength: const Duration(milliseconds: 12345),
+      );
+      await JsonFileEntryRepository(file).saveEntry(spoken);
+
+      final json = jsonDecode(file.readAsStringSync());
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
+
+      expect(json['entries'][0]['voiceNote'], {
+        'path': 'voice/v1.m4a',
+        'lengthMs': 12345,
+      });
+      expect(entries.single.voiceNotePath, 'voice/v1.m4a');
+      expect(
+        entries.single.voiceNoteLength,
+        const Duration(milliseconds: 12345),
+      );
+    });
+
+    test('reads entries without a voice note', () async {
+      await JsonFileEntryRepository(file).saveEntry(breakfast);
+
+      final json = jsonDecode(file.readAsStringSync());
+      final entries = await JsonFileEntryRepository(file)
+          .watchEntries('lisbon')
+          .first;
+
+      expect((json['entries'][0] as Map).containsKey('voiceNote'), isFalse);
+      expect(entries.single.voiceNotePath, isNull);
+    });
+  });
 }

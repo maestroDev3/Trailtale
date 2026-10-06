@@ -25,6 +25,8 @@ class Entry {
     GeoPoint? location,
     List<String> photoPaths = const [],
     Set<EntryTag> tags = const {},
+    String? voiceNotePath,
+    Duration? voiceNoteLength,
   }) {
     for (final path in photoPaths) {
       if (path.trim().isEmpty || path.startsWith('/')) {
@@ -112,6 +114,12 @@ class Entry {
   /// What kind of moment this was (food, view, …), in [EntryTag] order.
   final Set<EntryTag> tags;
 
+  /// Relative path of the entry's voice note, if any.
+  String? get voiceNotePath => null;
+
+  /// Length of the voice note.
+  Duration? get voiceNoteLength => null;
+
   /// Wall-clock time where the entry was recorded. The value is flagged as
   /// UTC only so that its fields are not converted again; read its fields.
   DateTime get localDateTime => time.add(utcOffset);
@@ -129,6 +137,8 @@ class Entry {
     Object? location = _unchanged,
     List<String>? photoPaths,
     Set<EntryTag>? tags,
+    Object? voiceNotePath = _unchanged,
+    Duration? voiceNoteLength,
   }) {
     return Entry(
       id: id,
