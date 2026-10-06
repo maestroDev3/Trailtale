@@ -11,6 +11,7 @@ import 'fake_photo_library.dart';
 import 'fake_photo_metadata_reader.dart';
 import 'fake_position_service.dart';
 import 'fake_photo_picker.dart';
+import 'fake_quick_capture_requests.dart';
 import 'fake_place_directory.dart';
 import 'fake_slideshow_writer.dart';
 import 'fake_temporary_files.dart';
@@ -39,6 +40,7 @@ AppServices testServices({
   PickerMapBuilder? pickerMap,
   FakeTemporaryFiles? temporaryFiles,
   FakeSlideshowWriter? slideshowWriter,
+  FakeQuickCaptureRequests? quickCaptureRequests,
 }) {
   return AppServices(
     tripRepository: trips ?? FakeTripRepository(),
@@ -61,5 +63,6 @@ AppServices testServices({
     pickerMap: pickerMap ?? placeholderPickerMap(),
     placeDirectory: placeDirectory ?? FakePlaceDirectory(),
     positionService: positionService ?? FakePositionService(),
+    quickCaptureRequests: quickCaptureRequests ?? FakeQuickCaptureRequests(),
   );
 }
