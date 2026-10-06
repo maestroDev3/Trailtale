@@ -5,10 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/l10n/app_localizations.dart';
 import 'package:trailtale/ui/app.dart';
 import 'package:trailtale/ui/quick_capture_screen.dart';
+import 'package:trailtale/ui/shared_photos_screen.dart';
 import 'package:trailtale/ui/trip_form_screen.dart';
 import 'package:trailtale/ui/theme.dart';
 
 import '../support/fake_quick_capture_requests.dart';
+import '../support/fake_shared_photo_requests.dart';
 import '../support/test_services.dart';
 
 void main() {
@@ -96,6 +98,26 @@ void main() {
 
       expect(find.byType(QuickCaptureScreen), findsOneWidget);
       expect(find.byType(TripFormScreen, skipOffstage: false), findsOneWidget);
+    });
+  });
+
+  group('TrailtaleApp shared photos', () {
+    testWidgets('opens the shared photos screen with their paths', (
+      tester,
+    ) async {
+      final shares = FakeSharedPhotoRequests();
+      await tester.pumpWidget(
+        TrailtaleApp(services: testServices(sharedPhotoRequests: shares)),
+      );
+      await tester.pumpAndSettle();
+
+      shares.share(['/cache/a.jpg', '/cache/b.jpg']);
+      await tester.pumpAndSettle();
+
+      final screen = tester.widget<SharedPhotosScreen>(
+        find.byType(SharedPhotosScreen),
+      );
+      expect(screen.paths, ['/cache/a.jpg', '/cache/b.jpg']);
     });
   });
 }

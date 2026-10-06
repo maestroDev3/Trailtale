@@ -11,6 +11,7 @@ import '../domain/photo_picker.dart';
 import '../domain/place.dart';
 import '../domain/position_service.dart';
 import '../domain/quick_capture_requests.dart';
+import '../domain/shared_photo_requests.dart';
 import '../domain/slideshow_document.dart';
 import '../domain/temporary_files.dart';
 import '../domain/trip_repository.dart';
@@ -38,6 +39,7 @@ class AppServices {
     required this.placeDirectory,
     required this.positionService,
     required this.quickCaptureRequests,
+    required this.sharedPhotoRequests,
     this.clock = DateTime.now,
   });
 
@@ -76,5 +78,8 @@ class AppServices {
 
   /// Taps on the home screen widget “I'm here”.
   final QuickCaptureRequests quickCaptureRequests;
+
+  /// Photos other apps share to Trailtale.
+  final SharedPhotoRequests sharedPhotoRequests;
   final Clock clock;
 }
