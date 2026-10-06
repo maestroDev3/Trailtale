@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/photo_gallery.dart';
 import 'package:trailtale/domain/photo_metadata.dart';
@@ -1164,6 +1165,67 @@ void main() {
       await addPhoto(tester);
 
       expect(placeText(tester), isEmpty);
+    });
+  });
+
+  group('EntryFormScreen tags', () {
+    FilterChip chip(WidgetTester tester, String label) =>
+        tester.widget<FilterChip>(find.widgetWithText(FilterChip, label));
+
+    testWidgets('shows six tags; a tap selects and clears one', (
+      tester,
+    ) async {
+      await openNewEntryForm(tester);
+
+      for (final label in [
+        'Food',
+        'View',
+        'Stay',
+        'Beach',
+        'Sight',
+        'Transport',
+      ]) {
+        expect(chip(tester, label).selected, isFalse, reason: label);
+      }
+      await tester.ensureVisible(find.text('Food'));
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'Food').selected, isTrue);
+
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'Food').selected, isFalse);
+    });
+
+    testWidgets('saves the selected tags and shows them when editing', (
+      tester,
+    ) async {
+      final entries = await openTrip(tester, entries: [breakfast]);
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('View'));
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.tags, {EntryTag.view});
+
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+      expect(chip(tester, 'View').selected, isTrue);
+    });
+
+    testWidgets('saves an entry with only a tag', (tester) async {
+      final entries = await openNewEntryForm(tester);
+
+      await tester.ensureVisible(find.text('Beach'));
+      await tester.tap(find.text('Beach'));
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.tags, {EntryTag.beach});
+      expect(entries.entries.single.note, isEmpty);
     });
   });
 }

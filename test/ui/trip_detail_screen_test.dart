@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trailtale/domain/entry.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/trip.dart';
 import 'package:trailtale/ui/entry_form_screen.dart';
@@ -151,6 +152,19 @@ void main() {
       expect(find.text('Pastéis de nata'), findsOneWidget);
       expect(find.text('Belém'), findsOneWidget);
       expect(find.text('No entries yet'), findsNothing);
+    });
+
+    testWidgets('show one icon per tag', (tester) async {
+      await openLisbon(
+        tester,
+        entries: [
+          breakfast.copyWith(tags: {EntryTag.food, EntryTag.view}),
+        ],
+      );
+
+      expect(find.byIcon(Icons.restaurant_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.landscape_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.hotel_outlined), findsNothing);
     });
 
     testWidgets('are grouped under a header per trip day', (tester) async {
