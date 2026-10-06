@@ -100,9 +100,7 @@ void main() {
 
   group('entryFromGroup', () {
     test('has the instant, offset, location, place name and photos', () {
-      final group = groupSharedPhotos([
-        photo('a', 9, kotor),
-      ], now: now).single;
+      final group = groupSharedPhotos([photo('a', 9, kotor)], now: now).single;
 
       final entry = entryFromGroup(
         group,

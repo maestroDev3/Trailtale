@@ -31,11 +31,75 @@ class PhotoGroup {
   final GeoPoint? location;
 }
 
-/// Groups shared photos into suggested entries.
+/// A photo taken more than this after the previous one starts a new entry.
+const maxGroupGap = Duration(hours: 2);
+
+/// A photo farther than this from its group's place starts a new entry.
+const maxGroupDistanceMeters = 1000.0;
+
+/// Groups shared photos into suggested entries, in time order: a photo
+/// joins the previous one's group unless it was taken more than
+/// [maxGroupGap] later or more than [maxGroupDistanceMeters] away. Photos
+/// without capture time form one last group at [now].
 List<PhotoGroup> groupSharedPhotos(
   List<SharedPhoto> photos, {
   required DateTime now,
-}) => throw UnimplementedError();
+}) {
+  final timed = [
+    for (final photo in photos)
+      if (photo.metadata.takenAt != null) photo,
+  ]..sort((a, b) => _timeOf(a).compareTo(_timeOf(b)));
+  final untimed = [
+    for (final photo in photos)
+      if (photo.metadata.takenAt == null) photo,
+  ];
+  final groups = <List<SharedPhoto>>[];
+  for (final photo in timed) {
+    final current = groups.lastOrNull;
+    if (current == null || !_belongsTo(photo, current)) {
+      groups.add([photo]);
+    } else {
+      current.add(photo);
+    }
+  }
+  return [
+    for (final group in groups)
+      _group(
+        group,
+        takenAt: _timeOf(group.first),
+        utcOffset: group.first.metadata.utcOffset,
+      ),
+    if (untimed.isNotEmpty) _group(untimed, takenAt: now, utcOffset: null),
+  ];
+}
+
+DateTime _timeOf(SharedPhoto photo) =>
+    photo.metadata.takenAt ?? DateTime.utc(0);
+
+GeoPoint? _locationOf(List<SharedPhoto> photos) => photos
+    .map((photo) => photo.metadata.location)
+    .whereType<GeoPoint>()
+    .firstOrNull;
+
+bool _belongsTo(SharedPhoto photo, List<SharedPhoto> group) {
+  if (_timeOf(photo).difference(_timeOf(group.last)) > maxGroupGap) {
+    return false;
+  }
+  final (here, there) = (photo.metadata.location, _locationOf(group));
+  if (here == null || there == null) return true;
+  return here.distanceTo(there) <= maxGroupDistanceMeters;
+}
+
+PhotoGroup _group(
+  List<SharedPhoto> photos, {
+  required DateTime takenAt,
+  required Duration? utcOffset,
+}) => PhotoGroup(
+  photoPaths: [for (final photo in photos) photo.path],
+  takenAt: takenAt,
+  utcOffset: utcOffset,
+  location: _locationOf(photos),
+);
 
 /// The entry for [group] with the imported [photoPaths].
 Entry entryFromGroup(
@@ -44,4 +108,33 @@ Entry entryFromGroup(
   required String tripId,
   required List<String> photoPaths,
   required Place? nearestPlace,
-}) => throw UnimplementedError();
+}) {
+  final takenAt = group.takenAt;
+  return switch (group.utcOffset) {
+    // The photo's wall-clock time at its own offset, like the entry form.
+    final offset? => Entry(
+      id: id,
+      tripId: tripId,
+      time: DateTime.utc(
+        takenAt.year,
+        takenAt.month,
+        takenAt.day,
+        takenAt.hour,
+        takenAt.minute,
+        takenAt.second,
+      ).subtract(offset),
+      utcOffset: offset,
+      placeName: nearestPlace?.name,
+      location: group.location,
+      photoPaths: photoPaths,
+    ),
+    null => Entry.atLocalTime(
+      id: id,
+      tripId: tripId,
+      localTime: takenAt,
+      placeName: nearestPlace?.name,
+      location: group.location,
+      photoPaths: photoPaths,
+    ),
+  };
+}
