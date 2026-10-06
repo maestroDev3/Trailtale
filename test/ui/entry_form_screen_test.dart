@@ -1172,9 +1172,7 @@ void main() {
     FilterChip chip(WidgetTester tester, String label) =>
         tester.widget<FilterChip>(find.widgetWithText(FilterChip, label));
 
-    testWidgets('shows six tags; a tap selects and clears one', (
-      tester,
-    ) async {
+    testWidgets('shows six tags; a tap selects and clears one', (tester) async {
       await openNewEntryForm(tester);
 
       for (final label in [

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../domain/coordinates_input.dart';
 import '../domain/default_entry_time.dart';
 import '../domain/entry.dart';
+import '../domain/entry_tag.dart';
 import '../domain/geo_point.dart';
 import '../domain/photo_gallery.dart';
 import '../domain/photo_metadata.dart';
@@ -20,6 +21,7 @@ import 'gallery_picker_screen.dart';
 import 'place_picker_screen.dart';
 import 'widgets/photo_thumbnail.dart';
 import 'widgets/position_feedback.dart';
+import 'widgets/tag_chips.dart';
 
 /// Form for adding an entry to [trip] or, when [entry] is given, editing or
 /// deleting it.
@@ -59,6 +61,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
   late DateTime _date;
   late TimeOfDay _time;
   late final List<String> _photos;
+  late Set<EntryTag> _tags;
 
   /// Photos imported while this form is open; deleted again unless saved.
   final _importedPhotos = <String>{};
@@ -92,6 +95,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     _date = DateTime(start.year, start.month, start.day);
     _time = TimeOfDay(hour: start.hour, minute: start.minute);
     _photos = [...?entry?.photoPaths];
+    _tags = {...?entry?.tags};
     if (widget.addPhotosOnOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_addPhotos());
@@ -242,7 +246,8 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
     final hasContent =
         (note ?? '').trim().isNotEmpty ||
         _place.text.trim().isNotEmpty ||
-        _photos.isNotEmpty;
+        _photos.isNotEmpty ||
+        _tags.isNotEmpty;
     return hasContent ? null : l10n.entryNeedsContent;
   }
 
@@ -365,6 +370,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         placeName: _place.text,
         location: location,
         photoPaths: _photos,
+        tags: _tags,
       ),
       null => Entry.atLocalTime(
         id: id,
@@ -374,6 +380,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
         placeName: _place.text,
         location: location,
         photoPaths: _photos,
+        tags: _tags,
       ),
     };
     await widget.services.entryRepository.saveEntry(entry);
@@ -471,6 +478,16 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
                 alignLabelWithHint: true,
               ),
               validator: _validateNote,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.entryTagsLabel,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
+            TagChips(
+              selected: _tags,
+              onChanged: (tags) => setState(() => _tags = tags),
             ),
             const SizedBox(height: 16),
             RawAutocomplete<Place>(

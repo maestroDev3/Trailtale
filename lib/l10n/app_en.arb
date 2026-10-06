@@ -880,5 +880,33 @@
         "type": "int"
       }
     }
+  },
+  "tagFood": "Food",
+  "@tagFood": {
+    "description": "One-tap tag of an entry: food."
+  },
+  "tagView": "View",
+  "@tagView": {
+    "description": "One-tap tag of an entry: view."
+  },
+  "tagStay": "Stay",
+  "@tagStay": {
+    "description": "One-tap tag of an entry: stay."
+  },
+  "tagBeach": "Beach",
+  "@tagBeach": {
+    "description": "One-tap tag of an entry: beach."
+  },
+  "tagSight": "Sight",
+  "@tagSight": {
+    "description": "One-tap tag of an entry: sight."
+  },
+  "tagTransport": "Transport",
+  "@tagTransport": {
+    "description": "One-tap tag of an entry: transport."
+  },
+  "entryTagsLabel": "What was it?",
+  "@entryTagsLabel": {
+    "description": "Label above the one-tap tags in the entry form."
   }
 }
