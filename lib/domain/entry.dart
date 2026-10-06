@@ -13,8 +13,8 @@ const Object _unchanged = Object();
 /// and day even when viewed in another time zone.
 class Entry {
   /// Creates a validated entry; throws [ArgumentError] if it has neither a
-  /// note, a place name, a location nor photos, or if a photo path is blank
-  /// or absolute.
+  /// note, a place name, a location, photos nor tags, or if a photo path is
+  /// blank or absolute.
   factory Entry({
     required String id,
     required String tripId,
@@ -39,9 +39,10 @@ class Entry {
     if (trimmedNote.isEmpty &&
         place == null &&
         location == null &&
-        photoPaths.isEmpty) {
+        photoPaths.isEmpty &&
+        tags.isEmpty) {
       throw ArgumentError(
-        'An entry needs a note, a place name, a location or photos',
+        'An entry needs a note, a place name, a location, photos or tags',
       );
     }
     return Entry._(
@@ -53,6 +54,10 @@ class Entry {
       placeName: place,
       location: location,
       photoPaths: List.unmodifiable(photoPaths),
+      tags: Set.unmodifiable({
+        for (final tag in EntryTag.values)
+          if (tags.contains(tag)) tag,
+      }),
     );
   }
 
@@ -66,6 +71,7 @@ class Entry {
     String? placeName,
     GeoPoint? location,
     List<String> photoPaths = const [],
+    Set<EntryTag> tags = const {},
   }) {
     return Entry(
       id: id,
@@ -76,6 +82,7 @@ class Entry {
       placeName: placeName,
       location: location,
       photoPaths: photoPaths,
+      tags: tags,
     );
   }
 
@@ -88,6 +95,7 @@ class Entry {
     required this.placeName,
     required this.location,
     required this.photoPaths,
+    required this.tags,
   });
 
   final String id;
@@ -101,8 +109,8 @@ class Entry {
   /// Relative paths of the entry's photos in the photo library, in order.
   final List<String> photoPaths;
 
-  /// What kind of moment this was (food, view, …).
-  Set<EntryTag> get tags => const {};
+  /// What kind of moment this was (food, view, …), in [EntryTag] order.
+  final Set<EntryTag> tags;
 
   /// Wall-clock time where the entry was recorded. The value is flagged as
   /// UTC only so that its fields are not converted again; read its fields.
@@ -135,6 +143,7 @@ class Entry {
           ? this.location
           : location as GeoPoint?,
       photoPaths: photoPaths ?? this.photoPaths,
+      tags: tags ?? this.tags,
     );
   }
 
@@ -148,7 +157,9 @@ class Entry {
       other.note == note &&
       other.placeName == placeName &&
       other.location == location &&
-      _sameList(other.photoPaths, photoPaths);
+      _sameList(other.photoPaths, photoPaths) &&
+      other.tags.length == tags.length &&
+      other.tags.containsAll(tags);
 
   @override
   int get hashCode => Object.hash(
@@ -160,6 +171,7 @@ class Entry {
     placeName,
     location,
     Object.hashAll(photoPaths),
+    Object.hashAll(tags),
   );
 
   @override

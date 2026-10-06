@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../domain/current_then_changes.dart';
 import '../domain/entry.dart';
+import '../domain/entry_tag.dart';
 import '../domain/entry_repository.dart';
 import '../domain/geo_point.dart';
 import 'versioned_json_list.dart';
@@ -12,7 +13,9 @@ import 'versioned_json_list.dart';
 /// Format version 2: `{"version": 2, "entries": [{"id", "tripId", "time"
 /// (ISO-8601 UTC), "utcOffsetMinutes", "note", "placeName", "location":
 /// {"latitude", "longitude"} | null, "photoPaths": [...]}]}`.
-/// Version 1 is the same without `photoPaths` and is still read.
+/// Version 1 is the same without `photoPaths` and is still read. The
+/// optional `"tags": ["food", …]` came later within version 2; unknown tag
+/// names are skipped.
 class JsonFileEntryRepository implements EntryRepository {
   JsonFileEntryRepository(File file)
     : _store = VersionedJsonList(
@@ -88,6 +91,7 @@ Map<String, Object?> _entryToJson(Entry entry) => {
     null => null,
   },
   'photoPaths': entry.photoPaths,
+  if (entry.tags.isNotEmpty) 'tags': [for (final tag in entry.tags) tag.name],
 };
 
 Entry _entryFromJson(Map<String, dynamic> json) => Entry(
@@ -105,4 +109,8 @@ Entry _entryFromJson(Map<String, dynamic> json) => Entry(
     _ => null,
   },
   photoPaths: [...?(json['photoPaths'] as List<dynamic>?)?.cast<String>()],
+  tags: {
+    for (final name in (json['tags'] as List<dynamic>?) ?? const [])
+      ?EntryTag.values.asNameMap()[name],
+  },
 );
