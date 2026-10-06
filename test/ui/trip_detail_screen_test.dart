@@ -17,9 +17,9 @@ import 'package:trailtale/ui/widgets/trip_cover.dart';
 import '../support/fake_entry_repository.dart';
 import '../support/fake_photo_library.dart';
 import '../support/fake_trip_repository.dart';
+import '../support/fake_voice_player.dart';
 import '../support/placeholder_trip_map.dart';
 import '../support/pump_app.dart';
-import '../support/fake_voice_player.dart';
 import '../support/test_services.dart';
 
 void main() {

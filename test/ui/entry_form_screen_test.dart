@@ -1377,9 +1377,7 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('plays the voice note; tapping again stops it', (
-      tester,
-    ) async {
+    testWidgets('plays the voice note; tapping again stops it', (tester) async {
       final player = FakeVoicePlayer();
       await openTrip(tester, entries: [spoken], voicePlayer: player);
       await tester.tap(find.text('Pastéis de nata'));
