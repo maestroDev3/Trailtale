@@ -431,9 +431,13 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
+        // Not lazy: the form is short, and every field (and its validator)
+        // stays built while scrolled out of view.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             _PhotoSection(
               files: [
                 for (final path in _photos)
@@ -583,6 +587,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
             const SizedBox(height: 24),
             FilledButton(onPressed: _save, child: Text(l10n.save)),
           ],
+          ),
         ),
       ),
     );
