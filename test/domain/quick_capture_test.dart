@@ -33,12 +33,10 @@ void main() {
         iceland,
       ], today: today);
 
-      expect([for (final trip in (target as ChooseTrip).trips) trip.id], [
-        'porto',
-        'lisbon',
-        'iceland',
-        'montenegro',
-      ]);
+      expect(
+        [for (final trip in (target as ChooseTrip).trips) trip.id],
+        ['porto', 'lisbon', 'iceland', 'montenegro'],
+      );
     });
 
     test('lets the traveler choose among all trips without a running one', () {
@@ -47,10 +45,10 @@ void main() {
         iceland,
       ], today: DateTime(2026, 12, 24));
 
-      expect([for (final trip in (target as ChooseTrip).trips) trip.id], [
-        'iceland',
-        'montenegro',
-      ]);
+      expect(
+        [for (final trip in (target as ChooseTrip).trips) trip.id],
+        ['iceland', 'montenegro'],
+      );
     });
 
     test('has no target without trips', () {
