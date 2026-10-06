@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../domain/entry.dart';
+import '../domain/entry_tag.dart';
 import '../domain/position_service.dart';
 import '../domain/quick_capture.dart';
 import '../domain/trip.dart';
@@ -14,6 +15,7 @@ import 'entry_form_screen.dart';
 import 'trip_form_screen.dart';
 import 'widgets/capture_widgets.dart';
 import 'widgets/position_feedback.dart';
+import 'widgets/tag_chips.dart';
 
 /// Saves where the traveler is right now – opened by the home screen widget
 /// “I'm here”. With one running trip it saves without a tap; otherwise it
@@ -109,6 +111,13 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
     }
   }
 
+  /// Saves the entry with [tags] right away – one tap describes the moment.
+  Future<void> _retag(Trip trip, Entry entry, Set<EntryTag> tags) async {
+    final tagged = entry.copyWith(tags: tags);
+    setState(() => _stage = _Saved(trip, tagged));
+    await widget.services.entryRepository.saveEntry(tagged);
+  }
+
   Future<void> _createTrip() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -165,6 +174,7 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
           _Saved(:final trip, :final entry) => _Confirmation(
             trip: trip,
             entry: entry,
+            onTagsChanged: (tags) => _retag(trip, entry, tags),
             onAddNote: () => _openEntry(trip, entry, focusNote: true),
             onAddPhoto: () => _openEntry(trip, entry, addPhotos: true),
             onDone: () => Navigator.of(context).pop(),
@@ -223,6 +233,7 @@ class _Confirmation extends StatelessWidget {
   const _Confirmation({
     required this.trip,
     required this.entry,
+    required this.onTagsChanged,
     required this.onAddNote,
     required this.onAddPhoto,
     required this.onDone,
@@ -230,6 +241,7 @@ class _Confirmation extends StatelessWidget {
 
   final Trip trip;
   final Entry entry;
+  final ValueChanged<Set<EntryTag>> onTagsChanged;
   final VoidCallback onAddNote;
   final VoidCallback onAddPhoto;
   final VoidCallback onDone;
@@ -273,7 +285,13 @@ class _Confirmation extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            TagChips(
+              selected: entry.tags,
+              onChanged: onTagsChanged,
+              alignment: WrapAlignment.center,
+            ),
+            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
