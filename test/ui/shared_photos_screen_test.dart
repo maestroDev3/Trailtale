@@ -108,14 +108,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(library.sources, shared);
-      expect([for (final entry in entries.entries) entry.photoPaths], [
-        ['photos/imported1.jpg', 'photos/imported2.jpg'],
-        ['photos/imported3.jpg'],
-      ]);
-      expect([for (final entry in entries.entries) entry.placeName], [
-        'Kotor',
-        null,
-      ]);
+      expect(
+        [for (final entry in entries.entries) entry.photoPaths],
+        [
+          ['photos/imported1.jpg', 'photos/imported2.jpg'],
+          ['photos/imported3.jpg'],
+        ],
+      );
+      expect(
+        [for (final entry in entries.entries) entry.placeName],
+        ['Kotor', null],
+      );
       expect({for (final entry in entries.entries) entry.tripId}, {'me'});
     });
 

@@ -7,12 +7,13 @@ import '../domain/entry.dart';
 import '../domain/position_service.dart';
 import '../domain/quick_capture.dart';
 import '../domain/trip.dart';
+import '../domain/trip_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'app_services.dart';
 import 'entry_form_screen.dart';
 import 'trip_form_screen.dart';
+import 'widgets/capture_widgets.dart';
 import 'widgets/position_feedback.dart';
-import 'widgets/trip_dates.dart';
 
 /// Saves where the traveler is right now – opened by the home screen widget
 /// “I'm here”. With one running trip it saves without a tap; otherwise it
@@ -74,7 +75,7 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
 
   Future<void> _start() async {
     final services = widget.services;
-    final allTrips = await _currentTrips();
+    final allTrips = await readTripsOnce(services.tripRepository);
     if (!mounted) return;
     switch (quickCaptureTarget(allTrips, today: services.clock())) {
       case CaptureInto(:final trip):
@@ -84,18 +85,6 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
       case NoTrip():
         setState(() => _stage = const _NoTrip());
     }
-  }
-
-  /// The stored trips once (the first value of the trips stream).
-  Future<List<Trip>> _currentTrips() {
-    final completer = Completer<List<Trip>>();
-    late final StreamSubscription<List<Trip>> subscription;
-    subscription = widget.services.tripRepository.watchTrips().listen((trips) {
-      if (completer.isCompleted) return;
-      completer.complete(trips);
-      unawaited(subscription.cancel());
-    }, onError: completer.completeError);
-    return completer.future;
   }
 
   Future<void> _capture(Trip trip) async {
@@ -158,11 +147,11 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
         child: switch (_stage) {
           _Loading() => const SizedBox.shrink(),
           _Locating() => _LocatingView(label: l10n.locatingPosition),
-          _Choosing(:final trips) => _TripChoice(
+          _Choosing(:final trips) => TripChoiceList(
             trips: trips,
             onChosen: _capture,
           ),
-          _NoTrip() => _Message(
+          _NoTrip() => CaptureMessage(
             icon: Icons.luggage_outlined,
             text: l10n.quickCaptureNoTrip,
             actions: [
@@ -180,7 +169,7 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
             onAddPhoto: () => _openEntry(trip, entry, addPhotos: true),
             onDone: () => Navigator.of(context).pop(),
           ),
-          _NoPosition(:final trip, :final result) => _Message(
+          _NoPosition(:final trip, :final result) => CaptureMessage(
             icon: Icons.location_off_outlined,
             text: positionProblemText(l10n, result) ?? '',
             actions: [
@@ -225,80 +214,6 @@ class _LocatingView extends StatelessWidget {
           const SizedBox(height: 16),
           Text(label, style: Theme.of(context).textTheme.titleMedium),
         ],
-      ),
-    );
-  }
-}
-
-class _TripChoice extends StatelessWidget {
-  const _TripChoice({required this.trips, required this.onChosen});
-
-  final List<Trip> trips;
-  final ValueChanged<Trip> onChosen;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return ListView.builder(
-      itemCount: trips.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              AppLocalizations.of(context).quickCaptureChooseTrip,
-              style: theme.textTheme.titleLarge,
-            ),
-          );
-        }
-        final trip = trips[index - 1];
-        return ListTile(
-          leading: const Icon(Icons.map_outlined),
-          title: Text(trip.title),
-          subtitle: Text(dateRangeText(context, trip.startDate, trip.endDate)),
-          onTap: () => onChosen(trip),
-        );
-      },
-    );
-  }
-}
-
-class _Message extends StatelessWidget {
-  const _Message({
-    required this.icon,
-    required this.text,
-    required this.actions,
-  });
-
-  final IconData icon;
-  final String text;
-  final List<Widget> actions;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48, color: theme.colorScheme.secondary),
-            const SizedBox(height: 16),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: 12,
-              children: actions,
-            ),
-          ],
-        ),
       ),
     );
   }
