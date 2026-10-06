@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:trailtale/domain/entry_tag.dart';
 import 'package:trailtale/domain/geo_point.dart';
 import 'package:trailtale/domain/place.dart';
 import 'package:trailtale/domain/position_service.dart';
@@ -188,6 +189,29 @@ void main() {
       final form = tester.widget<EntryFormScreen>(find.byType(EntryFormScreen));
       expect(form.entry, isNull);
       expect(form.trip.id, 'me');
+    });
+  });
+
+  group('QuickCaptureScreen tags', () {
+    testWidgets('shows the six tags on the confirmation', (tester) async {
+      await open(tester);
+
+      expect(find.byType(FilterChip), findsNWidgets(6));
+    });
+
+    testWidgets('tags the saved entry with one tap; again removes it', (
+      tester,
+    ) async {
+      final (:entries, picker: _) = await open(tester);
+
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(entries.entries.single.tags, {EntryTag.food});
+      expect(entries.entries.single.placeName, 'Kotor');
+
+      await tester.tap(find.text('Food'));
+      await tester.pumpAndSettle();
+      expect(entries.entries.single.tags, isEmpty);
     });
   });
 }
