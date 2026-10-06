@@ -41,9 +41,7 @@ class _TrailtaleAppState extends State<TrailtaleApp> {
     final navigator = _navigatorKey.currentState;
     if (navigator == null) {
       // The request came before the first frame; open it right after.
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _openQuickCapture(),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openQuickCapture());
       return;
     }
     unawaited(
