@@ -266,7 +266,9 @@ void main() {
 
     Future<void> tapAddPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      // Centred, so the app bar never covers it.
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
       await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
@@ -395,7 +397,9 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      // Centred, so the app bar never covers it.
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
       await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
@@ -555,7 +559,9 @@ void main() {
 
     Future<void> addPhotos(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      // Centred, so the app bar never covers it.
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
       await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
@@ -1123,7 +1129,9 @@ void main() {
 
     Future<void> addPhoto(WidgetTester tester) async {
       final button = find.widgetWithText(OutlinedButton, 'Add photos');
-      // Centred, so the app bar never covers it.
+      // Let a focused field finish scrolling itself into view first; then
+      // centre the button, so the app bar never covers it.
+      await tester.pumpAndSettle();
       await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(button);
