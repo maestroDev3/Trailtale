@@ -40,10 +40,7 @@ QuickCaptureTarget quickCaptureTarget(
   bool runs(Trip trip) => tripProgress(trip, today: today) is RunningTrip;
   final running = newestFirst.where(runs).toList();
   if (running case [final trip]) return CaptureInto(trip);
-  return ChooseTrip([
-    ...running,
-    ...newestFirst.where((trip) => !runs(trip)),
-  ]);
+  return ChooseTrip([...running, ...newestFirst.where((trip) => !runs(trip))]);
 }
 
 /// The entry a quick capture saves.
