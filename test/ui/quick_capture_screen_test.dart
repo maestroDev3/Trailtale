@@ -41,6 +41,9 @@ void main() {
     endDate: DateTime(2026, 2, 9),
   );
 
+  // intl separates time and AM with a narrow no-break space.
+  final savedAt = RegExp(r'^Kotor · 10:30\sAM$');
+
   Future<({FakeEntryRepository entries, FakePhotoPicker picker})> open(
     WidgetTester tester, {
     List<Trip>? trips,
@@ -97,7 +100,7 @@ void main() {
     ) async {
       await open(tester);
 
-      expect(find.text('Kotor · 10:30 AM'), findsOneWidget);
+      expect(find.textContaining(savedAt), findsOneWidget);
 
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
@@ -140,7 +143,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(entries.entries.single.tripId, 'is');
-      expect(find.text('Kotor · 10:30 AM'), findsOneWidget);
+      expect(find.textContaining(savedAt), findsOneWidget);
     });
 
     testWidgets('offers to create a trip when there is none', (tester) async {
