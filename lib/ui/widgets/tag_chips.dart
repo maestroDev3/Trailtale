@@ -25,15 +25,22 @@ String tagLabel(AppLocalizations l10n, EntryTag tag) => switch (tag) {
 
 /// One chip per tag; a tap sets or clears it.
 class TagChips extends StatelessWidget {
-  const TagChips({super.key, required this.selected, required this.onChanged});
+  const TagChips({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+    this.alignment = WrapAlignment.start,
+  });
 
   final Set<EntryTag> selected;
+  final WrapAlignment alignment;
   final ValueChanged<Set<EntryTag>> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Wrap(
+      alignment: alignment,
       spacing: 8,
       runSpacing: 8,
       children: [
