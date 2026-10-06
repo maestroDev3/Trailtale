@@ -781,5 +781,66 @@
         "type": "String"
       }
     }
+  },
+  "quickCaptureTitle": "I'm here",
+  "@quickCaptureTitle": {
+    "description": "Title of the quick capture screen opened by the home screen widget."
+  },
+  "quickCaptureChooseTrip": "Which trip is this for?",
+  "@quickCaptureChooseTrip": {
+    "description": "Question on the quick capture screen when no single trip is running."
+  },
+  "quickCaptureNoTrip": "There is no trip yet. Create one to save where you are.",
+  "@quickCaptureNoTrip": {
+    "description": "Quick capture screen without any trip."
+  },
+  "quickCaptureSaved": "Saved",
+  "@quickCaptureSaved": {
+    "description": "Headline after the quick capture saved an entry."
+  },
+  "quickCaptureYourPosition": "Your position",
+  "@quickCaptureYourPosition": {
+    "description": "Shown instead of a place name when no known place is near the saved position."
+  },
+  "quickCaptureAddNote": "Add note",
+  "@quickCaptureAddNote": {
+    "description": "Opens the entry the quick capture just saved, to write a note."
+  },
+  "quickCaptureAddPhoto": "Add photo",
+  "@quickCaptureAddPhoto": {
+    "description": "Opens the entry the quick capture just saved, with the photo picker."
+  },
+  "quickCaptureDone": "Done",
+  "@quickCaptureDone": {
+    "description": "Closes the quick capture screen."
+  },
+  "quickCaptureRetry": "Try again",
+  "@quickCaptureRetry": {
+    "description": "Asks for the position again on the quick capture screen."
+  },
+  "quickCaptureWriteEntry": "Write entry",
+  "@quickCaptureWriteEntry": {
+    "description": "Opens an empty entry form when the quick capture found no position."
+  },
+  "quickCaptureSavedAt": "{place} · {time}",
+  "@quickCaptureSavedAt": {
+    "description": "Place and time of the entry the quick capture saved, e.g. 'Kotor · 9:41 AM'.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "quickCaptureInTrip": "in {trip}",
+  "@quickCaptureInTrip": {
+    "description": "Names the trip the quick capture saved into, e.g. 'in Montenegro'.",
+    "placeholders": {
+      "trip": {
+        "type": "String"
+      }
+    }
   }
 }
