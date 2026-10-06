@@ -74,6 +74,8 @@ void main() {
     );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
+    expect(find.byType(QuickCaptureScreen), findsOneWidget);
+    expect(find.text("I'm here"), findsOneWidget);
     return (entries: entries, picker: picker);
   }
 

@@ -74,7 +74,7 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
 
   Future<void> _start() async {
     final services = widget.services;
-    final allTrips = await services.tripRepository.watchTrips().first;
+    final allTrips = await _currentTrips();
     if (!mounted) return;
     switch (quickCaptureTarget(allTrips, today: services.clock())) {
       case CaptureInto(:final trip):
@@ -84,6 +84,18 @@ class _QuickCaptureScreenState extends State<QuickCaptureScreen> {
       case NoTrip():
         setState(() => _stage = const _NoTrip());
     }
+  }
+
+  /// The stored trips once (the first value of the trips stream).
+  Future<List<Trip>> _currentTrips() {
+    final completer = Completer<List<Trip>>();
+    late final StreamSubscription<List<Trip>> subscription;
+    subscription = widget.services.tripRepository.watchTrips().listen((trips) {
+      if (completer.isCompleted) return;
+      completer.complete(trips);
+      unawaited(subscription.cancel());
+    }, onError: completer.completeError);
+    return completer.future;
   }
 
   Future<void> _capture(Trip trip) async {
