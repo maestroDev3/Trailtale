@@ -438,9 +438,7 @@ class _EntryFormScreenState extends State<EntryFormScreen> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context).voiceNoteDenied),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context).voiceNoteDenied)),
         );
       return;
     }
