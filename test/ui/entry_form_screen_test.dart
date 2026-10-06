@@ -25,6 +25,7 @@ import '../support/fake_position_service.dart';
 import '../support/fake_trip_repository.dart';
 import '../support/placeholder_picker_map.dart';
 import '../support/pump_app.dart';
+import '../support/fake_voice_recorder.dart';
 import '../support/test_services.dart';
 
 void main() {
@@ -53,6 +54,7 @@ void main() {
     FakePlaceDirectory? placeDirectory,
     FakePositionService? positionService,
     PickerMapBuilder? pickerMap,
+    FakeVoiceRecorder? voiceRecorder,
   }) async {
     final entryRepository = FakeEntryRepository(entries);
     await pumpApp(
@@ -68,6 +70,7 @@ void main() {
           placeDirectory: placeDirectory,
           positionService: positionService,
           pickerMap: pickerMap,
+          voiceRecorder: voiceRecorder,
         ),
       ),
     );
@@ -1251,6 +1254,110 @@ void main() {
 
       expect(entries.entries.single.tags, {EntryTag.beach});
       expect(entries.entries.single.note, isEmpty);
+    });
+  });
+
+  group('EntryFormScreen voice note', () {
+    final recordButton = find.text('Hold to record');
+
+    Future<void> record(WidgetTester tester) async {
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(
+        tester.element(recordButton),
+        alignment: 0.5,
+      );
+      await tester.pumpAndSettle();
+      await tester.longPress(recordButton);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> openBreakfast(WidgetTester tester) async {
+      await tester.tap(find.text('Pastéis de nata'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('records while held and shows the length', (tester) async {
+      final recorder = FakeVoiceRecorder();
+      await openTrip(tester, voiceRecorder: recorder);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await record(tester);
+
+      expect(recorder.started.single.path, endsWith('voice/id.m4a'));
+      expect(recorder.stopCount, 1);
+      expect(find.text('Voice note · 0:05'), findsOneWidget);
+    });
+
+    testWidgets('saves an entry with only a voice note', (tester) async {
+      final entries = await openTrip(tester);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await record(tester);
+      await save(tester);
+
+      final entry = entries.entries.single;
+      expect(entry.voiceNotePath, 'voice/id.m4a');
+      expect(entry.voiceNoteLength, const Duration(seconds: 5));
+    });
+
+    testWidgets('deletes the voice note and its file when saving', (
+      tester,
+    ) async {
+      final library = FakePhotoLibrary();
+      final entries = await openTrip(
+        tester,
+        photoLibrary: library,
+        entries: [
+          breakfast.copyWith(
+            voiceNotePath: 'voice/old.m4a',
+            voiceNoteLength: const Duration(seconds: 7),
+          ),
+        ],
+      );
+      await openBreakfast(tester);
+      expect(find.text('Voice note · 0:07'), findsOneWidget);
+
+      await tester.ensureVisible(find.byTooltip('Delete voice note'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Delete voice note'));
+      await tester.pumpAndSettle();
+      await save(tester);
+
+      expect(entries.entries.single.voiceNotePath, isNull);
+      expect(library.deleted, contains('voice/old.m4a'));
+    });
+
+    testWidgets('says so and records nothing without microphone access', (
+      tester,
+    ) async {
+      final recorder = FakeVoiceRecorder(allowed: false);
+      await openTrip(tester, voiceRecorder: recorder);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await record(tester);
+
+      expect(find.text('Microphone access was not allowed'), findsOneWidget);
+      expect(recorder.started, isEmpty);
+      expect(recorder.stopCount, 0);
+      expect(find.textContaining('Voice note ·'), findsNothing);
+    });
+
+    testWidgets('deletes a new recording when leaving without saving', (
+      tester,
+    ) async {
+      final library = FakePhotoLibrary();
+      await openTrip(tester, photoLibrary: library);
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'New entry'));
+      await tester.pumpAndSettle();
+
+      await record(tester);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(library.deleted, contains('voice/id.m4a'));
     });
   });
 }
