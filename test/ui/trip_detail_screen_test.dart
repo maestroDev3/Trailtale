@@ -167,10 +167,10 @@ void main() {
         of: find.byType(TagIcons),
         matching: find.byType(Icon),
       );
-      expect([for (final icon in tester.widgetList<Icon>(icons)) icon.icon], [
-        Icons.restaurant_outlined,
-        Icons.landscape_outlined,
-      ]);
+      expect(
+        [for (final icon in tester.widgetList<Icon>(icons)) icon.icon],
+        [Icons.restaurant_outlined, Icons.landscape_outlined],
+      );
     });
 
     testWidgets('are grouped under a header per trip day', (tester) async {
